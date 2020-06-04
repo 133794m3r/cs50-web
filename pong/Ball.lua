@@ -32,6 +32,10 @@ function Ball:update(dt)
 		self.dy = -self.dy
 		hit_wall=true
 	end
+	if self.y > VIRTUAL_HEIGHT - self.height then
+		self.y = self.y - self.height / 2
+		self.dy = -self.dy
+	end
 	return hit_wall
 	
 end

@@ -11,6 +11,8 @@ PADDLE_SPEED=200
 SCORE_1_X=VIRTUAL_WIDTH/2-50
 SCORE_2_X=VIRTUAL_WIDTH/2+30
 SCORE_Y=VIRTUAL_HEIGHT/3
+AI_TICK=0.05
+AI_TICK_DELAY=AI_TICK
 function reset_state()
 	player_1_score=0
 	player_2_score=0
@@ -38,10 +40,7 @@ function love.load()
 	}	
 	reset_state()
 	
-	MAX_TICKS = love.timer.getFPS()
-	AI_TICKS = math.floor(MAX_TICKS / 5)
-	ai_player = Ai(1,200)
-	current_tick = 0
+	ai_player = Ai(1,400)
 	current_ai_tick = 0
 	state="init"
 end
@@ -50,7 +49,7 @@ function love.resize(w, h)
 	push:resize(w, h)
 end
 function paddle_ai()
-	move_tick
+	--
 end
 function love.keypressed(key)
 	--AI game mode.
@@ -135,10 +134,11 @@ function love.update(dt)
 		if player_1_score == 2 or player_2_score == 2 then
 			state="done"
 		end
-		current_ai_tick = current_ai_tick + 1
-		if current_tick >= AI_TICKS then
-			current_tick = 0
-			ai_player:update()
+		current_ai_tick = current_ai_tick + dt
+		if current_ai_tick >= AI_TICK_DELAY then
+			AI_TICK_DELAY=0.1 + (math.random(5)/100)
+			ai_player:update(dt)
+			current_ai_tick = 0			
 		end
 
 	end
@@ -163,6 +163,8 @@ function love.draw()
 			love.graphics.printf("Press enter to serve!",0,20,VIRTUAL_WIDTH,'center')
 		elseif state == "play" then
 			love.graphics.printf("Let's play Pong!", 0, 20, VIRTUAL_WIDTH, 'center')
+			love.graphics.setFont(small_font)		
+			love.graphics.print("Current Timer: " .. tostring(current_ai_tick),VIRTUAL_WIDTH - 200, 10)			
 		elseif state == "done" then
 			winner = player_1_score > player_2_score and 1 or 2
 			love.graphics.printf("Player " .. tostring(winner) .. " won!",0,10,VIRTUAL_WIDTH,'center')
@@ -175,6 +177,7 @@ function love.draw()
 		player2:draw()
 		--the ball
 		ball:draw()
+		display_score()
 		love.graphics.setFont(small_font)
 		love.graphics.print("B.dx",0,VIRTUAL_HEIGHT-20)
 		love.graphics.print(tostring(math.floor(ball.dx)),30,VIRTUAL_HEIGHT-20)

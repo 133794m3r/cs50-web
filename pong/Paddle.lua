@@ -28,16 +28,25 @@ function Ai:init(level, move_speed)
 	self.level = level
 	self.move_speed = move_speed
 	self.cur_bonus = 0
+	self.mid = 10
 end
 
 
-function Ai:update()
-	local move_check = math.random(10);
-	if move_check <= (self.level+self.cur_bonus) then
-		if ball.y > player2.y then
-			player2.dy = self.move_speed
-			player2:update(1)
-	else
-		self.cur_bonus = self.cur_bonus + 1
+function Ai:update(dt)
+	dt=dt*1.5
+	if math.random(2) == 1 then
+		return false;
 	end
+	if ball.y > player2.y then
+		player2.y = ball.y
+	elseif ball.y < player2.y then
+		player2.y = ball.y
+	end
+
+	if player2.y < 0 then
+		player2.y = 0
+	else
+		player2.y = math.min(VIRTUAL_HEIGHT - player2.height,player2.y)
+	end
+	player2.dy = 0
 end
