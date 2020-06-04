@@ -163,8 +163,11 @@ function love.draw()
 			love.graphics.printf("Press enter to serve!",0,20,VIRTUAL_WIDTH,'center')
 		elseif state == "play" then
 			love.graphics.printf("Let's play Pong!", 0, 20, VIRTUAL_WIDTH, 'center')
+			--this was a timer so that I could verify thatmy ticks worked.
+			--[[
 			love.graphics.setFont(small_font)		
 			love.graphics.print("Current Timer: " .. tostring(current_ai_tick),VIRTUAL_WIDTH - 200, 10)			
+			]]
 		elseif state == "done" then
 			winner = player_1_score > player_2_score and 1 or 2
 			love.graphics.printf("Player " .. tostring(winner) .. " won!",0,10,VIRTUAL_WIDTH,'center')
@@ -178,11 +181,14 @@ function love.draw()
 		--the ball
 		ball:draw()
 		display_score()
+		--some debug information was shown here.
+		--[[
 		love.graphics.setFont(small_font)
 		love.graphics.print("B.dx",0,VIRTUAL_HEIGHT-20)
 		love.graphics.print(tostring(math.floor(ball.dx)),30,VIRTUAL_HEIGHT-20)
 		love.graphics.print("B.dy",50,VIRTUAL_HEIGHT-20)
 		love.graphics.print(tostring(math.floor(ball.dy)),70,VIRTUAL_HEIGHT-20)
+		]]
 		fps_counter()
 	push:apply("end")
 end
