@@ -1,0 +1,45 @@
+@charset "UTF-8";
+.col-lg, .col-sm3 {
+	font-size: 1.1em;
+}
+.col-lg > ul > li, .col-sm3 > ul > li {
+	list-style-type: none;
+}
+.col-lg > ul > li::before:not(.list-group), .col-sm3 > ul > li::before:not(.list-group) {
+	content: "✷";
+}
+
+.spoiler_text {
+	display: none;
+}
+
+.spoiler, .spoiler_text {
+	background-color: black;
+	color: black;
+}
+
+.spoiler:hover .spoiler_text {
+	font-size: 1.1em;
+	font-style: italic;
+}
+
+.spoiler::before {
+	content: "Highlight to show message";
+	color: white;
+	background-color: black;
+}
+.spoiler:hover::before {
+	content: "";
+}
+.spoiler:hover #spoiler1 {
+	color: white;
+	background-color: black;
+	width: auto;
+}
+.spoiler:hover #spoiler2 {
+	color: red;
+	width: auto;
+}
+.spoiler:hover .spoiler_text {
+	display: block;
+}

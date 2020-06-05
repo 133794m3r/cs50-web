@@ -1,0 +1,55 @@
+$thick_astrix:"\2737";
+.col-lg,.col-sm3 {
+font-size: 1.1em;
+	>ul{
+	  >li{
+		  list-style-type:none;
+	  }
+	  >li::before:not(.list-group){
+		content: $thick_astrix;
+	  }
+	}
+}
+%hidden {
+  display:none;
+}
+%spoiler_base{
+  background-color:black;
+  color:black;
+}
+%spoiler_hover {
+  font-size:1.1em;
+  font-style:italic;
+}
+.spoiler_text{
+  @extend %spoiler_base;
+  @extend %hidden;
+}
+
+.spoiler {
+  @extend %spoiler_base;
+  &::before {
+	content: "Highlight to show message";
+	color: white;
+	background-color:black;
+  }
+
+  &:hover {
+	&::before {
+	  content: "";
+	}
+	#spoiler1{
+	  color:white;
+	  background-color:black;
+	  width:auto;
+	}
+	#spoiler2{
+	  color:red;
+	  width:auto;
+	}
+	.spoiler_text {
+	  @extend %spoiler_hover;
+	  display: block;
+	}
+  }
+}
