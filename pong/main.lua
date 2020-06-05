@@ -11,6 +11,9 @@ PADDLE_SPEED=200
 SCORE_1_X=VIRTUAL_WIDTH/2-50
 SCORE_2_X=VIRTUAL_WIDTH/2+30
 SCORE_Y=VIRTUAL_HEIGHT/3
+--If it was good enough for Atari it's good enough for this. But one frame less to add variance.
+AI_TICK_DELAY=0.116
+CURRENT_AI_TICK_DELAY=AI_TICK_DELAY
 function reset_state()
 	player_1_score=0
 	player_2_score=0
@@ -37,11 +40,9 @@ function love.load()
 		['wall_hit'] = love.audio.newSource('sounds/wall_hit.wav', 'static')
 	}	
 	reset_state()
-	
-	MAX_TICKS = love.timer.getFPS()
-	AI_TICKS = math.floor(MAX_TICKS / 5)
-	ai_player = Ai(1,200)
-	current_tick = 0
+	min_dt = 1/60
+	next_time = love.timer.getTime()
+	ai_player = Ai(1,400)
 	current_ai_tick = 0
 	state="init"
 end
@@ -50,7 +51,7 @@ function love.resize(w, h)
 	push:resize(w, h)
 end
 function paddle_ai()
-	move_tick
+	--
 end
 function love.keypressed(key)
 	--AI game mode.
@@ -80,6 +81,7 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
+	next_time = next_time + min_dt
 	if love.keyboard.isDown("w") then
 		player1.dy= -PADDLE_SPEED
 	elseif love.keyboard.isDown("s") then
@@ -106,13 +108,14 @@ function love.update(dt)
 			ball.dx = math.random(100,150) * -1
 		end
 	elseif state == "play" then
+
 		if ball:collides(player1) then
-			ball.dx = -ball.dx * 1.03
+			ball.dx = -ball.dx * 1.035
 			ball.x = player1.x + 5
 			sounds['paddle_hit']:play()			
 		elseif ball:collides(player2) then
-			ball.dx = -ball.dx * 1.03
-			ball.x = player2.x - 4		
+			ball.dx = -ball.dx * 1.035
+			ball.x = player2.x - 5	
 			sounds['paddle_hit']:play()			
 		end	
 		if ball.x < 0 then
@@ -135,10 +138,13 @@ function love.update(dt)
 		if player_1_score == 2 or player_2_score == 2 then
 			state="done"
 		end
-		current_ai_tick = current_ai_tick + 1
-		if current_tick >= AI_TICKS then
-			current_tick = 0
-			ai_player:update()
+		current_ai_tick = current_ai_tick + dt
+		--see if the AI can move.
+		if current_ai_tick >= CURRENT_AI_TICK_DELAY then
+			ai_player:update(dt)
+			--also update the tick delay to a random amount.
+			CURRENT_AI_TICK_DELAY = AI_TICK_DELAY + (math.random(0,2)/60)
+			current_ai_tick = 0			
 		end
 
 	end
@@ -175,12 +181,29 @@ function love.draw()
 		player2:draw()
 		--the ball
 		ball:draw()
+		--show score
+		display_score()
+		love.graphics.setFont(small_font)
+		--debug for the AI
+		--love.graphics.print("Player 2 y " .. player2.y ,150,VIRTUAL_HEIGHT-20)			
+		--some debug information was shown here.
+		--seeing where the ball is.
+		--[[
 		love.graphics.setFont(small_font)
 		love.graphics.print("B.dx",0,VIRTUAL_HEIGHT-20)
 		love.graphics.print(tostring(math.floor(ball.dx)),30,VIRTUAL_HEIGHT-20)
 		love.graphics.print("B.dy",50,VIRTUAL_HEIGHT-20)
 		love.graphics.print(tostring(math.floor(ball.dy)),70,VIRTUAL_HEIGHT-20)
+		]]
+		--show fps.
 		fps_counter()
+		--make sure we're at 60fps max.
+		local cur_time = love.timer.getTime()
+		if next_time <= cur_time then
+			next_time = cur_time
+			return
+		end
+		love.timer.sleep(next_time - cur_time)
 	push:apply("end")
 end
 function display_score()

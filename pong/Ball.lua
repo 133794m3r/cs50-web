@@ -32,6 +32,10 @@ function Ball:update(dt)
 		self.dy = -self.dy
 		hit_wall=true
 	end
+	if self.y > VIRTUAL_HEIGHT - self.height then
+		self.y = self.y - self.height / 2
+		self.dy = -self.dy
+	end
 	return hit_wall
 	
 end
@@ -41,7 +45,7 @@ function Ball:collides(paddle)
 	elseif self.y > paddle.y + paddle.height or paddle.y > self.y + self.height then
 		return false
 	else
-		ball.dy = math.floor(ball.dy * math.random(0.9,1.1))
+		ball.dy = math.floor(-ball.dy * math.random(0.9,1.1))
 		return true
 	end
 end
