@@ -185,7 +185,7 @@ function love.draw()
 		display_score()
 		love.graphics.setFont(small_font)
 		--debug for the AI
-		love.graphics.print("Player 2 y " .. player2.y ,150,VIRTUAL_HEIGHT-20)			
+		--love.graphics.print("Player 2 y " .. player2.y ,150,VIRTUAL_HEIGHT-20)			
 		--some debug information was shown here.
 		--seeing where the ball is.
 		--[[
