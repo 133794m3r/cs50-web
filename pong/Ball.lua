@@ -45,7 +45,7 @@ function Ball:collides(paddle)
 	elseif self.y > paddle.y + paddle.height or paddle.y > self.y + self.height then
 		return false
 	else
-		ball.dy = math.floor(ball.dy * math.random(0.9,1.1))
+		ball.dy = math.floor(-ball.dy * math.random(0.9,1.1))
 		return true
 	end
 end
