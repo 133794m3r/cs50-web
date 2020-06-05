@@ -33,20 +33,49 @@ end
 
 
 function Ai:update(dt)
-	dt=dt*1.5
-	if math.random(2) == 1 then
-		return false;
-	end
-	if ball.y > player2.y then
-		player2.y = ball.y
-	elseif ball.y < player2.y then
-		player2.y = ball.y
+	acceleration=1
+	if ball.y < player2.y then
+		difference=(player2.y - ball.y) / VIRTUAL_HEIGHT
+		if difference <= 9 then
+			acceleration=1.125
+		elseif difference > 10 then
+			acceleration = 1.25
+		elseif difference > 20 then
+			acceleration = 1.65
+		elseif difference > 40 then
+			acceleration=1.85
+		elseif difference > 60 then
+			acceleration=3.9
+		elseif difference > 75 then
+			acceleration=7
+		elseif difference > 85 then
+			acceleration=12
+		end
+		player2.y = math.max(0,player2.y+(-self.move_speed*(dt*acceleration)))
+	elseif ball.y > (player2.y+player2.height) then
+		difference=(ball.y - player2.y) / VIRTUAL_HEIGHT
+		if difference <= 9 then
+			acceleration=1.125
+		elseif difference > 10 then
+			acceleration = 1.24
+		elseif difference > 20 then
+			acceleration = 1.65
+		elseif difference > 40 then
+			acceleration=1.85
+		elseif difference > 60 then
+			acceleration=3.9
+		elseif difference > 75 then
+			acceleration=7
+		elseif difference > 85 then
+			acceleration=12
+		end
+		player2.y = math.min(VIRTUAL_HEIGHT - player2.height, player2.y+(self.move_speed*(dt*acceleration)))
 	end
 
 	if player2.y < 0 then
 		player2.y = 0
-	else
-		player2.y = math.min(VIRTUAL_HEIGHT - player2.height,player2.y)
+	--else
+		--player2.y = math.min(VIRTUAL_HEIGHT - player2.height,player2.y)
 	end
-	player2.dy = 0
+
 end

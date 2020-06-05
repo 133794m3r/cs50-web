@@ -11,8 +11,9 @@ PADDLE_SPEED=200
 SCORE_1_X=VIRTUAL_WIDTH/2-50
 SCORE_2_X=VIRTUAL_WIDTH/2+30
 SCORE_Y=VIRTUAL_HEIGHT/3
-AI_TICK=0.05
-AI_TICK_DELAY=AI_TICK
+--If it was good enough for Atari it's good enough for this. But one frame less to add variance.
+AI_TICK_DELAY=0.116
+CURRENT_AI_TICK_DELAY=AI_TICK_DELAY
 function reset_state()
 	player_1_score=0
 	player_2_score=0
@@ -39,7 +40,8 @@ function love.load()
 		['wall_hit'] = love.audio.newSource('sounds/wall_hit.wav', 'static')
 	}	
 	reset_state()
-	
+	min_dt = 1/60
+	next_time = love.timer.getTime()
 	ai_player = Ai(1,400)
 	current_ai_tick = 0
 	state="init"
@@ -79,6 +81,7 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
+	next_time = next_time + min_dt
 	if love.keyboard.isDown("w") then
 		player1.dy= -PADDLE_SPEED
 	elseif love.keyboard.isDown("s") then
@@ -105,13 +108,14 @@ function love.update(dt)
 			ball.dx = math.random(100,150) * -1
 		end
 	elseif state == "play" then
+
 		if ball:collides(player1) then
-			ball.dx = -ball.dx * 1.03
+			ball.dx = -ball.dx * 1.035
 			ball.x = player1.x + 5
 			sounds['paddle_hit']:play()			
 		elseif ball:collides(player2) then
-			ball.dx = -ball.dx * 1.03
-			ball.x = player2.x - 4		
+			ball.dx = -ball.dx * 1.035
+			ball.x = player2.x - 5	
 			sounds['paddle_hit']:play()			
 		end	
 		if ball.x < 0 then
@@ -135,9 +139,11 @@ function love.update(dt)
 			state="done"
 		end
 		current_ai_tick = current_ai_tick + dt
-		if current_ai_tick >= AI_TICK_DELAY then
-			AI_TICK_DELAY=0.1 + (math.random(5)/100)
+		--see if the AI can move.
+		if current_ai_tick >= CURRENT_AI_TICK_DELAY then
 			ai_player:update(dt)
+			--also update the tick delay to a random amount.
+			CURRENT_AI_TICK_DELAY = AI_TICK_DELAY + (math.random(0,2)/60)
 			current_ai_tick = 0			
 		end
 
@@ -163,8 +169,6 @@ function love.draw()
 			love.graphics.printf("Press enter to serve!",0,20,VIRTUAL_WIDTH,'center')
 		elseif state == "play" then
 			love.graphics.printf("Let's play Pong!", 0, 20, VIRTUAL_WIDTH, 'center')
-			love.graphics.setFont(small_font)		
-			love.graphics.print("Current Timer: " .. tostring(current_ai_tick),VIRTUAL_WIDTH - 200, 10)			
 		elseif state == "done" then
 			winner = player_1_score > player_2_score and 1 or 2
 			love.graphics.printf("Player " .. tostring(winner) .. " won!",0,10,VIRTUAL_WIDTH,'center')
@@ -177,13 +181,29 @@ function love.draw()
 		player2:draw()
 		--the ball
 		ball:draw()
+		--show score
 		display_score()
+		love.graphics.setFont(small_font)
+		--debug for the AI
+		--love.graphics.print("Player 2 y " .. player2.y ,150,VIRTUAL_HEIGHT-20)			
+		--some debug information was shown here.
+		--seeing where the ball is.
+		--[[
 		love.graphics.setFont(small_font)
 		love.graphics.print("B.dx",0,VIRTUAL_HEIGHT-20)
 		love.graphics.print(tostring(math.floor(ball.dx)),30,VIRTUAL_HEIGHT-20)
 		love.graphics.print("B.dy",50,VIRTUAL_HEIGHT-20)
 		love.graphics.print(tostring(math.floor(ball.dy)),70,VIRTUAL_HEIGHT-20)
+		]]
+		--show fps.
 		fps_counter()
+		--make sure we're at 60fps max.
+		local cur_time = love.timer.getTime()
+		if next_time <= cur_time then
+			next_time = cur_time
+			return
+		end
+		love.timer.sleep(next_time - cur_time)
 	push:apply("end")
 end
 function display_score()
