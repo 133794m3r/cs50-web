@@ -204,6 +204,7 @@ function love.draw()
 			return
 		end
 		love.timer.sleep(next_time - cur_time)
+
 	push:apply("end")
 end
 function display_score()
