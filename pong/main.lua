@@ -188,11 +188,13 @@ function love.draw()
 		love.graphics.print("Player 2 y " .. player2.y ,150,VIRTUAL_HEIGHT-20)			
 		--some debug information was shown here.
 		--seeing where the ball is.
+		--[[
 		love.graphics.setFont(small_font)
 		love.graphics.print("B.dx",0,VIRTUAL_HEIGHT-20)
 		love.graphics.print(tostring(math.floor(ball.dx)),30,VIRTUAL_HEIGHT-20)
 		love.graphics.print("B.dy",50,VIRTUAL_HEIGHT-20)
 		love.graphics.print(tostring(math.floor(ball.dy)),70,VIRTUAL_HEIGHT-20)
+		]]
 		--show fps.
 		fps_counter()
 		--make sure we're at 60fps max.
