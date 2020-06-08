@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block title %}
+    Books Test
+{% endblock %}
+{% block header %}
+   The book page
+{% endblock %}
+
+{% block body %}
+    <ol>
+    {% for book in books %}
+        <li>isbn:{{ book.isbn }} author:{{ book.author }} title:{{ book.title }} year:{{ book.published_year }}</li>
+    {% endfor %}
+    </ol>
+{% endblock %}{
