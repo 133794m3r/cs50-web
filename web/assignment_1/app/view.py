@@ -20,8 +20,10 @@ Session(app)
 
 @app.route('/')
 def index():
-	return render_template('login.html')
-	#return app.config['SQL_CREDENTIALS']
+	if session.get('username') is None:
+		return url_for('login')
+	else:
+		return render_template('index.html')
 
 @app.route('/api/<isbn>',methods=["GET","POST"])
 def get_isbn(isbn):
@@ -55,25 +57,37 @@ def test():
 
 @app.route('/login',methods=["GET","POST"])
 def login():
+	#see what type of request it is.
 	if request.method == "GET":
+		#if it's a get request just return the form like normal.
 		return render_template('login.html')
 	else:
 		pepper=app.config['PEPPER']
 		username=request.form.get('username')
 		password=request.form.get('password')
 		mobile_password=password[0].upper()+password[1:]
-
+		#only get a single result there should only ever be one. Also not selecting all as we dont' need all data.
 		result=db.execute('Select password,mobile_password from users where username = :username',{'username':username}).fetchone()
+		#if it's none then they don't exist.
 		if result is not None:
+			#check their normal password.
 			pass_good = auth_tool.verify_password(password, pepper, result.password)
+			#if it's passed
 			if pass_good :
+				#they are authorized. Later we'll redirect them.
 				msg="authorized"
+				#setup the session variable username.
 				session['username'] = username
+			#else we see if the mobile version of the password works.
 			else:
+				#see if the mobile version of teh password works.
 				pass_good= auth_tool.verify_password(mobile_password, pepper, result.mobile_password)
+				#if that's OK then they have a good password.
 				if pass_good:
 					session['username'] = username
+					#this is just debug.
 					msg="authorized mobile"
+				#otherwise neither worked and they are denied.
 				else:
 					msg="denied"
 			return render_template("login.html",msg=msg)
