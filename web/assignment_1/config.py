@@ -1,4 +1,3 @@
-
 import os
 DEBUG = True
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -12,3 +11,5 @@ CSRF_SESSION_KEY = os.getenv("CRSF_SESSION_KEY")
 SECRET_KEY = os.getenv("SECRET_KEY")
 #to get my GoodReads API Key.
 GR_API_KEY = os.getenv("GR_API_KEY")
+SESSION_TYPE="filesystem"
+SECRET=os.getenv("SECRET")

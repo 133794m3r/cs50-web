@@ -1,19 +1,26 @@
 import os
 
-from app import app
-from flask import current_app
-from flask import render_template, redirect, url_for, abort, request
+from flask import Flask, session, render_template, redirect, abort, url_for, request
+from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-credentials=os.getenv("PSQL_CREDS")
 from . import auth_tool
+
+app = Flask(__name__)
+app.config.from_pyfile('../config.py')
+credentials=os.getenv("PSQL_CREDS")
 engine = create_engine(credentials+"web50")
 db = scoped_session(sessionmaker(bind=engine))
 
+
+
+
+Session(app)
+
 @app.route('/')
 def index():
-	return render_template('index.html')
+	return render_template('login.html')
 	#return app.config['SQL_CREDENTIALS']
 
 @app.route('/api/<isbn>',methods=["GET","POST"])
@@ -58,12 +65,14 @@ def login():
 
 		result=db.execute('Select password,mobile_password from users where username = :username',{'username':username}).fetchone()
 		if result is not None:
-			pass_good = auth_tool.verify_password(password,pepper,result.password)
-			if(pass_good):
+			pass_good = auth_tool.verify_password(password, pepper, result.password)
+			if pass_good :
 				msg="authorized"
+				session['username'] = username
 			else:
-				pass_good=auth_tool.verify_password(mobile_password,pepper,result.mobile_password)
-				if(pass_good):
+				pass_good= auth_tool.verify_password(mobile_password, pepper, result.mobile_password)
+				if pass_good:
+					session['username'] = username
 					msg="authorized mobile"
 				else:
 					msg="denied"
@@ -81,8 +90,8 @@ def register():
 		else:
 			password=request.form.get('password')
 			mobile_password=password[0].upper()+password[1:]
-			password=auth_tool.hash_password(password,pepper)
-			mobile_password=auth_tool.hash_password(mobile_password,pepper)
+			password= auth_tool.hash_password(password, pepper)
+			mobile_password= auth_tool.hash_password(mobile_password, pepper)
 			db.execute('INSERT INTO USERS(username,password,mobile_password) VALUES (:username,:password,:mobile_password)',{'username':username,'password':password,'mobile_password':mobile_password})
 			db.commit()
 			return redirect(url_for("index"))
@@ -96,3 +105,9 @@ def books():
 	return render_template('books.html', books=books1)
 if __name__ == '__main__':
 	app.run()
+
+@app.route('/logged_in')
+def logged_in():
+	if 'username' in session:
+		return "logged in as %s" % session['username']
+	return 'you are not logged in'
