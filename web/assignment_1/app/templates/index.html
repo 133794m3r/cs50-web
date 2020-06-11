@@ -3,12 +3,16 @@
     Books Test
 {% endblock %}
 {% block header %}
-   The Books
+
 {% endblock %}
 
 {% block body %}
-	{{ msg }}
+	<main role="main" class="container">
+<div>
+	<h2> Welcome {{ username }}, to the Books!	</h2>
     <p>
     Lorem ipsum. A bunch of text.
     </p>
+</div>
+	</main>
 {% endblock %}

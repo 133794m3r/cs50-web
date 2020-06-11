@@ -12,7 +12,10 @@ app.config.from_pyfile('../config.py')
 credentials=os.getenv("PSQL_CREDS")
 engine = create_engine(credentials+"web50")
 db = scoped_session(sessionmaker(bind=engine))
-
+@app.context_processor
+def display_year_c():
+	from time import strftime
+	return dict(show_year="© 2020-"+strftime("%Y"))
 
 
 
@@ -21,9 +24,35 @@ Session(app)
 @app.route('/')
 def index():
 	if session.get('username') is None:
-		return url_for('login')
+		return redirect(url_for('login'))
 	else:
-		return render_template('index.html')
+		return render_template('index.html',username=session.get('username'))
+
+@app.route('/search',methods=["GET","POST"])
+def search():
+	result={}
+	if request.method == "POST":
+		title=request.form.get("book_title")
+		if title is not None:
+			result=db.execute("select * from books where title like :title",{'title':'%'+title+'%'}).fetchall()
+	else:
+		title=request.args.get("book_title")
+		if title is not None:
+			result=db.execute("select * from books where title like :title",{'title':'%'+title+'%'}).fetchall()
+
+	return render_template("search.html",books=result)
+
+@app.route('/review')
+def review():
+	pass
+
+@app.route('/dashboard')
+def dashboard():
+	pass
+
+@app.route('/browse')
+def browse():
+	pass
 
 @app.route('/api/<isbn>',methods=["GET","POST"])
 def get_isbn(isbn):
@@ -45,8 +74,6 @@ def get_isbn(isbn):
 		#return redirect(url_for("error_404"),code=404)
 		abort(404)
 
-
-
 @app.route('/404')
 def error_404():
 	return "Page not found"
@@ -62,9 +89,13 @@ def login():
 		#if it's a get request just return the form like normal.
 		return render_template('login.html')
 	else:
+		#get the static pepper that's used for the entire thing and never ever changes.
 		pepper=app.config['PEPPER']
+		#get the username from the form.
 		username=request.form.get('username')
+		#the password.
 		password=request.form.get('password')
+		#modify the password mobilzed(e.g. first char is letter uppercase it otherwise keep it the same)
 		mobile_password=password[0].upper()+password[1:]
 		#only get a single result there should only ever be one. Also not selecting all as we dont' need all data.
 		result=db.execute('Select password,mobile_password from users where username = :username',{'username':username}).fetchone()
@@ -99,12 +130,18 @@ def register():
 	if request.method == "POST":
 		pepper=app.config['PEPPER']
 		username=request.form.get('username')
+		if username is None:
+			return render_template('register.html', msg="No username specified")
+
 		if db.execute('select id from users where username=:username',{'username':username}).fetchone() is not None:
 			return render_template('register.html', msg="error user already exists")
 		else:
 			password=request.form.get('password')
+			if passowrd is None:
+				return render_template("register.html",msg="No password specified")
 			mobile_password=password[0].upper()+password[1:]
-			password= auth_tool.hash_password(password, pepper)
+
+			password=auth_tool.hash_password(password, pepper)
 			mobile_password= auth_tool.hash_password(mobile_password, pepper)
 			db.execute('INSERT INTO USERS(username,password,mobile_password) VALUES (:username,:password,:mobile_password)',{'username':username,'password':password,'mobile_password':mobile_password})
 			db.commit()
@@ -112,6 +149,9 @@ def register():
 	else:
 		return render_template('register.html', msg="")
 
+@app.route('/logout')
+def logout():
+	pass
 
 @app.route('/books')
 def books():

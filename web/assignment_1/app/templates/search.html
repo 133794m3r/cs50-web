@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block title %}
+
+{% endblock %}
+{% block header %}
+<script type="text/javascript">
+	function update_input(element_id){
+	    let el=document.getElementById(element_id).value
+	}
+	</script>
+{% endblock %}
+
+{% block body %}
+	<main role="main" class="container">
+	<div class="row">
+		<div class="col-1">
+			<label for="search_selection">
+				Search By
+			</label>
+				<select id="search_selection" onchange="update_input('search_selection')">
+					<option value="isbn">ISBN</option>
+					<option value="title">Title</option>
+					<option value="author">Author</option>
+					<option value="published_year">Published Year</option>
+				</select>
+				<label for="search_type">
+					Search
+				</label>
+				<input id="search_type" type="text" placeholder="">
+		</div>
+	</div>
+<div class="row">
+    {% for book in books %}
+			<div class="col-md-4">
+				<div class="card bg-dark text-white mb-4">
+					 <div class="card-header">{{ book.title }}</div>
+					<div class="card-body bg-secondary">
+						<p class="card-text">
+							isbn:{{ book.isbn }} author:{{ book.author }}  year:{{ book.published_year }}
+						</p>
+					</div>
+				</div>
+			</div>
+    {% endfor %}
+</div>
+	</main>
+{% endblock %}
