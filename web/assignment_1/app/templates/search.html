@@ -2,46 +2,78 @@
 {% block title %}
 
 {% endblock %}
-{% block header %}
-<script type="text/javascript">
-	function update_input(element_id){
-	    let el=document.getElementById(element_id).value
-	}
-	</script>
-{% endblock %}
+
+{#<script type="text/javascript" async defer>#}
+{#	window.onload=function(){#}
+{#		document.getElementById('search_form').addEventListener("submit", submit_input);#}
+{#	}#}
+{#	function submit_input(event){#}
+{#		//event.preventDefault();#}
+{##}
+{#	}#}
+{#	</script>#}
+
 
 {% block body %}
 	<main role="main" class="container">
 	<div class="row">
-		<div class="col-1">
-			<label for="search_selection">
-				Search By
-			</label>
-				<select id="search_selection" onchange="update_input('search_selection')">
-					<option value="isbn">ISBN</option>
-					<option value="title">Title</option>
-					<option value="author">Author</option>
-					<option value="published_year">Published Year</option>
-				</select>
-				<label for="search_type">
-					Search
-				</label>
-				<input id="search_type" type="text" placeholder="">
+		<div class="col-8">
+{#			<label for="search_selection">#}
+{#				Search By#}
+{#			</label>#}
+{#				<select id="search_selection" onchange="update_input('search_selection')">#}
+{#					<option value="isbn">ISBN</option>#}
+{#					<option value="title">Title</option>#}
+{#					<option value="author">Author</option>#}
+{#					<option value="published_year">Published Year</option>#}
+{#				</select>#}
+			<form action="/search" method="POST" id="search_form">
+				<div class="form-row">
+					<div class="col-2">
+						<label for="search_type">
+							Search By:
+						</label>
+					</div>
+					<div class="col-8">
+						<input id="search_type" type="text"  class='form-control' name="search_string" placeholder="Title,ISBN,Author,Print Year">
+{#				<input type="button" value="search">#}
+					</div>
+					<div class="col">
+						<input class="btn btn-dark mb-2" value="Search" type="submit">
+					</div>
+				</div>
+			</form>
 		</div>
+
 	</div>
-<div class="row">
-    {% for book in books %}
+
+<div class="row" style="margin-top:10px !important">
+		{% if books == [] %}
 			<div class="col-md-4">
 				<div class="card bg-dark text-white mb-4">
-					 <div class="card-header">{{ book.title }}</div>
+					 <div class="card-header">No results</div>
 					<div class="card-body bg-secondary">
 						<p class="card-text">
-							isbn:{{ book.isbn }} author:{{ book.author }}  year:{{ book.published_year }}
+							Sorry we didn't find any books.
 						</p>
 					</div>
 				</div>
 			</div>
-    {% endfor %}
+		{% else %}
+			{% for book in books %}
+				<div class="col-md-4">
+					<div class="card bg-dark text-white mb-4">
+						 <div class="card-header">{{ book.title }}</div>
+						<div class="card-body bg-secondary">
+							<p class="card-text">
+								isbn:{{ book.isbn }} author:{{ book.author }}  year:{{ book.published_year }}
+								<a href="{{ url_for(book) }}/{{ book.id }}">View Book Information</a>
+							</p>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		{% endif %}
 </div>
 	</main>
 {% endblock %}
