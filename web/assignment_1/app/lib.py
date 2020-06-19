@@ -12,18 +12,22 @@ def get_reviews(isbn):
 	#book_info = db.execute("select * from books where isbn = :isbn", {'isbn': isbn})
 	books_info = db.execute("select * from books where isbn = :isbn",
 	                    {'isbn': isbn}).fetchall()
+	books_info=dict_proxy(books_info)[0]
 	# result=db.execute("select reviews.review_score,reviews.review_text,reviews.reviewed_time,books.isbn,books.title from reviews right join books on reviews.book_id = books.id where reviews.book_id = :book_id",
 	#                 {"book_id":book_id}).fetchall()
-	reviews = db.execute("""select reviews.isbn,reviews.review_score,reviews.review_text,reviews.reviewed_time,users.username
-	 from reviews right join users on reviews.user_id = users.id where isbn = :isbn""",{"isbn": isbn}).fetchone()
+	reviews = db.execute("""select users.username,reviews.isbn,reviews.review_score,reviews.review_text,reviews.reviewed_time,users.username
+	 from reviews right join users on reviews.user_id = users.id where isbn = :isbn""",{"isbn": isbn})
 	db.commit()
 	result = {}
 	if reviews:
 		reviews=dict_proxy(reviews)
 		# reviews={'query':"select reviews.review_score,reviews.review_text,reviews.reviewed_time,books.isbn,books.title from reviews right join books on reviews.book_id = books.id where reviews.book_id = {}".format(book_id)}
-		result['reviews'] = reviews
-		result['book'] = books_info
+		for i,review in enumerate(reviews):
+			ts=reviews[i]['reviewed_time']
+			reviews[i]['reviewed_time']=ts.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+		#result['reviews'] = reviews
+		#result['book'] = books_info
 	else:
-		result['reviews'] = False
+		return False
 
-	return result
+	return reviews

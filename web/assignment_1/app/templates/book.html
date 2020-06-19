@@ -8,39 +8,39 @@
 	<main role="main" class="container lg">
 	<div class="row">
 		<div class="col text-center">
-					<h1>{{ book_data.title }}</h1>
-			<img src="http://covers.openlibrary.org/b/isbn/{{ book_data.isbn }}-L.jpg" alt="{{ book_data.title }} Cover">
+					<h1>{{ book_info.title }}</h1>
+			<img src="http://covers.openlibrary.org/b/isbn/{{ book_info.isbn }}-L.jpg" alt="{{ book_info.title }} Cover">
 
 			<div class="row book_info">
 				<div class="col-sm">
 				</div>
 				<ul class="list-group align-middle col-sm">
 					<li class="list-group-item">
-						Author:{{ book_data.author }}
+						Author:{{ book_info.author }}
 					</li>
 					<li class="list-group-item">
-						Published year:{{ book_data.year }}
+						Published year:{{ book_info.year }}
 					</li>
 					<li class="list-group-item">
-						Avg Review:{{ book_data.average_score }}/5.0
+						Avg Review:{{ book_info.average_score }}/5.0
 					</li>
 					<li class="list-group-item">
-						Total Reviews:{{ book_data.review_count }}
+						Total Reviews:{{ book_info.total_reviews }}
 					</li>
 					<li class="list-group-item">
-						Good Reads Average Review:{{ book_data.gr_avg_rating }}/5.0
+						Good Reads Average Review:{{ book_info.gr_avg_rating }}/5.0
 					</li>
 					<li class="list-group-item">
-					<a href="{{ url_for("review",isbn=book_data.isbn) }}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="false">Leave your own review</a>
+					<a href="{{ url_for("review",isbn=book_info.isbn) }}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="false">Leave your own review</a>
 					</li>
 				</ul>
 				<div class="col-sm">
 				</div>
 			</div>
 			{% if request.referrer is not none %}
-				<a href="{{ request.referrer }}">{{ request.referrer }}</a>
+				<a href="{{ request.referrer }}">Go back to your previous page</a>
 			{% else %}
-				<a href="{{ url_for("search",search_string=book_info.isbn) }}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="false">Return to Book Search</a>
+				<a href="{{ url_for("search",search_string=book_info.isbn) }}" >Return to Book Search For this Book</a>
 			{% endif %}
 		</div>
 	</div>
@@ -53,7 +53,7 @@
 					 <div class="card-header">No results</div>
 					<div class="card-body bg-secondary">
 						<p class="card-text review-text">
-							Sorry there are no reviews for the book. Please 	<a href="{{ url_for("review",isbn=book_data.isbn) }}" class="text-white -underline" >Leave your own review</a>
+							Sorry there are no reviews for the book. Please 	<a href="{{ url_for("review",isbn=book_info.isbn) }}" class="text-white -underline" >Leave your own review</a>
 						</p>
 					</div>
 				</div>
@@ -68,7 +68,7 @@
 							<p class="card-text review-text">
 								{{ review.review_text }}
 							</p>
-							<a href="{{ url_for("review",id=review.id,isbn=book_data.isbn) }}" class="text-white -underline" >View this Review</a>
+							<a href="{{ url_for("review",id=review.id,isbn=book_info.isbn) }}" class="text-white -underline" >View this Review</a>
 						</div>
 					</div>
 				</div>

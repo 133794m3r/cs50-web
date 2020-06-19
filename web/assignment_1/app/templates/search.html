@@ -25,10 +25,8 @@
 				</div>
 			</form>
 		</div>
-			{% if request.referrer is not none %}
-				<a href="{{ request.referrer }}">{{ request.referrer }}</a>
-			{% else %}
-				<a href="{{ url_for("search") }}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="false">Return to Book Search</a>
+			{% if request.referrer is not none and request.referrer != request.full_path %}
+				<a href="{{ request.referrer }}">Go back to previous Page</a>
 			{% endif %}
 	</div>
 

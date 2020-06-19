@@ -50,11 +50,11 @@
 					Avg Review: {{ book_info.avg_score }}/5
 					</li>
 					<li class="list-group-item">
-					Total Reviews: {{ book_info.review_count }}
+					Total Reviews: {{ book_info.total_reviews }}
 					</li>
 					<li class="list-group-item">
-						{% if request.referrer is not none %}
-							<a href="{{ request.referrer }}">{{ request.referrer }}</a>
+						{% if request.referrer is not none and request.referrer != request.full_path %}
+							<a href="{{ request.referrer }}">Return to your previous page</a>
 						{% else %}
 							<a href="{{ url_for("search",search_string=book_info.isbn) }}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="false">Return to Book Search</a>
 						{% endif %}
@@ -67,54 +67,7 @@
 	</div>
 	{% endif %}
 
-	{% if reviews.username == USERNAME %}
-		<div class="col-md card-space">
-			<div class="card bg-dark text-white mb">
-				 <div class="card-header">{{ USERNAME }}'s Review</div>
-				<div class="card-body bg-secondary">
-				<form action="{{ url_for("review") }}" id="review_body" method="POST">
-					<div class="input-group">
-						<div class="row">
-							<div class="col">
-							Update your review
-							</div>
-							<div class="col">
-								<select name="review_score" id="review_score">
-									<option value="0">Rate the book out of 5.</option>
-									<option value="1">1 -- It's bad.</option>
-									<option value="2">2 -- It's OK.</option>
-									<option value="3">3 -- Mediocore</option>
-									<option value="4">4 -- Recommend</option>
-									<option value="5">5 -- Must Read</option>
-								</select>
-							</div>
-						</div>
-					</div>
-					<div class="input-group">
-						<textarea rows="4" class="form-control" name="review_text">{{ reviews.review_text }}</textarea>
-					</div>
-					<input type="hidden" name="id" value="{{ reviews.id }}">
-					<input class="hidden" type="hidden" name='isbn' value="{{ book_info.isbn }}"/>
-						<button>Submit</button>
-				</form>
-				</div>
-			</div>
-		</div>
-	{% elif reviews is not none %}
-		<div class="col-md card-space">
-			<div class="card bg-dark text-white mb">
-				 <div class="card-header">{{ reviews.username }}'s Review</div>
-				<div class="card-body bg-secondary">
-					Reviewed on:{{ reviews.reviewed_time }}
-					Rating: {{ reviews.rating }}
-					<p class="card-text review-text">
-						{{ reviews.review_text }}
-					</p>
-				</div>
-			</div>
-		</div>
-
-	{% else %}
+	{% if reviews is none or reviews == [] %}
 		<div class="col-md card-space">
 			<div class="card bg-dark text-white mb">
 				 <div class="card-header">{{ USERNAME }}'s Review</div>
@@ -146,6 +99,55 @@
 				</div>
 			</div>
 		</div>
+	{% else %}
+			{% if reviews.username == USERNAME %}
+				<div class="col-md card-space">
+					<div class="card bg-dark text-white mb">
+						 <div class="card-header">{{ USERNAME }}'s Review</div>
+						<div class="card-body bg-secondary">
+						<form action="{{ url_for("review") }}" id="review_body" method="POST">
+							<div class="input-group">
+								<div class="row">
+									<div class="col">
+									Update your review
+									</div>
+									<div class="col">
+										<select name="review_score" id="review_score">
+											<option value="0">Rate the book out of 5.</option>
+											<option value="1">1 -- It's bad.</option>
+											<option value="2">2 -- It's OK.</option>
+											<option value="3">3 -- Mediocore</option>
+											<option value="4">4 -- Recommend</option>
+											<option value="5">5 -- Must Read</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="input-group">
+								<textarea rows="4" class="form-control" name="review_text">{{ reviews.review_text }}</textarea>
+							</div>
+							<input type="hidden" name="id" value="{{ reviews.id }}">
+							<input class="hidden" type="hidden" name='isbn' value="{{ book_info.isbn }}"/>
+								<button>Submit</button>
+						</form>
+						</div>
+					</div>
+				</div>
+			{% else %}
+				<div class="col-md card-space">
+					<div class="card bg-dark text-white mb">
+						 <div class="card-header">{{ reviews.username }}'s Review</div>
+						<div class="card-body bg-secondary">
+							Reviewed on:{{ reviews.reviewed_time }}
+							Rating: {{ reviews.rating }}
+							<p class="card-text review-text">
+								{{ reviews.review_text }}
+							</p>
+						</div>
+					</div>
+				</div>
+			{% endif %}
+
 	{% endif %}
 	</main>
 {% endblock %}

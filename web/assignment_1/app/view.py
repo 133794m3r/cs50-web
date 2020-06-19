@@ -54,14 +54,15 @@ def search():
 	if request.method == "POST":
 		result=[]
 		query = request.form.get("search_string")
+		app.logger.info(query)
 		if query is not None:
 			try:
 				query = int(query)
 				result = db.execute("select * from books where published_year = :year",{'year':query}).fetchall()
 			except ValueError:
-				query = '%' + query.title() + '%'
-				#function(123)
-				result = db.execute("select * from books where title like :query or isbn like :query or author like :query",
+				query = '%' + query + '%'
+				app.logger.info('titled '+query)
+				result = db.execute("select * from books where title ilike :query or isbn like :query or author ilike :query",
 			                   {'query':query}).fetchall()
 			db.commit()
 		return render_template("search.html", books=result)
@@ -69,7 +70,10 @@ def search():
 		result=[]
 		query = request.args.get('search_string')
 		if query is not None:
-			result = db.execute('select * from books where isbn = :isbn',{'isbn':query})
+			query = '%' + query + '%'
+			# function(123)
+			result = db.execute("select * from books where title ilike :query or isbn ilike :query or author ilike :query",
+			                    {'query': query}).fetchall()
 
 		return render_template("search.html",books=result)
 	else:
@@ -112,7 +116,7 @@ def book(isbn):
 		# return redirect(url_for("error_404"),code=404)
 		abort(404)
 	app.logger.info(data)
-	return render_template('book.html',book_data=data,reviews=reviews)
+	return render_template('book.html',book_info=data,reviews=reviews)
 
 
 #TODO: Make it so that the selection-y bits are their own section(the book info that is). The rest of it will be just re-populated.
@@ -129,28 +133,32 @@ def review():
 		isbns=request.args.get('isbn')
 		review_id=request.args.get('id')
 		result=None
+		reviews = None
 		if review_id is None and isbns is None:
 			return redirect(url_for('search'))
 		if review_id is not None:
 			#result=db.execute("select * from reviews where id=:id",{'id':id});
 			reviews = db.execute("""select reviews.isbn,reviews.review_score,reviews.review_text,reviews.reviewed_time,users.username
 			 from reviews right join users on reviews.user_id = users.id where reviews.id = :id""",
-			                     {"id": review_id}).fetchone()
-			#return str(id)
+			                     {"id": review_id})
+		else:
+			reviews = db.execute("""select reviews.isbn,reviews.review_score,reviews.review_text,reviews.reviewed_time,users.username from reviews right join users on reviews.user_id = users.id where users.id = :id and reviews.isbn  = :isbn""",{"id": session.get('user_id'),'isbn':isbns}).fetchall()
 		if isbns is None:
-			isbns=reviews.isbn
-
+			abort(500)
+		app.logger.info(reviews)
 		data = db.execute("select * from books where isbn = :isbn", {"isbn": isbns}).fetchone()
 		#db.commit()
-		#data=dict_proxy(data)[0]
+		data={**data}
 
-		data=dict(zip(data.keys(),data))
+		#data=dict(zip(data.keys(),data))
 		data['avg_score'] = 0 if data['total_reviews'] == 0 else round(data['total_review_score']/data['total_reviews'],2)
-		reviews=dict(zip(reviews.keys(),reviews))
-		reviews['id']=review_id
+		if reviews is not None and reviews != []:
+			#reviews=dict(zip(reviews.keys(),reviews))
+			reviews=dict_proxy(reviews)[0]
+			reviews['id']=review_id
 		#if result is not None:
 		#	result=dict_proxy(result)
-
+		app.logger.info(reviews)
 		return render_template('review.html',book_info=data,reviews=reviews)
 	if request.method == "POST":
 		queried=False
@@ -168,7 +176,7 @@ def review():
 			result=db.execute("""UPDATE reviews set(review_score,review_text) = (:review_score,:review_text) where id = :id and user_id = :user_id returning reviewed_time""",
 				{'id':review_id,'review_score':review_score,'review_text':review_text,'user_id':session.get('user_id')})
 			db.commit()
-			result=dict(zip(result.keys(), result))
+			result=dict_proxy(result)[0]
 			reviews={'id':review_id,'username':session.get('username'),'review_score':review_score,'review_text':review_text,'reviewed_time':result['reviewed_time']}
 		elif isbn is not None:
 			user_id=session.get('user_id')
@@ -176,18 +184,19 @@ def review():
 			if rows:
 
 				db.execute("""UPDATE books set total_review_score = total_review_score + (select (:review_score-review_score) from reviews where id = :id) where isbn = :isbn""",{'isbn':isbn,'review_score':review_score,'id':review_id})
+				
 				result = db.execute("""UPDATE reviews set(review_score,review_text) = (:review_score,review_text) where user_id = :user_id and isbn = :isbn RETURNING id,reviewed_time""",
 				    {'review_score':review_score,'review_text':review_text,'user_id':user_id,'isbn':isbn})
 				#db.session.commit()
 			else:
-				result =db.execute("""INSERT INTO reviews(review_score,review_text,isbn,user_id) values(:review_score,:review_text,:isbn,:user_id) RETURNING id,reviewed_time""",
+				result =db.execute("""INSERT INTO reviews(review_score,review_text,isbn,user_id) values(:review_score,:review_text,:isbn,:user_id) RETURNING id,reviewed_time;""",
 				    {'review_score':review_score,'review_text':review_text,'isbn':isbn,'user_id':user_id})
+				
 				db.execute("""UPDATE books SET total_reviews = total_reviews + 1, 
 				total_review_score = total_review_score + :review_score where isbn=:isbn""",{'review_score':review_score,'isbn':isbn})
 				#db.session.commit()
 			db.commit()
-
-			result=dict(zip(result.keys(), result))
+			result=dict_proxy(result)[0]
 			reviews={'id':result['id'],'username':username,'review_score':review_score,'review_text':review_text,'reviewed_time':result['reviewed_time']}
 		else:
 			reviews=None
@@ -197,6 +206,8 @@ def review():
 		#db.commit()
 		#data=dict_proxy(data)[0]
 		data=dict(zip(data.keys(),data))
+		data['avg_score'] = 0 if data['total_reviews'] == 0 else round(data['total_review_score']/data['total_reviews'],2)
+		app.logger.info(reviews)
 		return render_template('review.html',reviews=reviews,book_info=data)
 	return redirect(url_for('index'))
 
@@ -226,9 +237,9 @@ def book_info(isbns):
 			else:
 				reviews=[]
 			#gr_search(isbns,app.config.get('GR_API_KEY'))
-			#gr_avg,gr_ratings = gr_search(isbns, app.config.get('GR_API_KEY'))
-			gr_avg_rating=1
-			gr_total_ratings=1
+			gr_avg,gr_ratings = gr_search(isbns, app.config.get('GR_API_KEY'))
+			#gr_avg_rating=1
+			#gr_total_ratings=1
 			data['gr_avg_rating']=gr_avg
 			data['gr_total_ratings']=gr_ratings
 			result['book']=data;result['reviews']=reviews
@@ -255,10 +266,10 @@ def get_isbn(isbn):
 		          'review_count': data.total_reviews,
 		          # if the average score is still set at 0.0 then we return 0 as to not get a divide by zero error.
 		          'average_score': (data.total_review_score / data.total_reviews) if data.total_reviews > 0 else 0}
-		if data.total_reviews == 0:
-			gr_reviews=gr_search(isbn,app.config.get('GR_API_KEY'))
-			output['gr_avg_rating'] = gr_reviews[0]
-			output['gr_ratings'] = gr_reviews[1]
+		#if data.total_reviews == 0:
+		gr_reviews=gr_search(isbn,app.config.get('GR_API_KEY'))
+		output['gr_avg_rating'] = gr_reviews[0]
+		output['gr_ratings'] = gr_reviews[1]
 
 		# craft our response.
 		response = app.make_response(output)
