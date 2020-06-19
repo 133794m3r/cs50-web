@@ -3,15 +3,6 @@
 
 {% endblock %}
 
-{#<script type="text/javascript" async defer>#}
-{#	window.onload=function(){#}
-{#		document.getElementById('search_form').addEventListener("submit", submit_input);#}
-{#	}#}
-{#	function submit_input(event){#}
-{#		//event.preventDefault();#}
-{##}
-{#	}#}
-{#	</script>#}
 
 
 {% block body %}
@@ -60,14 +51,15 @@
 				</div>
 			</div>
 		{% else %}
-			{% for book in books %}
+			{% for a_book in books %}
 				<div class="col-md-4">
 					<div class="card bg-dark text-white mb-4">
-						 <div class="card-header">{{ book.title }}</div>
+						 <div class="card-header">{{ a_book.title }}</div>
 						<div class="card-body bg-secondary">
 							<p class="card-text">
-								isbn:{{ book.isbn }} author:{{ book.author }}  year:{{ book.published_year }}
-								<a href="{{ url_for(book) }}/{{ book.id }}">View Book Information</a>
+								Author: {{ a_book.author }}<br />
+								Published Year: {{ a_book.published_year }}<br />
+								<a href="{{ url_for("book",isbn=a_book.isbn) }}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="false">View Book Information</a>
 							</p>
 						</div>
 					</div>

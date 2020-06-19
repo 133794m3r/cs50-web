@@ -2,14 +2,72 @@
 {% block title %}
     Books Test
 {% endblock %}
-{% block header %}
-   The book page
-{% endblock %}
+
 
 {% block body %}
-    <ol>
-    {% for book in books %}
-        <li>isbn:{{ book.isbn }} author:{{ book.author }} title:{{ book.title }} year:{{ book.published_year }}</li>
-    {% endfor %}
-    </ol>
-{% endblock %}{
+	<main role="main" class="container lg">
+	<div class="row">
+		<div class="col text-center">
+					<h1>{{ book_data.title }}</h1>
+			<img src="http://covers.openlibrary.org/b/isbn/{{ book_data.isbn }}-L.jpg" alt="{{ book_data.title }} Cover">
+
+			<div class="row book_info">
+				<div class="col-sm">
+				</div>
+				<ul class="list-group align-middle col-sm">
+					<li class="list-group-item">
+						Author:{{ book_data.author }}
+					</li>
+					<li class="list-group-item">
+					Published year:{{ book_data.year }}
+					</li>
+					<li class="list-group-item">
+					Avg Review:{{ book_data.average_score }}/5
+					</li>
+					<li class="list-group-item">
+					Total Reviews:{{ book_data.total_reviews }}
+					</li>
+					<li class="list-group-item">
+					Good Reads Average Review:{{ book_data.gr_avg_rating }}/5
+					</li>
+					<li class="list-group-item">
+					<a href="{{ url_for("review",isbn=book_data.isbn) }}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="false">Leave your own review</a>
+					</li>
+				</ul>
+				<div class="col-sm">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	</main>
+<div class="row" style="margin-top:2rem">
+		{% if reviews is none %}
+			<div class="col-md-4">
+				<div class="card bg-dark text-white mb-4">
+					 <div class="card-header">No results</div>
+					<div class="card-body bg-secondary">
+						<p class="card-text review-text">
+							Sorry there are no reviews for the book. Please 	<a href="{{ url_for("review",isbn=book_data.isbn) }}" class="text-white -underline" >Leave your own review</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		{% else %}
+			{% for review in reviews %}
+				<div class="col-md-4">
+					<div class="card bg-dark text-white mb-4">
+						 <div class="card-header">{{ review.username }}</div>
+						<div class="card-body bg-secondary">
+							Reviewed:{{ review.reviewed_time }}
+							<p class="card-text review-text">
+								{{ review.review_text }}
+							</p>
+							<a href="{{ url_for("review",id=review.id,isbn=review.isbn) }}" class="text-white -underline" >Leave your own review</a>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		{% endif %}
+	</div>
+{% endblock %}

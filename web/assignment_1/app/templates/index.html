@@ -9,9 +9,10 @@
 {% block body %}
 	<main role="main" class="container">
 <div>
-	<h2> Welcome to the site{{ ', '+username if username != None else ''}}.
+	<h2> Welcome to the site{{ ', '+USERNAME if USERNAME != None else ''}}.
 	</h2>
     <p>
+			{{ USERNAME }}
     Lorem ipsum. A bunch of text.
     </p>
 </div>

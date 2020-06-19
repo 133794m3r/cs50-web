@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+{% block title %}
+    Review Page
+{% endblock %}
+{% block style %}
+	main>div.row
+{% endblock %}
+{% block head %}
+<script type="text/javascript" async defer>
+	window.onload=function(){
+		document.getElementById('review_body').addEventListener("submit", submit_input);
+	}
+	function submit_input(event){
+		//event.preventDefault();
+
+	}
+	</script>
+{% endblock %}
+{% block body %}
+
+	<main class="container lg">
+	{% if book_info is not none %}
+	<div class="row">
+		<div class="col text-center">
+					<h1>{{ book_info.title }}</h1>
+			<div class="row book_info">
+				<div class="col-sm">
+				</div>
+				<ul class="list-group align-middle col-sm">
+					<li class="list-group-item">
+						Author: {{ book_info.author }}
+					</li>
+					<li class="list-group-item">
+					Published year: {{ book_info.published_year }}
+					</li>
+					<li class="list-group-item">
+					Avg Review: {{ book_info.avg_score }}/5
+					</li>
+					<li class="list-group-item">
+					Total Reviews: {{ book_info.total_reviews }}
+					</li>
+				</ul>
+				<div class="col-sm">
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+	{% if reviews is not none %}
+		<div class="col-md card-space">
+			<div class="card bg-dark text-white mb">
+				 <div class="card-header">{{ review.username }}'s Review</div>
+				<div class="card-body bg-secondary">
+					Reviewed on:{{ review.reviewed_time }}
+					Rating: {{ review.rating }}
+					<p class="card-text review-text">
+						{{ review.review_text }}
+					</p>
+				</div>
+			</div>
+		</div>
+	{% elif reviews.username == USERNAME %}
+		<div class="col-md card-space">
+			<div class="card bg-dark text-white mb">
+				 <div class="card-header">{{ USERNAME }}'s Review</div>
+				<div class="card-body bg-secondary">
+				<form action="{{ url_for("review") }}" id="review_body" method="POST">
+					<div class="input-group">
+						<div class="row">
+							<div class="col">
+							Update your review
+							</div>
+							<div class="col">
+								<select name="review_score">
+									<option value="0">Rate the book out of 5.</option>
+									<option value="1">1 -- It's bad.</option>
+									<option value="2">2 -- It's OK.</option>
+									<option value="3">3 -- Mediocore</option>
+									<option value="4">4 -- Recommend</option>
+									<option value="5">5 -- Must Read</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="input-group">
+						<textarea rows="4" class="form-control" name="review_text"></textarea>
+					</div>
+					<input type="hidden" name="id" value="{{ review.id }}">
+					<input class="hidden" type="hidden" name='isbn' value="{{ book_info.isbn }}"/>
+				</form>
+				</div>
+			</div>
+		</div>
+	{% else %}
+		<div class="col-md card-space">
+			<div class="card bg-dark text-white mb">
+				 <div class="card-header">{{ USERNAME }}'s Review</div>
+				<div class="card-body bg-secondary">
+					<form action="{{ url_for("review") }}" id="review_body" method="POST">
+						<div class="input-group">
+							<div class="row">
+								<div class="col">
+								Leave your review
+								</div>
+								<div class="col">
+									<select name="review_score">
+										<option value="0">Rate the book out of 5.</option>
+										<option value="1">1 -- It's bad.</option>
+										<option value="2">2 -- It's OK.</option>
+										<option value="3">3 -- Mediocore</option>
+										<option value="4">4 -- Recommend</option>
+										<option value="5">5 -- Must Read</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="input-group">
+							<textarea rows="4" class="form-control" name="review_text"></textarea>
+						</div>
+						<button>Submit</button>
+						<input class="hidden" type="hidden" name='isbn' value="{{ book_info.isbn }}"/>
+					</form>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	</main>
+{% endblock %}
