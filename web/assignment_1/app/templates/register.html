@@ -23,7 +23,11 @@
 	<main role="main" class="container">
 	<div class="">
 	<h1>Register</h1>
-		{{ msg }}
+		{% if msg %}
+			<div class="alert alert-primary" role="alert">
+				{{ msg }}
+			</div>
+		{% endif %}
 		<div class="row">
 			<div class="col">
 				<form action="{{ url_for("register") }}" method="post">

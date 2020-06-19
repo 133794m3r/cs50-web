@@ -46,7 +46,6 @@
 	<div class="navbar">
 			<ul class="navbar-nav mr-auto">
 				<li class="nav-item active"><a class="nav-link" href="{{ url_for("index") }}">Index </a></li>
-				<li class="nav-item active"><a class="nav-link" href="{{ url_for("browse") }}">Browse</a></li>
 			{% if USERNAME is none %}
 				<li class="nav-item active"><a class="nav-link" href="{{ url_for("register") }}">Register</a></li>
 				<li class="nav-item active"><a class="nav-link" href="{{ url_for("login") }}">Login</a></li>
@@ -65,7 +64,6 @@
 	</nav>
 
 {% block body %}
-
 {% endblock %}
 <br />
 <footer class="container">

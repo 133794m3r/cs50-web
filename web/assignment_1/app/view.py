@@ -16,6 +16,9 @@ db = scoped_session(sessionmaker(bind=engine))
 
 from .lib import gr_search,get_reviews,dict_proxy
 
+"""
+Template Processors
+"""
 @app.context_processor
 def display_year_c():
 	from time import strftime
@@ -24,6 +27,17 @@ def display_year_c():
 @app.context_processor
 def inject_user():
 	return dict(USERNAME=session.get('username'))
+
+@app.context_processor
+def inject_referrer():
+	return dict(PREV_URL=request.referrer)
+
+"""
+Template filters
+"""
+@app.template_filter('format_time')
+def format_time(s):
+	return s.strftime("%x %X")
 
 Session(app)
 
@@ -38,42 +52,50 @@ def search():
 		return redirect(url_for('login'))
 
 	if request.method == "POST":
+		result=[]
 		query = request.form.get("search_string")
 		if query is not None:
 			try:
 				query = int(query)
 				result = db.execute("select * from books where published_year = :year",{'year':query}).fetchall()
-			except:
+			except ValueError:
 				query = '%' + query.title() + '%'
 				#function(123)
 				result = db.execute("select * from books where title like :query or isbn like :query or author like :query",
 			                   {'query':query}).fetchall()
 			db.commit()
 		return render_template("search.html", books=result)
+	elif len(request.args) == 1:
+		result=[]
+		query = request.args.get('search_string')
+		if query is not None:
+			result = db.execute('select * from books where isbn = :isbn',{'isbn':query})
+
+		return render_template("search.html",books=result)
 	else:
-		return render_template("search.html",books='')
+		return render_template('search.html')
 
 
 @app.route('/book/<isbn>',methods=["GET"])
 def book(isbn):
 	if not session.get('user_id'):
 		return redirect(url_for('login'))
-
+	reviews={}
 	data = {}
 	if isbn is not None:
 		#data = get_reviews(isbn)
 
 		result = db.execute("select * from books where isbn = :isbn", {"isbn": isbn}).fetchone()
 		if result is not None:
-			#gr_avg,gr_ratings = gr_search(isbn, app.config.get('GR_API_KEY'))
-			gr_avg=1;gr_ratings=1
+			gr_avg,gr_ratings = gr_search(isbn, app.config.get('GR_API_KEY'))
+			#gr_avg=1;gr_ratings=1
 			data = {'isbn': result.isbn, 'title': result.title, 'author': result.author, 'year': result.published_year,
 			          'review_count': result.total_reviews,
 			          # if the average score is still set at 0.0 then we return 0 as to not get a divide by zero error.
 			          'average_score': (result.total_review_score / result.total_reviews) if result.total_reviews > 0 else 0}
-			reviews = db.execute("""select reviews.review_score,reviews.review_text,reviews.reviewed_time,users.username
+			reviews = db.execute("""select reviews.id,reviews.review_score,reviews.review_text,reviews.reviewed_time,users.username
 			 from reviews right join users on reviews.user_id = users.id where isbn = :isbn""",
-			                     {"isbn": isbn}).fetchone()
+			                     {"isbn": isbn})
 			db.commit()
 			result = {}
 			if reviews:
@@ -89,7 +111,7 @@ def book(isbn):
 	else:
 		# return redirect(url_for("error_404"),code=404)
 		abort(404)
-
+	app.logger.info(data)
 	return render_template('book.html',book_data=data,reviews=reviews)
 
 
@@ -112,8 +134,8 @@ def review():
 		if review_id is not None:
 			#result=db.execute("select * from reviews where id=:id",{'id':id});
 			reviews = db.execute("""select reviews.isbn,reviews.review_score,reviews.review_text,reviews.reviewed_time,users.username
-			 from reviews right join users on reviews.user_id = users.id where id = :id""",
-			                     {"id": review_id})
+			 from reviews right join users on reviews.user_id = users.id where reviews.id = :id""",
+			                     {"id": review_id}).fetchone()
 			#return str(id)
 		if isbns is None:
 			isbns=reviews.isbn
@@ -121,12 +143,15 @@ def review():
 		data = db.execute("select * from books where isbn = :isbn", {"isbn": isbns}).fetchone()
 		#db.commit()
 		#data=dict_proxy(data)[0]
+
 		data=dict(zip(data.keys(),data))
 		data['avg_score'] = 0 if data['total_reviews'] == 0 else round(data['total_review_score']/data['total_reviews'],2)
-		if result is not None:
-			result=dict_proxy(result)
+		reviews=dict(zip(reviews.keys(),reviews))
+		reviews['id']=review_id
+		#if result is not None:
+		#	result=dict_proxy(result)
 
-		return render_template('review.html',book_info=data,reviews=result)
+		return render_template('review.html',book_info=data,reviews=reviews)
 	if request.method == "POST":
 		queried=False
 		#update the database with the new fields.
@@ -135,31 +160,45 @@ def review():
 		review_id=request.form.get('id')
 		review_text = request.form.get('review_text')
 		review_score = request.form.get('review_score')
+		username=session.get('username')
+		query=''
 		if review_id is not None:
-			db.execute("""UPDATE reviews set(review_score,review_text) = (:review_score,review_text) 
-				where id= :id and user_id = :user_id""",{'id':review_id,'user_id':session.get('user_id')})
-			db.execute("""UPDATE books set total_review_score = (select (:review_score-total_review_score) from books where isbn = :isbn) 
-			where isbn = :isbn""",{'isbn':isbn,'review_score':review_score})
-			db.session.commit()
+			db.execute("""UPDATE books set total_review_score = total_review_score + (select (:review_score-review_score) from reviews where id = :id) where isbn = :isbn""",
+			    {'isbn':isbn,'review_score':review_score,'id':review_id})
+			result=db.execute("""UPDATE reviews set(review_score,review_text) = (:review_score,:review_text) where id = :id and user_id = :user_id returning reviewed_time""",
+				{'id':review_id,'review_score':review_score,'review_text':review_text,'user_id':session.get('user_id')})
+			db.commit()
+			result=dict(zip(result.keys(), result))
+			reviews={'id':review_id,'username':session.get('username'),'review_score':review_score,'review_text':review_text,'reviewed_time':result['reviewed_time']}
 		elif isbn is not None:
 			user_id=session.get('user_id')
 			rows=db.execute("""select isbn from reviews where user_id = :user_id and isbn = :isbn""",{'user_id':user_id,'isbn':isbn}).fetchone()
 			if rows:
-				id= db.execute("""UPDATE reviews set(review_score,review_text) = (:review_score,review_text) where 
-					user_id = :user_id and isbn = :isbn returning id""",
+
+				db.execute("""UPDATE books set total_review_score = total_review_score + (select (:review_score-review_score) from reviews where id = :id) where isbn = :isbn""",{'isbn':isbn,'review_score':review_score,'id':review_id})
+				result = db.execute("""UPDATE reviews set(review_score,review_text) = (:review_score,review_text) where user_id = :user_id and isbn = :isbn RETURNING id,reviewed_time""",
 				    {'review_score':review_score,'review_text':review_text,'user_id':user_id,'isbn':isbn})
 				#db.session.commit()
 			else:
-				id=db.execute("""INSERT INTO reviews(review_score,review_text,isbn,user_id) 
-					values(:review_score,:review_text,:isbn,:user_id) RETURNING id""",
+				result =db.execute("""INSERT INTO reviews(review_score,review_text,isbn,user_id) values(:review_score,:review_text,:isbn,:user_id) RETURNING id,reviewed_time""",
 				    {'review_score':review_score,'review_text':review_text,'isbn':isbn,'user_id':user_id})
 				db.execute("""UPDATE books SET total_reviews = total_reviews + 1, 
-				total_review_score = total_review_score + :review_score; where isbn=:isbn""",{'review_score':review_score,'isbn':isbn})
+				total_review_score = total_review_score + :review_score where isbn=:isbn""",{'review_score':review_score,'isbn':isbn})
 				#db.session.commit()
+			db.commit()
+
+			result=dict(zip(result.keys(), result))
+			reviews={'id':result['id'],'username':username,'review_score':review_score,'review_text':review_text,'reviewed_time':result['reviewed_time']}
 		else:
-			pass
+			reviews=None
 		db.commit()
-	return render_template('review.html')
+		app.logger.info("Query "+query)
+		data = db.execute("select * from books where isbn = :isbn", {"isbn": isbn}).fetchone()
+		#db.commit()
+		#data=dict_proxy(data)[0]
+		data=dict(zip(data.keys(),data))
+		return render_template('review.html',reviews=reviews,book_info=data)
+	return redirect(url_for('index'))
 
 @app.route('/gr_review/<isbns>',methods=["GET"])
 def gr_review(isbns):
@@ -199,17 +238,11 @@ def book_info(isbns):
 		return jsonify({'book': False, 'reviews': False})
 
 
-
-
 @app.route('/dashboard')
 def dashboard():
-	pass
-
-
-@app.route('/browse')
-def browse():
-	pass
-
+	reviews=db.execute("select reviews.*,books.title,books.author from reviews join books on reviews.isbn = books.isbn where user_id = :user_id",{'user_id':session.get('user_id')})
+	reviews=dict_proxy(reviews)
+	return render_template('dashboard.html',reviews=reviews)
 
 @app.route('/api/<isbn>', methods=["GET", "POST"])
 def get_isbn(isbn):
@@ -283,9 +316,9 @@ def login():
 				session['user_id']=result.id
 				return redirect(url_for('index'))
 			else:
-				return render_template('login.html',msg="Password or Username Failed")
+				return render_template('login.html',msg="The password or username your entered is either incorrect or the user does not exist.")
 		else:
-			return render_template("login.html", msg="failed")
+			return render_template("login.html", msg="The password or username your entered is either incorrect or the user does not exist.")
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -297,11 +330,19 @@ def register():
 			return render_template('register.html', msg="No username specified")
 
 		if db.execute('select id from users where username=:username', {'username': username}).fetchone() is not None:
-			return render_template('register.html', msg="error user already exists")
+			return render_template('register.html', msg="Sorry someone is already registered with that username")
 		else:
 			password = request.form.get('password')
-			if passowrd is None:
-				return render_template("register.html", msg="No password specified")
+			password_confirm = request.form.get('password_confirm')
+
+			if password is None :
+				return render_template("register.html", msg="No password specified.")
+			elif password_confirm is None:
+				return render_template("register.html", msg="You didn't specify a verification password.")
+			elif password_confirm != password:
+				return render_template("register.html", msg="Your verification password didn't match your password.")
+
+
 			mobile_password = password[0].upper() + password[1:]
 
 			password = auth_tool.hash_password(password, pepper)
@@ -312,7 +353,7 @@ def register():
 			db.commit()
 			return redirect(url_for("index"))
 	else:
-		return render_template('register.html', msg="")
+		return render_template('register.html')
 
 
 @app.route('/logout')
@@ -322,9 +363,9 @@ def logout():
 	#pass
 
 
-@app.route('/books')
-def books():
-	books1 = db.execute("SELECT * from books").fetchall()
+@app.route('/browse')
+def browse():
+	books1 = db.execute("SELECT * from books where total_reviews >= 1 order by title").fetchall()
 	return render_template('books.html', books=books1)
 
 @app.route('/logged_in')

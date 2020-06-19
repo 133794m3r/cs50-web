@@ -3,21 +3,34 @@
     Review Page
 {% endblock %}
 {% block style %}
-	main>div.row
+	{#   main>div.row #}
 {% endblock %}
 {% block head %}
 <script type="text/javascript" async defer>
 	window.onload=function(){
 		document.getElementById('review_body').addEventListener("submit", submit_input);
+		update_review_score("{{ reviews.review_score }}");
 	}
 	function submit_input(event){
 		//event.preventDefault();
 
 	}
+	function update_review_score(review_score){
+		let el=document.getElementById('review_score');
+		let value=0
+		for (let i = 0; i < el.length; i++) {
+        value = el[i].getAttribute('value');
+        if(value === review_score){
+        	el[i].setAttribute('selected',true);
+        	break;
+				}
+    }
+	}
 	</script>
 {% endblock %}
 {% block body %}
-
+	{{ USERNAME }}
+	{{ query }}
 	<main class="container lg">
 	{% if book_info is not none %}
 	<div class="row">
@@ -37,7 +50,14 @@
 					Avg Review: {{ book_info.avg_score }}/5
 					</li>
 					<li class="list-group-item">
-					Total Reviews: {{ book_info.total_reviews }}
+					Total Reviews: {{ book_info.review_count }}
+					</li>
+					<li class="list-group-item">
+						{% if request.referrer is not none %}
+							<a href="{{ request.referrer }}">{{ request.referrer }}</a>
+						{% else %}
+							<a href="{{ url_for("search",search_string=book_info.isbn) }}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="false">Return to Book Search</a>
+						{% endif %}
 					</li>
 				</ul>
 				<div class="col-sm">
@@ -46,20 +66,8 @@
 		</div>
 	</div>
 	{% endif %}
-	{% if reviews is not none %}
-		<div class="col-md card-space">
-			<div class="card bg-dark text-white mb">
-				 <div class="card-header">{{ review.username }}'s Review</div>
-				<div class="card-body bg-secondary">
-					Reviewed on:{{ review.reviewed_time }}
-					Rating: {{ review.rating }}
-					<p class="card-text review-text">
-						{{ review.review_text }}
-					</p>
-				</div>
-			</div>
-		</div>
-	{% elif reviews.username == USERNAME %}
+
+	{% if reviews.username == USERNAME %}
 		<div class="col-md card-space">
 			<div class="card bg-dark text-white mb">
 				 <div class="card-header">{{ USERNAME }}'s Review</div>
@@ -71,7 +79,7 @@
 							Update your review
 							</div>
 							<div class="col">
-								<select name="review_score">
+								<select name="review_score" id="review_score">
 									<option value="0">Rate the book out of 5.</option>
 									<option value="1">1 -- It's bad.</option>
 									<option value="2">2 -- It's OK.</option>
@@ -83,14 +91,29 @@
 						</div>
 					</div>
 					<div class="input-group">
-						<textarea rows="4" class="form-control" name="review_text"></textarea>
+						<textarea rows="4" class="form-control" name="review_text">{{ reviews.review_text }}</textarea>
 					</div>
-					<input type="hidden" name="id" value="{{ review.id }}">
+					<input type="hidden" name="id" value="{{ reviews.id }}">
 					<input class="hidden" type="hidden" name='isbn' value="{{ book_info.isbn }}"/>
+						<button>Submit</button>
 				</form>
 				</div>
 			</div>
 		</div>
+	{% elif reviews is not none %}
+		<div class="col-md card-space">
+			<div class="card bg-dark text-white mb">
+				 <div class="card-header">{{ reviews.username }}'s Review</div>
+				<div class="card-body bg-secondary">
+					Reviewed on:{{ reviews.reviewed_time }}
+					Rating: {{ reviews.rating }}
+					<p class="card-text review-text">
+						{{ reviews.review_text }}
+					</p>
+				</div>
+			</div>
+		</div>
+
 	{% else %}
 		<div class="col-md card-space">
 			<div class="card bg-dark text-white mb">

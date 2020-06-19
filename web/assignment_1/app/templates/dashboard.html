@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block style %}
+.card-body .row + .row {
+	margin-top: 1rem;
+}
+{% endblock %}
+{% block body %}
+	<main class="container lg">
+		<div class="row">
+			<h1>{{ USERNAME }}'s Dashboard</h1>
+		</div>
+		<div class="row">
+				{% for review in reviews %}
+					<div class="col-md-4">
+						<div class="card bg-dark text-white mb-4">
+							 <div class="card-header">{{ review.title }} by {{ review.author }}</div>
+							<div class="card-body bg-secondary">
+								<div class="row">
+									<div class="col">
+										<ul class="list-group" style="list-style:none">
+											<li class="">
+												Reviewed on {{ review.reviewed_time | format_time }}
+											</li>
+											<li class="">
+												Reviewed Score {{ review.review_score }}
+											</li>
+										</ul>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col">
+										<span>Your Review</span>
+										<p class="card-text review-text bg-info">
+											{{ review.review_text }}
+										</p>
+									</div>
+								</div>
+									<div class="row">
+										<div class="col"></div>
+										<div class="col">
+											<a href="{{ url_for("review",id=review.id,isbn=review.isbn) }}" class="text-white -underline" >View this Review</a>
+										</div>
+										<div class="col"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+		</div>
+	</main>
+{% endblock %}

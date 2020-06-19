@@ -9,15 +9,6 @@
 	<main role="main" class="container">
 	<div class="row">
 		<div class="col-8">
-{#			<label for="search_selection">#}
-{#				Search By#}
-{#			</label>#}
-{#				<select id="search_selection" onchange="update_input('search_selection')">#}
-{#					<option value="isbn">ISBN</option>#}
-{#					<option value="title">Title</option>#}
-{#					<option value="author">Author</option>#}
-{#					<option value="published_year">Published Year</option>#}
-{#				</select>#}
 			<form action="/search" method="POST" id="search_form">
 				<div class="form-row">
 					<div class="col-2">
@@ -27,7 +18,6 @@
 					</div>
 					<div class="col-8">
 						<input id="search_type" type="text"  class='form-control' name="search_string" placeholder="Title,ISBN,Author,Print Year">
-{#				<input type="button" value="search">#}
 					</div>
 					<div class="col">
 						<input class="btn btn-dark mb-2" value="Search" type="submit">
@@ -35,7 +25,11 @@
 				</div>
 			</form>
 		</div>
-
+			{% if request.referrer is not none %}
+				<a href="{{ request.referrer }}">{{ request.referrer }}</a>
+			{% else %}
+				<a href="{{ url_for("search") }}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="false">Return to Book Search</a>
+			{% endif %}
 	</div>
 
 <div class="row" style="margin-top:10px !important">
