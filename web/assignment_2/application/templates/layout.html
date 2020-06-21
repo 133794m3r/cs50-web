@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>{% block title %}{% endblock %}</title>
+	<script src="../static/js/script.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>  <!--essential script for socket IO-->
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="../static/css/bootstrap.min.css" crossorigin="anonymous">
+	{% block head %}
+	{% endblock %}
+</head>
+<body>
+{% block body %}
+{% endblock %}
+</body>
+</html>
