@@ -28,7 +28,7 @@
 				<div id='msg_block' class="msg-group">
 				</div>
 
-						<textarea id="input_box" class="form-control text-white bg-dark" rows="1" placeholder="Say something..." onkeypress=""></textarea>
+						<input id="input_box" class="form-control text-white bg-dark" placeholder="Say something..." onkeypress="update_msg(event);">
 			</div>
 
 			<div class="col-2 p-3 text-center">
@@ -40,7 +40,7 @@
 
 	<div class="modal fade" id="main_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered" role="document">
-			<div class="modal-content">
+			<div class="modal-content bg-dark">
 				<div class="modal-header">
 					<h5 class="modal-title" id="main_modal_title">Please chose a username</h5>
 				</div>
