@@ -1,17 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="height:100%">
 <head>
 	<meta charset="UTF-8">
-	<title>{% block title %}{% endblock %}</title>
-	<script src="../static/js/script.js"></script>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>  <!--essential script for socket IO-->
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<link rel="stylesheet" href="../static/css/bootstrap.min.css" crossorigin="anonymous">
+	<title>{% block title %}{% endblock %}</title>
+	<link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.min.css') }}" crossorigin="anonymous">
+
+	<script type="text/javascript" src="{{ url_for('static',filename='js/socket.io.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static',filename='js/jquery.min.js') }}"></script>
 	{% block head %}
 	{% endblock %}
+	<style>
+		.main{
+
+			width:100%;
+			position: absolute;
+		}
+		#msg_area{
+			height:100%;
+			width:100%;
+			min-height:30rem;
+		}
+		#msg_block{
+			width:100%;
+		}
+		.container,.lg{
+			max-width:90%;
+			min-height:30rem;
+		}
+
+    .card {
+        padding: 10px 0 10px 0;
+			width:100%;
+    }
+
+    .input-group {
+    	position: absolute;
+			height: 7%;
+    	bottom: 0;
+			left:0;
+    }
+
+    .btn {
+        height:100%;
+    }
+	</style>
 </head>
-<body>
+<body class="bg-dark text-white" style="height:100%">
 {% block body %}
 {% endblock %}
+	<script src="{{ url_for('static',filename='js/bootstrap.min.js') }}" defer async></script>
+	<script src="{{ url_for('static',filename='js/script.js') }}" defer></script>
 </body>
 </html>
