@@ -82,7 +82,7 @@ $('body').ready(()=>{
 				if(input_val in g_channels){
 					$('#main_modal_title').text('This channel already exists. Please select another name.');
 				}
-				else if (total_privates > 0 && input_val in g_privat['names']){
+				else if (total_privates > 0 && input_val in g_private['names']){
 					$('#main_modal_title').text('This channel already exists. Please select another name.');
 				}
 				else {
@@ -157,8 +157,17 @@ $('body').ready(()=>{
 	$('#join_private_channel').on('click',()=>{
 		$('#main_modal_title').text('Please enter the channel\'s name');
 		$('#modal_label').text('Channel Name:')
-		$('#input_row').after(`<div class="row" id="password_row"><div class="col"><label for="channel_password">Channel Password
+		if(document.getElementById('password_row') !== null) {
+			$('#password_row').remove();
+			$('#input_row').after(`<div class="row" id="password_row"><div class="col"><label for="channel_password">Channel Password
 			</label><input id="channel_password" type="text"></div></div>`);
+		}
+		else{
+			$('#input_row').after(`<div class="row" id="password_row"><div class="col"><label for="channel_password">Channel Password
+			</label><input id="channel_password" type="text"></div></div>`);
+		}
+
+
 		$('#modal_input').data('type','join_private');
 		$('#main_modal').modal('toggle');
 	});
