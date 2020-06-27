@@ -151,6 +151,7 @@ def join(data):
 		     room=request.sid)
 	password=data.get('password')
 	room = data["channel"]
+	username =data['username']
 	if room not in channels_list and room not in private_channels['names']:
 		# print('not channels')
 		# print(private_channels['short_name'])
@@ -179,13 +180,11 @@ def join(data):
 				                "channel_msgs": ""}, room=request.sid)
 				return
 			print(i)
-			msg['channel'] =  data["channel"]
-			msg['full_name'] = room
-			msg['password'] = data['password']
-			msg['msg'] = f"Channel {channel_name} created with password {password}"
+			msg= {"error":"",'channel': data["channel"], 'full_name': room, 'password': data['password'],
+			      'msg': f"Channel {data['channel']} created with password {password}"}
 			if not users_rooms.get(username):
 				users_rooms[username] = []
-				users_rooms[username].append(full_name)
+				users_rooms[username].append(room)
 
 			join_room(room)
 			emit("private_channel", msg, room=request.sid)
@@ -212,9 +211,10 @@ def submit_to_all(data):
 @socket.on("submit_to_room")
 def submit_to_room(data):
 	room=data['channel']
-	print(data)
-	update_room_msg(data,room)
-	emit("announce_room",{"channel_msgs":channels_msgs[room]['msgs']},room=room)
+	#print(data)
+	msg=update_room_msg(data,room)
+	#emit("announce_room",{"channel_msgs":channels_msgs[room]['msgs']},room=room)
+	emit("announce_room",{"msg":msg},room=room,broadcast=True)
 
 @socket.on("rejoin_general")
 def rejoin_general():
@@ -242,8 +242,6 @@ def create_channel(data):
 def new_user(data):
 	username=data.get('username')
 	error=""
-	print(username)
-	print(username in users)
 	if username is None:
 		error = "No username provided."
 	elif data['username'] in users:
@@ -251,7 +249,7 @@ def new_user(data):
 	else:
 		users[username] = request.sid
 		users_rooms['username']=[]
-	print("error",error)
+
 	if error == "":
 		emit('add_user',{'username':username,'error':''},broadcast=True)
 	else:
@@ -260,9 +258,9 @@ def new_user(data):
 @socket.on("create_private_channel")
 def create_private_channel(data):
 	channel_name=data.get('channel')
-	print(channel_name)
-	print(request.sid)
-	print(session['uid'])
+	# print(channel_name)
+	# print(request.sid)
+	# print(session['uid'])
 	username=data.get('username')
 	full_name=channel_name+session['uid'][0:4]
 	password=data.get('password')
@@ -289,7 +287,7 @@ def create_private_channel(data):
 		if not users_rooms.get(username):
 			users_rooms[username]=[]
 		users_rooms[username].append(full_name)
-	print(private_channels)
+	# print(private_channels)
 
 	channels_msgs[full_name] = {'num_msgs': 0, 'msgs': []}
 	emit("private_channel",msg,room=request.sid)
@@ -297,13 +295,13 @@ def create_private_channel(data):
 @socket.on('create_pm_room')
 def create_pm_room(data):
 	print('create_pm')
-	print(data)
-	print(users)
+	# print(data)
+	# print(users)
 	sender=data.get('username')
 	receiver=data.get('to_user')
-	print(receiver not in users)
+	# print(receiver not in users)
 	if receiver not in users:
-		print("not in users")
+		# print("not in users")
 		emit("add_pm", {'error': 'User not found', 'msg': ''}, room=request.sid)
 	else:
 		room = users[receiver] + users[sender]
@@ -318,13 +316,20 @@ def create_pm_room(data):
 
 @socket.on("send_pm")
 def private_msg(data):
+	# print(data)
 	sender=data.get('username')
 	receiver=data.get('to_user')
+	room=data.get('room')
+	if room not in user_pms:
+		# print('user_pms',user_pms)
+		emit("pm",{"error":"The room doesn't exist.","msg":""})
 	if receiver not in users:
+		# print('err')
 		emit("pm",{'error':'User not found','msg':''},room=request.sid)
 	else:
 		msg = update_room_msg(data, room)
-		message = {'room_name': room, 'from': sender, 'to': receiver, 'msg': msg}
+		# print("sent")
+		message = {"error":"",'room_name': room, 'from': sender, 'to': receiver, 'msg': msg}
 		emit("pm",message,room=room)
 
 @socket.on("get_pms")
