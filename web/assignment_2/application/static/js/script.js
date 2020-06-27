@@ -308,6 +308,9 @@ $('body').ready(()=>{
 			}
 			$('#channel_id').text(g_pms[shown_user]);
 			g_pm_msgs[channel_id].push(data['msg']);
+			if(g_current_channel !== channel_id){
+				add_messages(data['msg']);
+			}
 		}
 	});
 	socket.on("update_users",data=>{
