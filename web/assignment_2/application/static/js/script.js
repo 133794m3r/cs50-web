@@ -10,10 +10,11 @@ Array.prototype.removeItem=function(needle){
 Date.prototype.toLocalTime=function() {
 	return this.toLocaleString('en-us', {timeZone: 'America/New_York'})
 }
-
+localStorage.clear();
 //the globals
 var g_channels = [];
 var g_pms = {};
+var g_pm_msgs = {};
 var g_users = [];
 var g_current_channel = "";
 var g_privates = {'names':[],'passwords':[]};
@@ -25,6 +26,7 @@ $('body').ready(()=>{
 	socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
 	if (!g_username){
+		console.log('no username')
 		$('#main_modal').modal('toggle');
 		$('#modal_input').data('type','username');
 	}
@@ -103,12 +105,14 @@ $('body').ready(()=>{
 					let el=document.getElementById('channel_password');
 					let password=el.value;
 					el.value='';
+					$('#password_row').remove();
 					socket.emit('create_private_channel',{'channel':input_val,'username':g_username,'password':password})
 				}
 				break;
 
 			case "join_private":
 				let password=$('#channel_password').val();
+				$('#channel_password').val('');
 				if(input_val in g_channels){
 					$('#main_modal_title').text("This channel is a regular channel no password is required.")
 				}
@@ -116,12 +120,14 @@ $('body').ready(()=>{
 					$('#main_modal_title').text("The password cannot be blank.");
 				}
 				else{
+					$('#password_row').remove()
 					socket.emit("join",{"channel":input_val,"password":password});
 				}
 				break;
 
 			case "create_pm":
 				let msg=$('#user_message').val();
+				$('#pm_row').remove()
 				let resp={'username':g_username,'to_user':input_val,'msg':msg};
 				socket.emit("create_pm_room",resp);
 				break;
@@ -151,6 +157,7 @@ $('body').ready(()=>{
 			}
 		});
 		$('#modal_input').data('type','create_channel');
+		console.log('add_channel')
 		$('#main_modal').modal('toggle');
 	})
 
@@ -169,6 +176,7 @@ $('body').ready(()=>{
 
 
 		$('#modal_input').data('type','join_private');
+		console.log('join private')
 		$('#main_modal').modal('toggle');
 	});
 
@@ -176,8 +184,13 @@ $('body').ready(()=>{
 		if (data['error'] !== '') {
 			$('#input_row').html(`<div class="col"><label for="modal_input" id="modal_label">Username</label>
 				<input id="modal_input" class="form-control w-50" type="text" data-type="username"></div>`);
-			$('#main_modal_title').txt(data['error']);
-			$('#main_modal').modal('toggle');
+			$('#main_modal_title').text(data['error']);
+			console.log('cannot add user')
+			window.setTimeout(function(){$('#main_modal').modal('toggle');},300);
+			//console.log($('#main_modal'));
+			//$('#main_modal').removeClass('fade').addClass('show');
+			//document.getElementById('main_modal').style='display:block;';
+
 		}
 		else {
 			console.log(g_username);
@@ -186,17 +199,18 @@ $('body').ready(()=>{
 				add_user(data['username']);
 			}
 			else{
-				add_user(data['username']);
+				//add_user(data['username']);
+				$('#current_username').text(g_username);
 				localStorage.setItem('username',data['username']);
 				socket.emit("rejoin",{"username":g_username});
 			}
 		}
 	});
-
 	socket.on('add_channel',data=>{
 		if(data['error'] != ''){
-			$('#main_modal').modal('toggle');
 			$('#main_modal_title').txt(data['error']);
+			console.log('cannot add channel')
+			window.setTimeout(function(){$('#main_modal').modal('show');},300);
 		}
 		else{
 			console.log('added channel');
@@ -206,7 +220,8 @@ $('body').ready(()=>{
 	socket.on('private_channel',data=>{
 		if(data['error']!=''){
 			$('#main_modal_title').txt(data['error']);
-			$('#main_modal').modal('toggle');
+			console.log('cannot create private channel');
+			window.setTimeout(function(){$('#main_modal').modal('show');},300);
 		}
 		else{
 			console.log("added private");
@@ -233,6 +248,7 @@ $('body').ready(()=>{
 			add_messages(data['channel_msgs']);
 		}
 		else{
+			console.log('cannot join')
 			let channel=data['channel'];
 			let password=data['password'];
 			$('#main_modal_title').text(data['error']);
@@ -247,33 +263,67 @@ $('body').ready(()=>{
 				$('#modal_input').data('type','join_channel');
 			}
 
-			$('#main_modal').modal('toggle');
+			window.setTimeout(function(){$('#main_modal').modal('show');},300);
 		}
 	});
 
 	socket.on("add_pm",data=>{
 		if(data['error']!=''){
-			$('#input_row').innerHTML(`<div class="col"><label for="modal_input" id="modal_label">Username</label>
+			console.log('cannot pm')
+			$('#input_row').html(`<div class="col" id="pm_row"><label for="modal_input" id="modal_label">Username</label>
 				<input id="modal_input" class="form-control w-50" type="text" data-type="create_pm"></div>`)
-			$('#input_row').after(`<div class="row" id="message_row"><div class="col"><label for="user_message">Your Message
-			</label><input id="user_message" type="text"></div></div>`);
-			$('#main_modal_title').txt(data['error']);
-			$('#main_modal').modal('toggle');
+			$('#main_modal_title').text(data['error']);
+			window.setTimeout(function(){$('#main_modal').modal('show');},300);
 		}
 		else{
-			let shown_user=data['to_user'];
+			let shown_user=data['to'];
 			if(shown_user === g_username){
-				g_pms[data['from_user']]=1;
-				shown_user=data['from_user'];
-			}
-			else{
-				g_pms[data['from_user']]=1;
+				shown_user=data['from'];
 			}
 			let channel_id=data['room_name'];
-			let html=`<li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
-				${shown_user}<span class="badge badge-secondary badge-pill">1</span></li>`
-			$('#private_messages').append(html)
+			g_pms[channel_id]={'to':shown_user,'unread':1}
+			let html=`<li id="${channel_id}" class="list-group-item list-group-item-dark d-flex justify-content-between
+ 				align-items-center" onclick="get_pms(this.id)">${shown_user}<span class="badge badge-secondary badge-pill">1
+ 				</span></li>`
+			$('#private_messages').append(html);
+			g_pm_msgs[channel_id]=[data['msg']];
 		}
+	})
+	socket.on("pm",data=>{
+		if(data['error']!=''){
+			console.log('cannot pm')
+			$('#input_row').html(`<div class="col" id="pm_row"><label for="modal_input" id="modal_label">Username</label>
+				<input id="modal_input" class="form-control w-50" type="text" data-type="pm"></div>`)
+			$('#main_modal_title').text(data['error']);
+			window.setTimeout(function(){$('#main_modal').modal('show');},300);
+		}
+		else{
+			let shown_user=data['to'];
+			if(shown_user === g_username){
+				shown_user=data['from'];
+			}
+			let channel_id=data['room_name'];
+			if(g_current_channel !== channel_id) {
+				g_pms[channel_id]['msgs'] += 1
+			}
+			$('#channel_id').text(g_pms[shown_user]);
+			g_pm_msgs[channel_id].push(data['msg']);
+		}
+	});
+	socket.on("update_users",data=>{
+		console.log('update_users');
+		let users=data["users"];
+		g_users=g_users.concat(users);
+		let total=users.length;
+		let q=''
+		let p=''
+		let username=''
+		for(let i=0;i<total;i++){
+			username=users[i];
+			p=`<p id=${username} onclick="message_user(this.id)">${username}</p>`
+			q+=p
+		}
+		$('#users_online').html(q)
 	})
 	socket.on("update_channels",data=>{
 		let channels=data['channels'];
@@ -408,7 +458,8 @@ function send_msg(){
 	$('#input_box').val('');
 	console.log(msg);
 	if(g_private){
-		socket.emit("send_pm",msg);
+		let to_user=g_pms[g_current_channel]['to']
+		socket.emit("send_pm",{'username':g_username,'to':to_user,'msg':msg});
 	}
 	else{
 		socket.emit("submit_to_room",{'channel':g_current_channel,'username':g_username,'msg':msg});
@@ -419,6 +470,7 @@ function select_user(){
 }
 function update_msg(event){
 	let key=event.key;
+	//console.log(key);
 	if (document.getElementById('input_box').value.length > 0) {
 		$("#input_button").attr('disabled', false);
 		if (key == "Enter") {
@@ -429,13 +481,38 @@ function update_msg(event){
 		$("#input_button").attr('disabled', true);
 	}
 }
+
 function message_user(username){
 	if(username !== g_username){
-		$('#input_row').innerHTML(`<div class="col"><label for="modal_input" id="modal_label">Username</label>
+		$('#input_row').html(`<div class="col"><label for="modal_input" id="modal_label">Username</label>
 			<input id="modal_input" class="form-control w-50" type="text" data-type="create_pm" value="${username}"></div>`);
+		$('#message_row').after('');
 		$('#input_row').after(`<div class="row" id="message_row"><div class="col"><label for="user_message">Your Message
 		</label><input id="user_message" type="text"></div></div>`);
-		$('#main_modal_title').txt(`Sending message to ${username}`);
+		$('#main_modal_title').text(`Sending message to ${username}`);
+		$("#user_message").on('keyup', function (event){
+			console.log(event.key);
+			if (document.getElementById('user_message').value.length > 0) {
+				$("#modal_button").attr('disabled', false);
+
+				if (event.key === 'Enter') {
+					$('#modal_button').click();
+				}
+			}
+			else {
+				$("#modal_button").attr('disabled', true);
+			}
+		});
+
 		$('#main_modal').modal('toggle');
 	}
+}
+function get_pms(room_id){
+	g_private = true;
+	let msgs=g_pm_msgs[room_id];
+	$(`#${g_current_channel}`).removeClass('active');
+	g_current_channel=room_id;
+	g_pms[g_current_channel]['msgs']=0;
+	$(`#${room_id}`).addClass('active');
+	add_messages(msgs);
 }

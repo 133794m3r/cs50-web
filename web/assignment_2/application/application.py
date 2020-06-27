@@ -133,6 +133,7 @@ def reconnect(data):
 	channel=channels_list[0]
 	join_room(channel)
 	print("reconnect")
+	emit("update_users",{"users":list(users.keys())})
 	username=data['username']
 	users[username]=request.sid
 	private_rooms=users_rooms.get('username')
@@ -242,6 +243,7 @@ def new_user(data):
 	username=data.get('username')
 	error=""
 	print(username)
+	print(username in users)
 	if username is None:
 		error = "No username provided."
 	elif data['username'] in users:
@@ -249,8 +251,8 @@ def new_user(data):
 	else:
 		users[username] = request.sid
 		users_rooms['username']=[]
-
-	if error != "":
+	print("error",error)
+	if error == "":
 		emit('add_user',{'username':username,'error':''},broadcast=True)
 	else:
 		emit('add_user',{'username':username,'error':error},room=request.sid)
@@ -288,24 +290,30 @@ def create_private_channel(data):
 			users_rooms[username]=[]
 		users_rooms[username].append(full_name)
 	print(private_channels)
+
 	channels_msgs[full_name] = {'num_msgs': 0, 'msgs': []}
 	emit("private_channel",msg,room=request.sid)
 
 @socket.on('create_pm_room')
 def create_pm_room(data):
+	print('create_pm')
+	print(data)
+	print(users)
 	sender=data.get('username')
-	receiver=data.get('to_username')
+	receiver=data.get('to_user')
+	print(receiver not in users)
 	if receiver not in users:
+		print("not in users")
 		emit("add_pm", {'error': 'User not found', 'msg': ''}, room=request.sid)
 	else:
 		room = users[receiver] + users[sender]
 		user_pms[room]=[sender,receiver]
-		channels_msgs[room]={msgs:[],num_msgs:0}
+		channels_msgs[room]={'msgs':[],'num_msgs':0}
 		socket.server.enter_room(users[receiver], room)
 		socket.server.enter_room(request.sid, room)
 		# message = {'text': data['msg'], 'sender': sender, 'time': data['time'],'error':''}
 		msg=update_room_msg(data,room)
-		message = {'room_name': room, 'from': sender, 'to': receiver,'msg':msg}
+		message = {'room_name': room, 'from': sender, 'to': receiver,'msg':msg,'error':''}
 		emit("add_pm",message,room=room,broadcast=True)
 
 @socket.on("send_pm")
