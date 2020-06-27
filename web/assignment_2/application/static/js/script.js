@@ -16,12 +16,12 @@ var g_channels = [];
 var g_pms = {};
 var g_users = [];
 var g_current_channel = "";
-var g_private = {'names':[],'passwords':[]};
+var g_privates = {'names':[],'passwords':[]};
 var g_username = localStorage.getItem('username')
 var socket;
 var g_private = false;
 $('body').ready(()=>{
-
+	document.getElementById('msg_block').scrollTop=3500;
 	socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
 	if (!g_username){
@@ -53,17 +53,21 @@ $('body').ready(()=>{
 
 	$('#modal_button').on('click',()=>{
 		let input=$("#modal_input");
-		let input_val=input.val();
+		let input_val=input.val().replace(/\ /g,'_');
 		let type=input.data('type');
+		input.val('');
+		let total_privates = (g_privates["names"] == undefined?0:g_privates["names"].length)
 		switch(type){
 			case "username":
 				//let username=input.val();
+				g_username=input_val;
 				if(input_val in g_users){
 					$('#main_modal_title').text('This user already exists. Please select another.');
 				}
 				else {
 					socket.emit('new_user', {'username': input_val});
 				}
+
 				break;
 			case "join_channel":
 				if(! (input_val in g_channels)){
@@ -74,24 +78,32 @@ $('body').ready(()=>{
 				}
 			case "create_channel":
 				//let name=input.val();
-				if(input_val in g_channels || input_val in g_private){
+
+				if(input_val in g_channels){
+					$('#main_modal_title').text('This channel already exists. Please select another name.');
+				}
+				else if (total_privates > 0 && input_val in g_privat['names']){
 					$('#main_modal_title').text('This channel already exists. Please select another name.');
 				}
 				else {
-					socket.emit('new_channel',{'channel':input_val});
+					console.log('hit');
+					socket.emit('create_channel',{'channel':input_val});
 				}
 				break;
 
 			case "create_private_channel":
 				//let name=input.val();
-				if(input_val in g_channels || input_val in g_private){
+				if(input_val in g_channels){
+					$('#main_modal_title').text('This channel already exists. Please select another name.');
+				}
+				else if (total_privates > 0 && input_val in g_privat['names']){
 					$('#main_modal_title').text('This channel already exists. Please select another name.');
 				}
 				else {
 					let el=document.getElementById('channel_password');
 					let password=el.value;
 					el.value='';
-					socket.emit('create_private_channel',{'name':input_val,'password':password})
+					socket.emit('create_private_channel',{'channel':input_val,'username':g_username,'password':password})
 				}
 				break;
 
@@ -104,7 +116,7 @@ $('body').ready(()=>{
 					$('#main_modal_title').text("The password cannot be blank.");
 				}
 				else{
-					socket.emit("join",{"room":input_val,"password":password});
+					socket.emit("join",{"channel":input_val,"password":password});
 				}
 				break;
 
@@ -120,19 +132,25 @@ $('body').ready(()=>{
 	$('#add_channel').on('click',()=>{
 		$('#main_modal_title').text('Please enter the channel name');
 		$('#modal_label').text('Channel Name:')
-		let div='<div class="col"><input type="checkbox" id="private_channel_toggle" onclick=""></div>'
-		$('#input_row').after(div);
-		$('#private_channel_toggle').on('click',()=>{
-			if(this.prop('checked')){
-				$('#modal_input').data('type','create_channel');
+
+		if(document.getElementById('private_channel_toggle') == null){
+			let div='<div class="col">Private <input type="checkbox" id="private_channel_toggle" onclick=""></div>'
+			$('#input_row').append(div);
+		}
+
+		$('#private_channel_toggle').on('click',function(){
+			if ($(this).prop('checked')) {
+				$('#modal_input').data('type', 'create_private_channel');
+				if(document.getElementById('password_row') == null) {
+					$('#input_row').after('<div class="row" id="password_row"><div class="col"><label for="channel_password">Password:</label><input type="text" id="channel_password"></div></div>')
+				}
+			}
+			else {
+				$('#modal_input').data('type', 'create_channel');
 				$('#password_row').remove();
 			}
-			else{
-				$('#modal_input').data('type','create_private_channel');
-				$('#input_row').after('<div class="row" id="password_row"><div class="col"><input type="text" id="channel_password"></div></div>')
-			}
 		});
-		$('#modal_input').data('type','channel');
+		$('#modal_input').data('type','create_channel');
 		$('#main_modal').modal('toggle');
 	})
 
@@ -146,18 +164,22 @@ $('body').ready(()=>{
 	});
 
 	socket.on("add_user",data=>{
-		if (data['error'] == '') {
-			$('#input_row').innerHTML(`<div class="col"><label for="modal_input" id="modal_label">Username</label>
-				<input id="modal_input" class="form-control w-50" type="text" data-type="username"></div>`)
+		if (data['error'] !== '') {
+			$('#input_row').html(`<div class="col"><label for="modal_input" id="modal_label">Username</label>
+				<input id="modal_input" class="form-control w-50" type="text" data-type="username"></div>`);
 			$('#main_modal_title').txt(data['error']);
 			$('#main_modal').modal('toggle');
 		}
 		else {
-			if( (data['username'] != g_username) || (data['username'] != localStorage.getItem('username')) ){
+			console.log(g_username);
+			console.log(data['username']);
+			if(data['username'] != g_username){
 				add_user(data['username']);
 			}
 			else{
-				localStorage.setItem('username', data['username']);
+				add_user(data['username']);
+				localStorage.setItem('username',data['username']);
+				socket.emit("rejoin",{"username":g_username});
 			}
 		}
 	});
@@ -168,6 +190,7 @@ $('body').ready(()=>{
 			$('#main_modal_title').txt(data['error']);
 		}
 		else{
+			console.log('added channel');
 			add_channel(data['channel']);
 		}
 	});
@@ -177,21 +200,27 @@ $('body').ready(()=>{
 			$('#main_modal').modal('toggle');
 		}
 		else{
-			g_private['names'].push(data['channel']);
-			g_private['password'].push(data['password']);
-			add_channel(data['channel'],true);
+			console.log("added private");
+			g_privates['names'].push(data['full_name']);
+			g_privates['passwords'].push(data['password']);
+			add_private_channel(data['channel'],data['full_name'])
+			//add_channel(data['channel'],true);
 		}
 	});
 
 	socket.on('user_left',data=>{
 		g_users.removeItem(data['username'])
-		let username=data['username'].replace(' ','_');
+		let username=data['username']
 		$('#'+username).remove()
 	});
 
 	socket.on('joined',data=>{
 		if(data['success']){
-			g_current_channel=g_channels[0];
+			console.log('joined');
+
+			if(!g_current_channel){
+				g_current_channel=g_channels[0];
+			}
 			add_messages(data['channel_msgs']);
 		}
 		else{
@@ -241,7 +270,7 @@ $('body').ready(()=>{
 		let channels=data['channels'];
 		g_channels=channels;
 		let max=channels.length;
-
+		console.log("adding channels");
 		for(let i=0;i<max;i++){
 			add_channel(channels[i],false);
 		}
@@ -250,9 +279,9 @@ $('body').ready(()=>{
 		channels=data['private_channels'];
 		if(channels.length >= 1) {
 			for (const full_name in channels) {
-				g_private['names'].push(channels[full_name]['name'])
-				g_private['passwords'].push(channels[full_name]['password']);
-				add_private_channel(channels[full_name]['name'], full_name, channels['password']);
+				g_privates['names'].push(channels[full_name]['name'])
+				g_privates['passwords'].push(channels[full_name]['password']);
+				add_private_channel(channels[full_name]['name'], channels[full_name]['full_name'], channels['password']);
 			}
 		}
 	})
@@ -282,13 +311,17 @@ function change_channel(channel){
 	let private=$(`#${channel}`).data('private');
 	let password='';
 	if(private){
-		let index=g_private['names'].indexOf(channel);
-		password=g_private['passwords'][index];
+		let index=g_privates['names'].indexOf(channel);
+		password=g_privates['passwords'][index];
 	}
-	$(`#${channel}`).removeClass('active');
-	g_current_channel = channel;
+	console.log(channel);
+	console.log(g_current_channel);
+	$(`#${g_current_channel}`).removeClass('active');
 	$(`#${channel}`).addClass('active');
-	socket.emit('join',{'room':g_current_channel,'password':password});
+
+	g_current_channel = channel;
+
+	socket.emit('join',{'channel':g_current_channel,'password':password});
 }
 
 function add_messages(messages){
@@ -298,15 +331,13 @@ function add_messages(messages){
 		msgs+=construct_message(messages[i]);
 	}
 	$('#msg_block').html(msgs);
+	document.getElementById('msg_block').scrollTop=35000000;
 }
 function construct_message(msg_obj) {
-	console.log(msg_obj);
-		let user_id=msg_obj['username'].replace(' ','_');
+		let user_id=msg_obj['username'];
 		let msg = `<div class="media d-flex"><div>
 		<span><a id="${user_id}" href="#" onclick="message_user(this.id)">${msg_obj['username']}</a></span><span class="pl-2">
 			@ ${new Date(parseInt(msg_obj['time'])).toLocalTime()}</span><p>${msg_obj['text']}</p></div></div>`;
-		//msg += '(' + msg_obj['ts'] + ') ' + msg_obj['user'] + ': ' + msg_obj['msg']
-		//msg += '</div>'
 	return msg;
 }
 
@@ -339,19 +370,17 @@ function bold_channel(){
 function add_channel(channel_name,private=false){
 	const li=document.createElement('li');
 	li.innerText = '#'+channel_name;
-	let channel=channel_name.replace(' ','_');
-	li.setAttribute('id',channel);
+	li.setAttribute('id',channel_name);
 	li.setAttribute('class','list-group-item list-group-item-dark');
 	li.setAttribute('onclick','change_channel(this.id)');
 	li.setAttribute('data-private',`${private}`);
 	$('#channels').append(li);
 }
 
-function add_private_channel(short_name,full_name,password){
+function add_private_channel(short_name,full_name){
 	const li=document.createElement('li');
-	li.innerText = '#'+channel_name;
-	let channel=full_name.replace(' ','_');
-	li.setAttribute('id',channel);
+	li.innerText = '#'+short_name;
+	li.setAttribute('id',full_name);
 	li.setAttribute('class','list-group-item list-group-item-dark');
 	li.setAttribute('onclick','change_channel(this.id)');
 	li.setAttribute('data-private',true);
@@ -361,7 +390,7 @@ function add_private_channel(short_name,full_name,password){
 function add_user(username){
 	const p=document.createElement('p');
 	p.innerText=username;
-	p.setAttribute('id',username.replace(' ','_'))
+	p.setAttribute('id',username)
 	p.setAttribute('onclick','message_user(this.id)');
 	$('#users_online').append(p);
 }
@@ -389,5 +418,15 @@ function update_msg(event){
 	}
 	else {
 		$("#input_button").attr('disabled', true);
+	}
+}
+function message_user(username){
+	if(username !== g_username){
+		$('#input_row').innerHTML(`<div class="col"><label for="modal_input" id="modal_label">Username</label>
+			<input id="modal_input" class="form-control w-50" type="text" data-type="create_pm" value="${username}"></div>`);
+		$('#input_row').after(`<div class="row" id="message_row"><div class="col"><label for="user_message">Your Message
+		</label><input id="user_message" type="text"></div></div>`);
+		$('#main_modal_title').txt(`Sending message to ${username}`);
+		$('#main_modal').modal('toggle');
 	}
 }

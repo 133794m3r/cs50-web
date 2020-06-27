@@ -12,17 +12,18 @@
 	{% endblock %}
 	<style>
 		.main{
-
 			width:100%;
 			position: absolute;
 		}
 		#msg_area{
-			height:100%;
 			width:100%;
 			min-height:30rem;
 		}
 		#msg_block{
 			width:100%;
+			max-height:calc(100vh - 13rem);
+			height:calc(100vh - 13rem);
+			overflow-y:scroll;
 		}
 		.container,.lg{
 			max-width:90%;
@@ -44,6 +45,10 @@
     .btn {
         height:100%;
     }
+
+	.modal-dialog{
+		min-width:65rem;
+	}
 	</style>
 </head>
 <body class="bg-dark text-white" style="height:100%">
