@@ -176,7 +176,7 @@ def join(data):
 					room=name
 					break
 			else:
-				emit("joined", {'success': False, "channel":channel, "password":password, "error": "Invalid password provided.",
+				emit("joined", {'success': False, "channel":room, "password":password, "error": "Invalid password provided.",
 				                "channel_msgs": ""}, room=request.sid)
 				return
 			print(i)

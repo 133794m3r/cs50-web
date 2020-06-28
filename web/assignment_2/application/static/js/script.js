@@ -389,8 +389,8 @@ function change_channel(channel){
 	$(`#${channel}`).addClass('active');
 	g_private = false;
 	g_current_channel = channel;
-
-	socket.emit('join',{'channel':g_current_channel,'password':password});
+	//$('#msg_block').html('');
+	socket.emit('join',{'username':g_username,'channel':g_current_channel,'password':password});
 }
 function add_message(message){
 	$('#msg_block').append(construct_message(message));
