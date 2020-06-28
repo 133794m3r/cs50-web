@@ -80,17 +80,19 @@ channels_msgs = {
 #How many messages we're going to allow each channel to have.
 msg_limit = 100
 
+sids_users={}
+
 def private_channels_info(rooms_list):
 	#private_channels.items()
-	private_info=[]
+	private_info={}
 	tmp={}
 	for room in rooms_list:
 		tmp[room]={}
 		tmp[room]['name']=private_channels['names'][room]
 		tmp[room]['password']=private_channels["passwords"][room]
-		private_info.append(tmp)
+		#private_info.append(tmp)
 
-	return private_info
+	return tmp #private_info
 
 def update_room_msg(data,room):
 	msg = {'text': data['msg'], 'username': data['username'], 'time': time.time()*1000}
@@ -128,19 +130,33 @@ def connect():
 	print('connecting')
 	emit("connect",{'msg':'a'})
 
+
+
 @socket.on("rejoin")
 def reconnect(data):
-	channel=channels_list[0]
+	cur_channel=data.get('channel')
+	if cur_channel is None:
+		channel=channels_list[0]
+	else:
+		channel=cur_channel
 	join_room(channel)
 	print("reconnect")
 	emit("update_users",{"users":list(users.keys())})
 	username=data['username']
+	#remove_old_usersid(username)
 	users[username]=request.sid
-	private_rooms=users_rooms.get('username')
+
+	sids_users[request.sid]=username
+	private_rooms=users_rooms.get(username)
 	if private_rooms:
+		full_names=private_rooms
+		#private_rooms['full_names']=private_rooms
 		private_rooms=private_channels_info(private_rooms)
+		private_rooms['full_names']=full_names
 	else:
 		private_rooms={}
+
+	emit("update_users",{'users':list(users.keys())})
 	emit("update_channels",{"channels":channels_list,"private_channels":private_rooms},room=request.sid)
 	emit("joined",{"success":True,"channel_msgs":channels_msgs[channel]['msgs']},room=request.sid)
 
@@ -339,7 +355,25 @@ def get_pms(data):
 @socket.on("update_user_channels")
 def update_user_channels(data):
 	pass
-		
+@socket.on("disconnect")
+def disconnect():
+	print('disconnected')
+	print(request.sid)
+	print(sids_users)
+	if sids_users.get(request.sid):
+		print(sids_users[request.sid])
+		target_username=sids_users[request.sid]
+		sid_local=dict(sids_users)
+		pop_list=[]
+		for sid, username in sid_local.items():
+			if username == target_username:
+				pop_list.append(sid)
+
+		for pop in pop_list:
+			sids_users.pop(pop)
+
+		emit('user_left',{'username':target_username})
+
 @socket.on("client_disconnect")
 def client_disconnect(data):
 	username=data.get('username')

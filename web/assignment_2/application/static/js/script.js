@@ -10,13 +10,12 @@ Array.prototype.removeItem=function(needle){
 Date.prototype.toLocalTime=function() {
 	return this.toLocaleString('en-us', {timeZone: 'America/New_York'})
 }
-localStorage.clear();
 //the globals
 var g_channels = [];
 var g_pms = {};
 var g_pm_msgs = {};
 var g_users = [];
-var g_current_channel = "";
+var g_current_channel = localStorage.getItem("current_channel");
 var g_privates = {'names':[],'passwords':[]};
 var g_username = localStorage.getItem('username')
 var socket;
@@ -32,12 +31,25 @@ $('body').ready(()=>{
 	}
 	else{
 		add_user(g_username)
-		socket.emit('rejoin',{'username':g_username});
+		socket.emit('rejoin',{'username':g_username,'channel':g_current_channel});
 	}
 
-	window.onbeforeunload = function () {
-		socket.emit('client_disconnect', {'username':localStorage.getItem('username')});
-	}
+// 	function unload(e){
+// 		//(e || window.event).returnValue = "Error";
+// 		//return "Error";
+// 		socket.emit('client_disconnect', {'username':localStorage.getItem('username')});
+// 	}
+// // var unloadEvent = function (e) {
+// //     var confirmationMessage = "Warning: Leaving this page will result in any unsaved data being lost. Are you sure you wish to continue?";
+// //     (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+// //     return confirmationMessage; //Webkit, Safari, Chrome etc.
+// // };
+// // window.addEventListener("beforeunload", unloadEvent);
+// 	//window.addEventListener("beforeunload", unload);
+// $(window).bind("beforeunload",function(event) {
+//     //return "You have some unsaved changes";
+// 		socket.emit('client_disconnect', {'username':localStorage.getItem('username')});
+// });
 
 	$("#modal_input").on('keyup', function (key) {
 		if (document.getElementById('modal_input').value.length > 0) {
@@ -234,6 +246,8 @@ $('body').ready(()=>{
 	});
 
 	socket.on('user_left',data=>{
+		alert("user_left");
+		console.log("user left");
 		g_users.removeItem(data['username'])
 		let username=data['username']
 		$('#'+username).remove()
@@ -343,13 +357,28 @@ $('body').ready(()=>{
 			add_channel(channels[i],false);
 		}
 		//makes the first channel the active one as that's always the one that they join.
-		$(`#${g_channels[0]}`).addClass('active');
+		$(`#${g_current_channel}`).addClass('active');
 		channels=data['private_channels'];
-		if(channels.length >= 1) {
-			for (const full_name in channels) {
+		console.log(data);
+		let full_names=data['private_channels']['full_names'];
+		console.log(full_names)
+		if(full_names == undefined){
+			return;
+		}
+		let channels_length=full_names.length;
+		let full_name = ''
+		if(channels_length >= 1) {
+			for (let i=0;i<channels_length;i++) {
+			//for(let channel in full_names){
+				//console.log(channel);
+				full_name=full_names[i];
+				console.log(full_name);
 				g_privates['names'].push(channels[full_name]['name'])
 				g_privates['passwords'].push(channels[full_name]['password']);
-				add_private_channel(channels[full_name]['name'], channels[full_name]['full_name'], channels['password']);
+				console.log("add_private");
+				console.log(channels[full_name]['name']);
+				console.log(full_name);
+				add_private_channel(channels[full_name]['name'],full_name, channels['password']);
 			}
 		}
 	})
@@ -389,6 +418,7 @@ function change_channel(channel){
 	$(`#${channel}`).addClass('active');
 	g_private = false;
 	g_current_channel = channel;
+	localStorage.setItem("current_channel",g_current_channel);
 	//$('#msg_block').html('');
 	socket.emit('join',{'username':g_username,'channel':g_current_channel,'password':password});
 }
