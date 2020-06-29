@@ -16,54 +16,23 @@ var g_pms = {};
 var g_pm_msgs = {};
 var g_users = [];
 var g_current_channel = localStorage.getItem("current_channel");
-var g_privates = {'names':[],'passwords':[]};
+var g_privates = {'names':[],'passwords':[],'full_name':[]};
 var g_username = localStorage.getItem('username')
 var socket;
 var g_private = false;
 $('body').ready(()=>{
-	document.getElementById('msg_block').scrollTop=3500;
+	document.getElementById('msg_block').scrollTop=100000000000;
 	socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
 	if (!g_username){
 		console.log('no username')
-		$('#main_modal').modal('toggle');
+		$("#main_modal").modal('toggle');
 		$('#modal_input').data('type','username');
 	}
 	else{
 		add_user(g_username)
 		socket.emit('rejoin',{'username':g_username,'channel':g_current_channel});
 	}
-
-// 	function unload(e){
-// 		//(e || window.event).returnValue = "Error";
-// 		//return "Error";
-// 		socket.emit('client_disconnect', {'username':localStorage.getItem('username')});
-// 	}
-// // var unloadEvent = function (e) {
-// //     var confirmationMessage = "Warning: Leaving this page will result in any unsaved data being lost. Are you sure you wish to continue?";
-// //     (e || window.event).returnValue = confirmationMessage; //Gecko + IE
-// //     return confirmationMessage; //Webkit, Safari, Chrome etc.
-// // };
-// // window.addEventListener("beforeunload", unloadEvent);
-// 	//window.addEventListener("beforeunload", unload);
-// $(window).bind("beforeunload",function(event) {
-//     //return "You have some unsaved changes";
-// 		socket.emit('client_disconnect', {'username':localStorage.getItem('username')});
-// });
-
-	$("#modal_input").on('keyup', function (key) {
-		if (document.getElementById('modal_input').value.length > 0) {
-			$("#modal_button").attr('disabled', false);
-
-			if (key.keyCode === 13) {
-				$('#modal_button').click();
-			}
-		}
-		else {
-			$("#modal_button").attr('disabled', true);
-		}
-	});
-
 
 	$('#modal_button').on('click',()=>{
 		let input=$("#modal_input");
@@ -107,10 +76,10 @@ $('body').ready(()=>{
 
 			case "create_private_channel":
 				//let name=input.val();
-				if(input_val in g_channels){
+				if(g_channels.indexOf(input_val) !== -1){
 					$('#main_modal_title').text('This channel already exists. Please select another name.');
 				}
-				else if (total_privates > 0 && input_val in g_privat['names']){
+				else if (total_privates > 0 && g_privates['names'].indexOf(input_val) !== -1){
 					$('#main_modal_title').text('This channel already exists. Please select another name.');
 				}
 				else {
@@ -125,7 +94,7 @@ $('body').ready(()=>{
 			case "join_private":
 				let password=$('#channel_password').val();
 				$('#channel_password').val('');
-				if(input_val in g_channels){
+				if(g_channels.indexOf(input_val) !== -1){
 					$('#main_modal_title').text("This channel is a regular channel no password is required.")
 				}
 				else if(password === ''){
@@ -151,7 +120,8 @@ $('body').ready(()=>{
 	$('#add_channel').on('click',()=>{
 		$('#main_modal_title').text('Please enter the channel name');
 		$('#modal_label').text('Channel Name:')
-
+		$('#input_row')
+		$('.row2').remove()
 		if(document.getElementById('private_channel_toggle') == null){
 			let div='<div class="col">Private <input type="checkbox" id="private_channel_toggle" onclick=""></div>'
 			$('#input_row').append(div);
@@ -161,7 +131,7 @@ $('body').ready(()=>{
 			if ($(this).prop('checked')) {
 				$('#modal_input').data('type', 'create_private_channel');
 				if(document.getElementById('password_row') == null) {
-					$('#input_row').after('<div class="row" id="password_row"><div class="col"><label for="channel_password">Password:</label><input type="text" id="channel_password"></div></div>')
+					$('#input_row').after('<div class="row row2" id="password_row"><div class="col"><label for="channel_password">Password:</label><input type="text" id="channel_password"></div></div>')
 				}
 			}
 			else {
@@ -171,38 +141,45 @@ $('body').ready(()=>{
 		});
 		$('#modal_input').data('type','create_channel');
 		console.log('add_channel')
-		$('#main_modal').modal('toggle');
+		$("#main_modal").modal('toggle');
 	})
 
 	$('#join_private_channel').on('click',()=>{
+		$('.row2').remove();
 		$('#main_modal_title').text('Please enter the channel\'s name');
-		$('#modal_label').text('Channel Name:')
+		$('#modal_label').text('Channel Name:');
+		$('#private_channel_toggle').checked(true);
 		if(document.getElementById('password_row') !== null) {
 			$('#password_row').remove();
-			$('#input_row').after(`<div class="row" id="password_row"><div class="col"><label for="channel_password">Channel Password
+			$('#input_row').after(`<div class="row row2" id="password_row"><div class="col"><label for="channel_password">Channel Password
 			</label><input id="channel_password" type="text"></div></div>`);
 		}
 		else{
-			$('#input_row').after(`<div class="row" id="password_row"><div class="col"><label for="channel_password">Channel Password
+			$('#input_row').after(`<div class="row row2" id="password_row"><div class="col"><label for="channel_password">Channel Password
 			</label><input id="channel_password" type="text"></div></div>`);
 		}
 
 
 		$('#modal_input').data('type','join_private');
 		console.log('join private')
-		$('#main_modal').modal('toggle');
+		$("#main_modal").modal('toggle');
 	});
+	socket.on("user_exists",data=>{
+		localStorage.clear()
+		$('#input_row').html(`<div class="col"><label for="modal_input" id="modal_label">Username</label>
+			<input id="modal_input" class="form-control w-50" type="text" data-type="username" onkeypress="modal_update(event)"></div>`);
+		$('#main_modal_title').text(data['error']);
+		console.log('user already exists')
+		window.setTimeout(function(){$("#main_modal").modal('toggle');},300);
 
+	});
 	socket.on("add_user",data=>{
 		if (data['error'] !== '') {
 			$('#input_row').html(`<div class="col"><label for="modal_input" id="modal_label">Username</label>
-				<input id="modal_input" class="form-control w-50" type="text" data-type="username"></div>`);
+				<input id="modal_input" class="form-control w-50" type="text" data-type="username" onkeypress="modal_update(event)"></div>`);
 			$('#main_modal_title').text(data['error']);
 			console.log('cannot add user')
-			window.setTimeout(function(){$('#main_modal').modal('toggle');},300);
-			//console.log($('#main_modal'));
-			//$('#main_modal').removeClass('fade').addClass('show');
-			//document.getElementById('main_modal').style='display:block;';
+			window.setTimeout(function(){$("#main_modal").modal('toggle');},300);
 
 		}
 		else {
@@ -221,12 +198,13 @@ $('body').ready(()=>{
 	});
 	socket.on('add_channel',data=>{
 		if(data['error'] != ''){
-			$('#main_modal_title').txt(data['error']);
+			$('#main_modal_title').text(data['error']);
 			console.log('cannot add channel')
-			window.setTimeout(function(){$('#main_modal').modal('show');},300);
+			window.setTimeout(function(){$("#main_modal").modal('show');},300);
 		}
 		else{
 			console.log('added channel');
+			g_channels.push(data['channel']);
 			add_channel(data['channel']);
 		}
 	});
@@ -234,11 +212,12 @@ $('body').ready(()=>{
 		if(data['error']!=''){
 			$('#main_modal_title').text(data['error']);
 			console.log('cannot create private channel');
-			window.setTimeout(function(){$('#main_modal').modal('show');},300);
+			window.setTimeout(function(){$("#main_modal").modal('show');},300);
 		}
 		else{
 			console.log("added private");
-			g_privates['names'].push(data['full_name']);
+			g_privates['full_name'].push(data['full_name']);
+			g_privates['names'].push(data['channel']);
 			g_privates['passwords'].push(data['password']);
 			add_private_channel(data['channel'],data['full_name'])
 			//add_channel(data['channel'],true);
@@ -256,7 +235,6 @@ $('body').ready(()=>{
 	socket.on('joined',data=>{
 		if(data['success']){
 			console.log('joined');
-
 			if(!g_current_channel){
 				g_current_channel=g_channels[0];
 			}
@@ -269,8 +247,9 @@ $('body').ready(()=>{
 			$('#main_modal_title').text(data['error']);
 			$('#modal_label').text('Channel Name:');
 			$('#modal_input').val(channel);
-			if(password === ''){
-				$('#input_row').after(`<div class="row" id="password_row"><div class="col"><label for="channel_password">
+			$('.row2').remove();
+			if(password !== ''){
+				$('#input_row').after(`<div class="row row2" id="password_row"><div class="col"><label for="channel_password">
 					Channel Password</label><input id="channel_password" type="text"></div></div>`);
 				$('#modal_input').data('type','join_private');
 			}
@@ -278,7 +257,7 @@ $('body').ready(()=>{
 				$('#modal_input').data('type','join_channel');
 			}
 
-			window.setTimeout(function(){$('#main_modal').modal('show');},300);
+			window.setTimeout(function(){$("#main_modal").modal('show');},300);
 		}
 	});
 
@@ -286,9 +265,9 @@ $('body').ready(()=>{
 		if(data['error']!=''){
 			console.log('cannot pm');
 			$('#input_row').html(`<div class="col" id="pm_row"><label for="modal_input" id="modal_label">Username</label>
-				<input id="modal_input" class="form-control w-50" type="text" data-type="create_pm"></div>`)
+				<input id="modal_input" class="form-control w-50" type="text" data-type="create_pm" onkeypress="modal_update(event)"></div>`)
 			$('#main_modal_title').text(data['error']);
-			window.setTimeout(function(){$('#main_modal').modal('show');},300);
+			window.setTimeout(function(){$("#main_modal").modal('show');},300);
 		}
 		else{
 			let shown_user=data['to'];
@@ -310,9 +289,9 @@ $('body').ready(()=>{
 		if(data['error']!=''){
 			console.log('cannot pm')
 			$('#input_row').html(`<div class="col" id="pm_row"><label for="modal_input" id="modal_label">Username</label>
-				<input id="modal_input" class="form-control w-50" type="text" data-type="pm"></div>`)
+				<input id="modal_input" class="form-control w-50" type="text" data-type="pm" onkeypress="modal_update(event)"></div>`)
 			$('#main_modal_title').text(data['error']);
-			window.setTimeout(function(){$('#main_modal').modal('show');},300);
+			window.setTimeout(function(){$("#main_modal").modal('show');},300);
 		}
 		else{
 			console.log("pmed",data);
@@ -325,7 +304,7 @@ $('body').ready(()=>{
 				g_pms[channel_id]['msgs'] += 1
 				$(`#${channel_id}`).find("span").text(g_pms[channel_id]['msgs']);
 			}
-
+			document.getElementById('msg_block').scrollTop=100000000000;
 			$('#channel_id').text(g_pms[shown_user]);
 			g_pm_msgs[channel_id].push(data['msg']);
 			if(g_current_channel === channel_id){
@@ -347,7 +326,7 @@ $('body').ready(()=>{
 			q+=p
 		}
 		$('#users_online').html(q)
-	})
+	});
 	socket.on("update_channels",data=>{
 		let channels=data['channels'];
 		g_channels=channels;
@@ -373,6 +352,7 @@ $('body').ready(()=>{
 				//console.log(channel);
 				full_name=full_names[i];
 				console.log(full_name);
+				g_privates['full_name'].push(full_name);
 				g_privates['names'].push(channels[full_name]['name'])
 				g_privates['passwords'].push(channels[full_name]['password']);
 				console.log("add_private");
@@ -381,11 +361,13 @@ $('body').ready(()=>{
 				add_private_channel(channels[full_name]['name'],full_name, channels['password']);
 			}
 		}
-	})
+	});
 	socket.on("announce_room",data=>{
 		//add_messages(data['channel_msgs']);
+		console.log('test');
+
 		add_message(data['msg']);
-	})
+	});
 	function pm_user(username_id){
 		let username=document.getElementById(username_id).innerText;
 		let msg=$('#input_box').val();
@@ -424,6 +406,7 @@ function change_channel(channel){
 }
 function add_message(message){
 	$('#msg_block').append(construct_message(message));
+	document.getElementById('msg_block').scrollTop=100000000000;
 }
 function add_messages(messages){
 	let total_messages=messages.length;
@@ -432,7 +415,7 @@ function add_messages(messages){
 		msgs+=construct_message(messages[i]);
 	}
 	$('#msg_block').html(msgs);
-	document.getElementById('msg_block').scrollTop=35000000;
+	document.getElementById('msg_block').scrollTop=100000000000;
 }
 function construct_message(msg_obj) {
 		let user_id=msg_obj['username'];
@@ -495,10 +478,53 @@ function add_user(username){
 	p.setAttribute('onclick','message_user(this.id)');
 	$('#users_online').append(p);
 }
+function join_channel(channel_name,password=''){
+	$(`#${g_current_channel}`).removeClass('active');
+	$(`#${channel_name}`).addClass('active');
+	g_current_channel=channel_name
+	localStorage.setItem("current_channel",g_current_channel);
+	if(password !== ''){
+		socket.emit('join',{'channel':channel_name,'username':g_username,'password':password});
+	}
+	else{
+		socket.emit('join',{'channel':channel_name,'username':g_username});
+	}
+
+}
+function msg_join_channel(msg){
+	const regex = RegExp('\!join\ #([A-Za-z0-9\-\_][^ ]+)','g');
+	let matches=[];
+	let replace_str='';
+	let index=0;
+	let full_name='';
+	let password='';
+	while((matches = regex.exec(msg))!== null){
+		console.log(matches.join(','));
+		if(g_channels.indexOf(matches[1]) !== -1){
+			index=g_channels.indexOf(matches[1]);
+			replace_str=`join <a href="#" title="Join ${g_channels[index]}" 
+				onclick="join_channel('${g_channels[index]}'); return false">#${g_channels[index]}</a>`
+			console.log(replace_str);
+			console.log(msg.replace(matches[0],replace_str));
+			msg=msg.replace(matches[0],replace_str);
+		}
+		else if(g_privates['names'].indexOf(matches[1]) !== -1){
+			index=g_privates['names'].indexOf(matches[1]);
+			full_name=g_privates['full_name'][index];
+			password=g_privates['passwords'][index];
+			replace_str=`join <a href="#" title="Join ${full_name}" onclick="join_channel('${full_name}','${password}'); return false">
+			#${matches[1]}</a>`
+			console.log(replace_str);
+			msg=msg.replace(matches[0],replace_str);
+		}
+	}
+	return msg;
+}
 function send_msg(){
 	let msg = $('#input_box').val();
 	$('#input_box').val('');
 	console.log(msg);
+	msg=msg_join_channel(msg);
 	if(g_private){
 		let to_user=g_pms[g_current_channel]['to']
 		socket.emit("send_pm",{'room':g_current_channel,'username':g_username,'to_user':to_user,'msg':msg});
@@ -507,9 +533,7 @@ function send_msg(){
 		socket.emit("submit_to_room",{'channel':g_current_channel,'username':g_username,'msg':msg});
 	}
 }
-function select_user(){
 
-}
 function update_msg(event){
 	let key=event.key;
 	//console.log(key);
@@ -527,10 +551,13 @@ function update_msg(event){
 function message_user(username){
 	if(username !== g_username){
 		$('#input_row').html(`<div class="col"><label for="modal_input" id="modal_label">Username</label>
-			<input id="modal_input" class="form-control w-50" type="text" data-type="create_pm" value="${username}"></div>`);
-		$('#message_row').after('');
-		$('#input_row').after(`<div class="row" id="message_row"><div class="col"><label for="user_message">Your Message
+			<input id="modal_input" class="form-control w-50" type="text" data-type="create_pm" value="${username}" onkeypress="modal_update(key)"></div>`);
+		$('.row2').remove()
+		// if(!(document.getElementById('message_row'))){
+		$('#input_row').after(`<div class="row row2" id="message_row"><div class="col"><label for="user_message">Your Message
 		</label><input id="user_message" type="text"></div></div>`);
+		// }
+
 		$('#main_modal_title').text(`Sending message to ${username}`);
 		$("#user_message").on('keyup', function (event){
 			console.log(event.key);
@@ -546,7 +573,7 @@ function message_user(username){
 			}
 		});
 
-		$('#main_modal').modal('toggle');
+		$("#main_modal").modal('toggle');
 	}
 }
 function get_pms(room_id){
@@ -559,4 +586,15 @@ function get_pms(room_id){
 	$(`#${g_current_channel}`).find("span").text(0);
 	$(`#${room_id}`).addClass('active');
 	add_messages(msgs);
+}
+function modal_update(key){
+	if (document.getElementById('modal_input').value.length > 0) {
+		$("#modal_button").attr('disabled', false);
+		if (key.keyCode === 13) {
+			$('#modal_button').click();
+		}
+	}
+	else {
+		$("#modal_button").attr('disabled', true);
+	}
 }

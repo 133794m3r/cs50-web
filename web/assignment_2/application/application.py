@@ -64,7 +64,10 @@ reconnecting. It holds the rooms that they have passwords to.
 users_rooms = { <username>:[<list>,<of>,<roms>]}
 """
 users_rooms = {}
-
+"""
+This dictionary contains the usernames and their sessions.
+"""
+user_sessions = {}
 """
 Here we have all of the channel messages each channel's messages as their own
 named item. This is to avoid having everything sent to the user each time a 
@@ -105,7 +108,7 @@ def update_room_msg(data,room):
 
 @app.route("/")
 def index():
-	session.clear()
+	#session.clear()
 	if session.get('uid') is None:
 		import uuid
 		session['uid']=str(uuid.uuid4())
@@ -135,6 +138,11 @@ def connect():
 @socket.on("rejoin")
 def reconnect(data):
 	cur_channel=data.get('channel')
+	username=data.get('username')
+
+	if session['uid'] != user_sessions.get(username):
+		emit("user_exists",{"error":"Username already tied to a session."})
+		return
 	if cur_channel is None:
 		channel=channels_list[0]
 	else:
@@ -167,7 +175,9 @@ def join(data):
 		     room=request.sid)
 	password=data.get('password')
 	room = data["channel"]
+	print(data)
 	username =data['username']
+	# print("password",password)
 	if room not in channels_list and room not in private_channels['names']:
 		# print('not channels')
 		# print(private_channels['short_name'])
@@ -186,7 +196,6 @@ def join(data):
 				return
 
 			i=0
-			print('fn',full_names)
 			for i,name in enumerate(full_names):
 				if data["password"] == private_channels["passwords"][name]:
 					room=name
@@ -195,7 +204,6 @@ def join(data):
 				emit("joined", {'success': False, "channel":room, "password":password, "error": "Invalid password provided.",
 				                "channel_msgs": ""}, room=request.sid)
 				return
-			print(i)
 			msg= {"error":"",'channel': data["channel"], 'full_name': room, 'password': data['password'],
 			      'msg': f"Channel {data['channel']} created with password {password}"}
 			if not users_rooms.get(username):
@@ -264,6 +272,8 @@ def new_user(data):
 		error = "Username already exists."
 	else:
 		users[username] = request.sid
+		session['username']=username
+		user_sessions[username] = session['uid']
 		users_rooms['username']=[]
 
 	if error == "":
