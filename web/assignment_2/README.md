@@ -16,6 +16,8 @@ All of the items are laid out into sections.
     - if their name already exists a modal tells them to chose another.
 - remembering the user after returning(including private channels/pms)
     - Rejoining causes them to get all of the channels they've already authenticated too, and also all of the global channels.
+- Having users click a link to join a channel.
+    - This also includes private channels. If it is a private channel the password will be included as part of the change channel link.
     
 ### Each Files features
 Each one is based upon their file and they are sorted based upon folder.
@@ -46,4 +48,4 @@ This is just my mockup of the index page with the design elements as I was think
 This contains the routes and all of the related python code for the entire application.
 
 ### requirements.txt
-This is the pip requeirements file so that you can also get it up and going after cloning/downloading the files.
+This is the pip requirements file so that you can also get it up and going after cloning/downloading the files.
