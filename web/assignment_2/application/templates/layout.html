@@ -5,13 +5,54 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<title>{% block title %}{% endblock %}</title>
 	<link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.min.css') }}" crossorigin="anonymous">
-
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css')	 }}">
 	<script type="text/javascript" src="{{ url_for('static',filename='js/socket.io.js') }}"></script>
 	<script type="text/javascript" src="{{ url_for('static',filename='js/jquery.min.js') }}"></script>
 	{% block head %}
 	{% endblock %}
 	<style>
+		.main{
+			width:100%;
+			position: absolute;
+		}
+		#msg_area{
+			width:100%;
+			min-height:20rem;
+		}
+		#msg_block{
+			width:100%;
+			{#max-height:calc(100vh - 13rem);#}
+			{#height:calc(100vh - 13rem);#}
+			height:calc(80vh);
+			overflow-y:scroll;
+		}
+		.container,.lg{
+			max-width:90%;
+			min-height:30rem;
+		}
 
+    .card {
+        padding: 10px 0 10px 0;
+			width:100%;
+    }
+
+    .input-group {
+    	position: absolute;
+			height: 7%;
+    	bottom: 0;
+			left:0;
+    }
+
+    .btn {
+        height:100%;
+    }
+
+	.modal-dialog{
+		min-width:calc(30vh);
+	}
+	.list-group-item{
+		padding:0.25rem !important;
+	}
 	</style>
 </head>
 <body class="bg-dark text-white" style="height:100%">
