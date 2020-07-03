@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block title %}
+	Flack Single Page App
+{% endblock %}
+{% block body %}
+<div class="container lg">
+<nav class="center-nav">
+	Flack Assignment
+	<span id="current_username"></span>
+</nav>
+
+	<div class="row vh-90 no-gutters border">
+			<div class="col-2 text-center">
+				<div class="h-50 p-3 border-bottom">
+					<h4>Channels</h4>
+					<button id="add_channel">Create Channel</button>
+					<button id="join_private_channel">Join Private Channel:</button>
+					<ul class="list-group" id="channels">
+					</ul>
+				</div>
+				<div class="h-50 p-3">
+					<h4>Private Messages</h4>
+					<ul class="list-group" id="private_messages">
+					</ul>
+				</div>
+			</div>
+
+			<div class="col-8 border-left border-right p-3 d-flex flex-column justify-content-end h-100" id="msg_area">
+				<div id='msg_block' class="msg-group">
+				</div>
+				<div class="p-1">
+						<input id="input_box" class="form-control text-white bg-dark" placeholder="Say something..." onkeypress="update_msg(event);">
+				</div>
+			</div>
+
+			<div class="col-2 p-3 text-center">
+				<h4>Users Online</h4>
+				<div id="users_online">
+				</div>
+			</div>
+		</div>
+
+	<div class="modal fade" id="main_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content bg-dark">
+				<div class="modal-header">
+					<h5 class="modal-title" id="main_modal_title">Please chose a username</h5>
+				</div>
+				<div id='modal_body' class="modal-body">
+					<div class="row" id="input_row">
+						<div class="col">
+							<label for="modal_input" id="modal_label">Username</label><input id="modal_input" class="form-control w-50" type="text" onkeypress="modal_update(event)" data-type="">
+						</div>
+
+					</div>
+				</div>
+				<div class="modal-footer">
+						<button id='modal_button' type="button" class="btn btn-danger" data-dismiss="modal" disabled>Ok</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
