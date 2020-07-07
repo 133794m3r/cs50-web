@@ -1,0 +1,21 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+	Creating a new Page.
+{% endblock %}
+
+{% block body %}
+	<div class="row h97">
+	<div class="col col-lg-12 col-md-12 ">
+		<div class="h-10">The system uses markdown for formatting for a quick review go to 	<a href="https://www.markdownguide.org/cheat-sheet/">Markdown CheatSheet</a></div><br />
+		<form action="/new" method="post" class="w100 h90">
+			Title: <input type="text" value="" name="title" /><br /><br />
+			<textarea name="content"></textarea><br /><br />
+			<div>
+			<button class="text-center">Submit Chages</button>
+			</div>
+			{% csrf_token %}
+		</form>
+	</div>
+	</div>
+{% endblock %}
