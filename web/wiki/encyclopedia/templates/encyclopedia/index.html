@@ -1,0 +1,20 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+	 Encyclopedia
+{% endblock %}
+
+{% block body %}
+	 <h1>All Pages</h1>
+
+	 <ul class="list-group">
+			{% if entries %}
+		  {% for entry in entries %}
+					<li class="list-group-item"><a href="/wiki/{{ entry }}">{{ entry }}</a></li>
+		  {% endfor %}
+			{% else %}
+				<h3> No pages found that match {{ entry }}	</h3>
+			{% endif %}
+	 </ul>
+
+{% endblock %}

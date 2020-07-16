@@ -1,0 +1,22 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+	Editing {{ page }}
+{% endblock %}
+
+{% block body %}
+	<div class="col-lg-12 col-md-12 row h97">
+		<form action="/edit/{{ page }}" method="post" class="w100">
+			<input type="text" hidden="true" value="{{ page }}" name="title" />
+			<textarea name="content">{{ contents }}</textarea><br /><br />
+			<div>
+			<button class="text-center">Submit Chages</button>
+			</div>
+			{% csrf_token %}
+		</form>
+	</div>
+	<br />
+	<div class="row col-ld-12 col-md-12">
+		<a href="{% url 'show_page' page %}" title="Return to {{ page }}">Return to {{ page }}</a>
+	</div>
+{% endblock %}
