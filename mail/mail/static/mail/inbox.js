@@ -33,12 +33,7 @@ function compose_email() {
 	submitButton.disabled = true;
 	recipients.addEventListener('keyup',()=>{
 		console.log('test');
-		if(recipients.value.length >0){
-			submitButton.disabled = false;
-		}
-		else{
-			submitButton.disabled = true;
-		}
+		submitButton.disabled = recipients.value.length <= 0;
 	})
 
 	document.getElementById('compose-form').onsubmit = () =>{
@@ -50,7 +45,7 @@ function compose_email() {
 				body:body.value,
 				read: false
 			})
-		}).then(result =>{
+		}).then(response=>response.json()).then(result =>{
 			if(result.error){
 				document.getElementById('recipients-error').textContent = result.error
 				recipients.className = 'form-control is-invalid'
