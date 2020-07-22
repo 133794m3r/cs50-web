@@ -1,0 +1,142 @@
+{% extends "layout.html" %}
+{% block head %}
+	<script type="text/javascript" defer async src="../static/js/zxcvbn.js"></script>
+
+	<style>
+	#score{
+		font-size:1.1em;
+	}
+	.remember input {
+		width: 20px;
+		height: 20px;
+		margin-left: 15px;
+		margin-right: 5px;
+	}
+	</style>
+{% endblock %}
+{% block title %}
+	Web50-Books
+{% endblock %}
+
+
+{% block body %}
+	<main role="main" class="container">
+	<div class="">
+	<h1>Register</h1>
+		{% if msg %}
+			<div class="alert alert-primary" role="alert">
+				{{ msg }}
+			</div>
+		{% endif %}
+		<div class="row">
+			<div class="col">
+				<form action="{{ url_for("register") }}" method="post">
+				<div class="input-group mb-3">
+					<div class="input-group-prepend">
+						<label for="username" class="input-group-text">
+							Username
+						</label>
+					</div>
+					<input type="text"
+							 class="form-control" name="username" id="username" placeholder="UserName">
+				</div>
+				<div class="input-group mb-3">
+					<div class="input-group-prepend">
+						<label for="password" class="input-group-text">
+							Password
+						</label>
+					</div>
+					<input type="password"
+							 class="form-control" name="password" id="password" placeholder="Enter Password" onchange="score_password()">
+
+				</div>
+				<div class="input-group mb-3">
+					<div class="input-group-prepend">
+						<label for="password_confirm" class="input-group-text">
+							Confirm
+						</label>
+					</div>
+					<input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Password Confirmation" onchange="score_password()">
+				</div>
+				<div class="align-center row">
+					<div class="col-lg-auto">
+						<input class="" type="checkbox" value="" id="agree" required>
+						<label class="form-check-label" for="agree">
+						I Agree to All Terms and Conditions
+						</label>
+					</div>
+					<div class="col-lg-auto">
+					<button type="submit" class="btn btn-lg btn-primary" id="submission" disabled>Submit</button>
+					</div>
+				</div>
+				</form>
+			</div>
+			<div class="col">
+				Password Rating:
+				<div id="score">
+
+				</div>
+				<span id="password_feedback"></span>
+			</div>
+		</div>
+	</div>
+	</main>
+	<script type="text/javascript">
+	function score_password(){
+		let inputs=new Array(3)
+		//We're going to include their username in the ZXCVBN password strength estimator.
+		inputs[0]=document.getElementById('username').value;
+			//Plus if their username is uppercase as the first letter.
+			inputs[1]= inputs[0] === ''?"":inputs[0].substr(0,1).toUpperCase()+inputs[0].substr(1);
+			//also include the name of the URl that this is used on.
+			inputs[2]=location.hostname;
+			let password=document.getElementById('password').value;
+
+			let el=document.getElementById('score');
+			if(password !== document.getElementById('password_confirm').value){
+			    el.innerText="Passwords must Match!";
+					el.setAttribute("style","color:red;font-weight:bold");
+			    return;
+			}
+			let result=zxcvbn(password,inputs);
+			switch(result.score){
+				case 0:
+					el.innerText="Unsafe Password";
+					el.setAttribute('style','color:red; font-weight:bold;')
+					break;
+				case 1:
+					el.innerText="Weak Password";
+					el.setAttribute('style','color:orange; font-weight:bold;')
+					break;
+				case 2:
+					el.innerText="Acceptable Password";
+					el.setAttribute('style','color:yellow; font-weight:bold;')
+					break;
+				case 3:
+					el.innerText="Safe Password";
+					el.setAttribute('style','color:yellowgreen; font-weight:bold;')
+					break;
+				default:
+					el.innerText="Extremely Safe";
+					el.setAttribute('style','color:green; font-weight:bold;')
+					break;
+			}
+
+			if(result.score <= 2){
+				let feedback=(result.feedback.warning !== '')?result.feedback.warning+'. ':''
+				feedback+=(result.feedback.suggestions.join(' '))+'Also think about adding numbers.'
+				document.getElementById('password_feedback').innerText=feedback;
+			}
+      if (result.score < 1) {
+          let but = document.getElementById('submission');
+          but.setAttribute('aria-disabled', "true");
+      }
+      else {
+          let but = document.getElementById('submission');
+          but.setAttribute('aria-disabled', "false");
+      }
+      document.getElementById('submission').disabled = (result.score < 1);
+
+	}
+	</script>
+{% endblock %}
