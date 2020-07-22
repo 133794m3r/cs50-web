@@ -1,5 +1,5 @@
-#CS50 stuff.
-
+# CS50 stuff.
+Random CS50 Assignments with code from the 2018 version as the class is done the code can be safely released.
 
 ## Sampler
 Assignment0 basic page.
