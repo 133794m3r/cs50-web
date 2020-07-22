@@ -7,3 +7,6 @@
 li {
   list-style-type: none;
 }
+.vh-90{
+	max-height:calc(90vh);
+}

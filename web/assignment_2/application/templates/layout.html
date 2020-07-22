@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<title>{% block title %}{% endblock %}</title>
 	<link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.min.css') }}" crossorigin="anonymous">
-
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css')	 }}">
 	<script type="text/javascript" src="{{ url_for('static',filename='js/socket.io.js') }}"></script>
 	<script type="text/javascript" src="{{ url_for('static',filename='js/jquery.min.js') }}"></script>
 	{% block head %}
@@ -17,7 +17,7 @@
 		}
 		#msg_area{
 			width:100%;
-			min-height:30rem;
+			min-height:20rem;
 		}
 		#msg_block{
 			width:100%;
