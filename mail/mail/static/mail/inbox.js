@@ -1,3 +1,4 @@
+let current_mailbox = '';
 document.addEventListener('DOMContentLoaded', function() {
 
 	// Use buttons to toggle between views
@@ -5,7 +6,11 @@ document.addEventListener('DOMContentLoaded', function() {
 	document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
 	document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
 	document.querySelector('#compose').addEventListener('click', compose_email);
-
+    document.querySelector('#read-archive').addEventListener('click', function(){
+    	const archived_flag = (this.dataset.archived == 'false'?true:false);
+    	//always go back to the current mailbox.
+        toggle_archive(this.dataset.email, {archived:archived_flag});
+	});
 	// By default, load the inbox
 	load_mailbox('inbox');
 });
@@ -32,7 +37,7 @@ function compose_email() {
 
 	submitButton.disabled = true;
 	recipients.addEventListener('keyup',()=>{
-		console.log('test');
+
 		submitButton.disabled = recipients.value.length <= 0;
 	})
 
@@ -61,13 +66,77 @@ function compose_email() {
 }
 
 function load_mailbox(mailbox) {
-	
+	current_mailbox = mailbox;
 	// Show the mailbox and hide other views
 	document.querySelector('#emails-view').style.display = 'block';
 	document.querySelector('#compose-view').style.display = 'none';
 
 	// Show the mailbox name
 	document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+	fetch(`/emails/${mailbox}`).then(response=>{
+		if(!response.ok){
+			throw Error(response.status + '-' + response.statusText);
+		}
+		return response.json()
+	}).then(emails =>{
+		const el = document.getElementById('emails-view');
+		el.innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.substr(1)}</h3>`
+		show_view('emails-view');
+		if(emails.length === 0){
+			el.innerHTML += '<h3> You have no Emails.</h3>';
+		}
+		else{
+			emails.forEach(email=>{
+				const email_item = document.createElement('div');
+				email_item.addEventListener('click',()=>{
+					get_email(email.id,(mailbox === 'sent'));
+				});
+				email_item.className = 'list-group-item list-group-item-action ';
+				email_item.className += (email.read?'list-group-item-secondary':'')
+				email_item.href = '#';
+				let content = (mailbox !== 'sent'?`<div class="col-sm"><b>From</b>  ${email.sender} </div>`:'');
+				content+=(mailbox !== 'inbox'?`<div class="col-sm"><b>To:</b> ${email.recipients} </div>`:'');
+				content+='<div class="col-sm"><b> Subject:</b> '+(email.subject?email.subject:'(No Subject)')+'</div>';
+				content+=`<span class="badge badge-info badge-pill">${email.timestamp}</span>`;
+				content=`<div class="container"><div class="row">${content}</div></div>`
+				email_item.innerHTML = content;
+				el.append(email_item);
+			});
+		}
+	})
+}
+function get_email(id,sent = false){
+
+	fetch(`/emails/${id}`)
+		.then(response=>{
+			if(!response.ok){
+				throw Error(response.status + '-' + response.statusText);
+			}
+			return response.json();
+		}).then(email=>{
+			const email_fields = ['sender','recipients','timestamp','subject','body'];
+			email_fields.forEach(key=>{
+				document.getElementById(key).innerText =
+					(email[key]?email[key]:'(No '+key.charAt(0).toUpperCase() + key.substr(1)+')');
+			});
+			document.querySelectorAll(`[id*="read-"]`).forEach(item=>{
+				item.dataset.email = email.id;
+				if(item.id === 'read-archive'){
+					if(sent){
+						item.style.display = 'none';
+					}
+					else{
+						item.textContent = (email.archived?'Un-Archive':'Archive');
+						item.dataset.archived = email.archived;
+						item.style.display = 'block';
+					}
+				}
+			});
+			if(!email.read){
+				update_flags(email.id,{'read':true});
+			}
+		})
+	show_view('read-view');
 }
 
 function catch_error(error){
@@ -76,8 +145,34 @@ function catch_error(error){
 }
 
 function show_view(id){
-	document.querySelectorAll(`[id*="view-"]`).forEach((item)=> {
+	document.querySelectorAll(`[id*="-view"]`).forEach((item)=> {
 		item.style.display = (id === item.id ? 'block': 'none');
 	})
 	document.body.scrollTop;
+}
+
+function toggle_archive(email_id,flags){
+	update_flags(email_id,flags,load=>{
+		load_mailbox(current_mailbox);
+	})
+}
+
+function update_flags(email_id,flags={},callback){
+	if(flags === {}){
+		return false;
+	}
+	fetch(`/emails/${email_id}`,{
+		method:'PUT',
+		body:JSON.stringify(flags)
+	}).then(response=>{
+		if(!response.ok){
+			throw Error(response.status+'-'+response.statusText);
+		}
+		if(callback){
+			callback()
+		}
+		return true;
+	}).catch(error=>{
+		catch_error(error);
+	})
 }
