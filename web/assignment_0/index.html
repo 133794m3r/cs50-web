@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="style.css">
+	<style>
+		h1{
+			font-weight:800;
+			font-style: italic;
+		}
+		#red_bold{
+			color:red;
+			font-weight:800;
+		}
+		.blue{
+			color:blue;
+		}
+		.bold{
+			font-weight:800;
+		}
+		pre{
+			color:white;
+			background-color:black;
+		}
+		@media only screen and (max-width:500px){
+			ol > li{
+                background-color: blue;
+            }
+            ul > li{
+                background-color:green;
+            }
+			#screen_type::before{
+				content:"Mobile now" !important;
+			}
+		}
+		#screen_type::before{
+			content:"Desktop likely";
+		}
+
+	</style>
+    <title>CS50W Assignment #1</title>
+</head>
+<body>
+	<div class="container-fluid">
+		<h1>Test Header</h1>
+		<h3 id="screen_type"></h3>
+		<div>
+			<h2> Move between Pages</h2>
+			<ul class="list-group list-group-horizontal-md">
+				<li class="list-group-item"><a href="inheritance.html">Show inheritance Demo</a></li>
+				<li class="list-group-item"><a href="other.html">Go to other page.</a></li>
+				<li class="list-group-item"><a href="page3.html">Page #3</a></li>
+			</ul>
+			<br />
+		</div>
+		<div class="row">
+			<div class="col-lg col-sm3">
+				<ol>
+					<li>
+						Ordered list #1
+					</li>
+					<li>
+					   Ordered List # 2
+					</li>
+					<li>
+					   Ordered List # 3
+					</li>
+					<li>
+					   Ordered List # 4
+					</li>
+					<li>
+					   Ordered List # 5
+					</li>
+				</ol>
+			</div>
+			<div class="col-lg col-sm3">
+				<ul>
+					<li>
+					   Unordered List # 1
+					</li>
+					<li>
+						Unordered List # 2
+					</li>
+					<li>
+						Unordered List # 3
+					</li>
+					<li>
+						Unordered List # 4
+					</li>
+					<li>
+						Unordered List # 5
+					</li>
+				</ul>
+			</div>
+			<div class="col-lg col-sm3">
+				<p>
+					This is a simple column. <span id="red_bold">Red & Bold</span> <span class="blue bold">Blue & Bold</span>.
+				</p>
+				<pre>
+def is_odd(number) -> bool:
+"""
+	is_odd Module.
+	Tests if the number passed to it is odd.
+		params: number a numeric input.
+	returns: Boolean
+"""
+	if type(number).__name__ == "int":
+		return True if number & 1 else False
+	elseif type(number).__name == "float":
+		return True if number % 2 else False
+	else:
+		return False
+</pre>
+			</div>
+
+		</div>
+		Simple progress bar. <br />
+	<div class="progress">
+		<div class="progress-bar" role="progressbar" style="width:25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+	</div>
+	</div>
+</body>
+</html>
