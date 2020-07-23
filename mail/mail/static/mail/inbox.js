@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
         toggle_archive(this.dataset.email, {archived:archived_flag});
 	});
 
-
 	// By default, load the inbox
 	load_mailbox('inbox');
 });
@@ -20,8 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function compose_email() {
 
 	// Show compose view and hide other views
-	// document.querySelector('#emails-view').style.display = 'none';
-	// document.querySelector('#compose-view').style.display = 'block';
 	show_view('compose-view');
 	const submitButton = document.getElementById('send-form');
 	const subject = document.getElementById('compose-subject');
@@ -33,9 +30,6 @@ function compose_email() {
 	body.value = '';
 	recipients.value = '';
 
-	// document.querySelector('#compose-recipients').value = '';
-	// document.querySelector('#compose-subject').value = '';
-	// document.querySelector('#compose-body').value = '';
 
 	submitButton.disabled = true;
 	recipients.addEventListener('keyup',()=>{
@@ -63,6 +57,7 @@ function compose_email() {
 		}).catch(error =>{
 			catch_error(error);
 		})
+
 		return false;
 	}
 }
@@ -107,6 +102,7 @@ function load_mailbox(mailbox) {
 		}
 	})
 }
+
 function fetch_email(id,callback){
 		fetch(`/emails/${id}`)
 		.then(response=>{
@@ -143,8 +139,8 @@ function read_email(id,sent = false){
 			update_flags(email.id, {'read': true});
 		}
 		document.getElementById('read-reply').addEventListener('click',()=>{
-		reply_email(email)
-	});
+			reply_email(email)
+		});
 	});
 
 	show_view('read-view');
@@ -154,21 +150,24 @@ function catch_error(error){
 	document.getElementById('error-view').innerHTML = `<h1> A problem occurred. </h1><p> ${error.message}</p>`
 	show_view('view-error');
 }
+
 function reply_email(email){
 	let subj = email.subject;
 	if(!(subj.match(/^R[Ee]:/))){
 		subj = `RE: ${subj}`;
 	}
 	let body = '> '+email.body
+	let sender = (current_mailbox == 'sent'?email.recipients:email.sender);
 	//make sure that it confirms to the standard of email clients by prepending each line with a > followed by a space.
 	email.body.replace(/\r?\n/g,`$&>`);
 	body = `\nOn ${email.timestamp} ${email.sender} wrote:\n${body}`
 	compose_email();
-	document.getElementById('compose-recipients').value = email.sender;
+	document.getElementById('compose-recipients').value = sender;
 	document.getElementById('compose-subject').value = subj;
 	document.getElementById('compose-body').value = body;
 	document.getElementById('send-form').disabled = false;
 }
+
 function show_view(id){
 	document.querySelectorAll(`[id*="-view"]`).forEach((item)=> {
 		item.style.display = (id === item.id ? 'block': 'none');
@@ -186,6 +185,7 @@ function update_flags(email_id,flags={},callback){
 	if(flags === {}){
 		return false;
 	}
+
 	fetch(`/emails/${email_id}`,{
 		method:'PUT',
 		body:JSON.stringify(flags)
