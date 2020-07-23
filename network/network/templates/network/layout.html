@@ -2,48 +2,129 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>{% block title %}Social Network{% endblock %}</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <link href="{% static 'network/styles.css' %}" rel="stylesheet">
-    </head>
-    <body>
+	<head>
+		<title>{% block title %}Social Network{% endblock %}</title>
+{#		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">#}
+	 <link rel="stylesheet" href="{% static 'network/bootstrap.min.css' %}">
+		<link href="{% static 'network/styles.css' %}" rel="stylesheet">
+		<script type="text/javascript" src="{% static 'network/jquery.min.js' %}"></script>
+		<script type="text/javascript" src="{% static 'network/script.js' %}" defer></script>
+	</head>
+	<body>
 
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Network</a>
-          
-            <div>
-              <ul class="navbar-nav mr-auto">
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><strong>{{ user.username }}</strong></a>
-                    </li>
-                {% endif %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'index' %}">All Posts</a>
-                </li>
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Following</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Register</a>
-                    </li>
-                {% endif %}
-              </ul>
-            </div>
-          </nav>
-        
-        <div class="body">
-            {% block body %}
-            {% endblock %}
-        </div>
-    </body>
+		<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			<a class="navbar-brand" href="#">Network</a>
+
+			<div>
+			  <ul class="navbar-nav mr-auto">
+				{% if user.is_authenticated %}
+					<li class="nav-item">
+						<a class="nav-link" href="#"><strong>{{ user.username }}</strong></a>
+					</li>
+				{% endif %}
+				<li class="nav-item">
+				  <a class="nav-link" href="{% url 'index' %}">All Posts</a>
+				</li>
+				{% if user.is_authenticated %}
+					<li class="nav-item">
+						<a class="nav-link" href="#">Following</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+					</li>
+				{% else %}
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'login' %}">Log In</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'register' %}">Register</a>
+					</li>
+				{% endif %}
+			  </ul>
+			</div>
+		  </nav>
+
+		<div class="body">
+			{% block body %}
+			{% endblock %}
+
+			{% for post in page_obj %}
+				<div class="card">
+					<div class="card-body">
+						<div class="d-flex justify-content-between">
+							<h4 class="card-title">
+								<a href="{% url 'user' post.username %}">
+									{{ post.username }}
+								</a>
+							</h4>
+							{% if post.username == user %}
+								<a href="{% url 'edit' post.id %}"><span class="text-danager">Edit</span>
+								</a>
+							{% endif %}
+						</div>
+						<p class="card-text">{{ post.content }}</p>
+						<p class="text-muted">{{ post.datetime }}</p>
+						<div class="row">
+							{#	If the user has liked it then we set the class to be liked. Meaning that the heart needs to be filled in.#}
+							{% if user in post.likes.all %}
+								<a href="#" class="like liked" data-postid="{{ post.id }}" data-liked="1">
+							{% else %}
+								<a href="#" class="like" data-postid="{{ post.id }}" data-liked="0">
+							{% endif %}
+								<div class="ml-4" id="heart-{{ post.id }}">
+									<svg class="heart_full"><use xlink:href="#heart_full"></use></svg>
+									<svg class="heart_empty"><use xlnk:href="#heart_empty"></use></svg>
+								</div>
+							</a>
+							<div class="ml-2">
+								<span class="font-weight-bold" id="likes-{{ post.id }}">{{ post.likes.all|length }}</span>
+							</div>
+						</div>
+			{% empty %}
+				<div class="d-flex">
+					<h2 class="text-muted mx-auto m-4">No posts to show, what do <u>you</u> have to share?
+					</h2>
+				</div>
+			{% endfor %}
+				</div>
+			</div>
+			<div class="pagination justify-content-center m-3">
+				<nav aria-label="Page Navigation">
+					<ul class="pagination">
+						{% if page_obj.has_previous %}
+							<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+						{% else %}
+							<li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+						{% endif %}
+
+					{% for page_number in iterator %}
+						{% if page_number == page_obj.number %}
+						<li class="page-item active"><a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a></li>
+						{% else %}
+							<li class="page-item"><a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a></li>
+						{% endif %}
+					{% endfor %}
+					{% if page_obj.has_next %}
+						<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+					{% else %}
+						<li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+					{% endif %}
+					</ul>
+				</nav>
+			</div>
+		</div>
+
+		<svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" display="none">
+			<defs>
+				<g id="heart-empty">
+					<path class="path1" d="M140 20C73 20 20 74 20 140c0 135 136 170 228 303 88-132 229-173 229-303 0-66-54-120-120-120-48 0-90 28-109 69-19-41-60-69-108-69z"
+													stroke="red" stroke-width="20" fill="none"></path>
+				</g>
+				<g id="heart-full">
+					<path class="path1" d="M140 20C73 20 20 74 20 140c0 135 136 170 228 303 88-132 229-173 229-303 0-66-54-120-120-120-48 0-90 28-109 69-19-41-60-69-108-69z"
+													stroke="red" stroke-width="20" fill="red"></path>
+				</g>
+			</defs>
+		</svg>
+	</body>
 </html>

@@ -1,5 +1,17 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+		{# When the person is authenticated present them with the new post form. #}
+		{% if user.is_authenticated %}
+		<div class="col p-2 m-2" id="new_post">
+			<h5>New Post</h5>
+			<form class="form-group" action="{% url 'new_post' %}" method="POST">
+				<div class="form-row">
+					<textarea class="form-control" name="content" id="new_post" cols="20" rows="2"></textarea>
+				</div>
+				<button class="btn btn-primary">Post</button>
+				{% csrf_token %}
+			</form>
+		</div>
+		{% endif %}
 {% endblock %}
