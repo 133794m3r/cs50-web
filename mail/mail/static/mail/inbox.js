@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
     	//always go back to the current mailbox.
         toggle_archive(this.dataset.email, {archived:archived_flag});
 	});
+
+
 	// By default, load the inbox
 	load_mailbox('inbox');
 });
@@ -18,9 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function compose_email() {
 
 	// Show compose view and hide other views
-	document.querySelector('#emails-view').style.display = 'none';
-	document.querySelector('#compose-view').style.display = 'block';
-
+	// document.querySelector('#emails-view').style.display = 'none';
+	// document.querySelector('#compose-view').style.display = 'block';
+	show_view('compose-view');
 	const submitButton = document.getElementById('send-form');
 	const subject = document.getElementById('compose-subject');
 	const recipients = document.getElementById('compose-recipients');
@@ -89,7 +91,7 @@ function load_mailbox(mailbox) {
 			emails.forEach(email=>{
 				const email_item = document.createElement('div');
 				email_item.addEventListener('click',()=>{
-					get_email(email.id,(mailbox === 'sent'));
+					read_email(email.id,(mailbox === 'sent'));
 				});
 				email_item.className = 'list-group-item list-group-item-action ';
 				email_item.className += (email.read?'list-group-item-secondary':'')
@@ -105,37 +107,46 @@ function load_mailbox(mailbox) {
 		}
 	})
 }
-function get_email(id,sent = false){
-
-	fetch(`/emails/${id}`)
+function fetch_email(id,callback){
+		fetch(`/emails/${id}`)
 		.then(response=>{
 			if(!response.ok){
 				throw Error(response.status + '-' + response.statusText);
 			}
 			return response.json();
 		}).then(email=>{
-			const email_fields = ['sender','recipients','timestamp','subject','body'];
-			email_fields.forEach(key=>{
-				document.getElementById(key).innerText =
-					(email[key]?email[key]:'(No '+key.charAt(0).toUpperCase() + key.substr(1)+')');
-			});
-			document.querySelectorAll(`[id*="read-"]`).forEach(item=>{
-				item.dataset.email = email.id;
-				if(item.id === 'read-archive'){
-					if(sent){
-						item.style.display = 'none';
-					}
-					else{
-						item.textContent = (email.archived?'Un-Archive':'Archive');
-						item.dataset.archived = email.archived;
-						item.style.display = 'block';
-					}
-				}
-			});
-			if(!email.read){
-				update_flags(email.id,{'read':true});
-			}
+			return callback(email);
 		})
+}
+
+function read_email(id,sent = false){
+	fetch_email(id,email=> {
+		const email_fields = ['sender', 'recipients', 'timestamp', 'subject', 'body'];
+		email_fields.forEach(key => {
+			document.getElementById(key).innerText =
+				(email[key] ? email[key] : '(No ' + key.charAt(0).toUpperCase() + key.substr(1) + ')');
+		});
+		document.querySelectorAll(`[id*="read-"]`).forEach(item => {
+			item.dataset.email = email.id;
+			if (item.id === 'read-archive') {
+				if (sent) {
+					item.style.display = 'none';
+				}
+				else {
+					item.textContent = (email.archived ? 'Un-Archive' : 'Archive');
+					item.dataset.archived = email.archived;
+					item.style.display = 'block';
+				}
+			}
+		});
+		if (!email.read) {
+			update_flags(email.id, {'read': true});
+		}
+		document.getElementById('read-reply').addEventListener('click',()=>{
+		reply_email(email)
+	});
+	});
+
 	show_view('read-view');
 }
 
@@ -143,7 +154,21 @@ function catch_error(error){
 	document.getElementById('error-view').innerHTML = `<h1> A problem occurred. </h1><p> ${error.message}</p>`
 	show_view('view-error');
 }
-
+function reply_email(email){
+	let subj = email.subject;
+	if(!(subj.match(/^R[Ee]:/))){
+		subj = `RE: ${subj}`;
+	}
+	let body = '> '+email.body
+	//make sure that it confirms to the standard of email clients by prepending each line with a > followed by a space.
+	email.body.replace(/\r?\n/g,`$&>`);
+	body = `\nOn ${email.timestamp} ${email.sender} wrote:\n${body}`
+	compose_email();
+	document.getElementById('compose-recipients').value = email.sender;
+	document.getElementById('compose-subject').value = subj;
+	document.getElementById('compose-body').value = body;
+	document.getElementById('send-form').disabled = false;
+}
 function show_view(id){
 	document.querySelectorAll(`[id*="-view"]`).forEach((item)=> {
 		item.style.display = (id === item.id ? 'block': 'none');
