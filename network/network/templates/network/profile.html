@@ -1,0 +1,28 @@
+{% extends "network/layout.html" %}
+{% block body %}
+	<div class="card">
+		<div class="card-body p-5">
+			<div class="d-flex justify-content-between">
+				<h1 class="card-title"><strong id="username">{{ selected_user.username }}</strong></h1>
+				{% if user.is_authenticated and user != selected_user.username %}
+					<button id="follow" class="btn btn-primary">
+					{% if user in selected_user.followers.all %}
+						Unfollow
+					{% else %}
+					Follow
+					{% endif %}
+					</button>
+				{% endif %}
+			</div>
+			<hr>
+			<div class="row">
+				<div class="col-2">
+				<span id="followers">Followers:&nbsp;{{ selected_user.followers_all|length }}</span>
+				</div>
+				<div class="col-2">
+					<span id="following">Following:&nbsp;{{ selected_user.following.all|length }}</span>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

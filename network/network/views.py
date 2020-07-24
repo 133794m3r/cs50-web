@@ -104,18 +104,24 @@ def new_post(request):
 def user(request,username):
 	user_chosen = User.objects.get(username=username)
 
-	posts= list(reversed(user_chosen.posts.all()))
+	posts=list(reversed(user_chosen.posts.all()))
 	paginator = Paginator(posts,10)
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
-	return render(request,"network/user.html",{'selected_user':user_chosen,'page_obj':page_obj,'pages':paginator.page_range})
+	return render(request, "network/profile.html", {'selected_user':user_chosen, 'page_obj':page_obj, 'pages':paginator.page_range})
 
 def edit(request,post_id):
-	pass
+	if request.method == "POST":
+		post.content = request.POST.get("content")
+		post.save()
+		return HttpResponseRedirect(reverse('index'))
+	else:
+		return render(request,"network/edit.html",{'post':post})
 
 @login_required(login_url='login')
 @require_http_methods(["POST"])
-def follow(request,user_id):
+def follow(request,id):
+
 	pass
 
 @login_required(login_url='login')

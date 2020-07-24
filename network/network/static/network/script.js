@@ -9,3 +9,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function like(element_id){
 
 }
+
+function follow_user(id){
+	fetch(`follow/${id}`)
+		.then(response=>response.json())
+		.then(result=>{
+
+		})
+}
