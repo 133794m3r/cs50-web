@@ -138,7 +138,6 @@ def edit_post(request,post_id):
 	if request.method == "POST" and request.user == post.username:
 		content = loads(request.body)
 		post.content = content.get("content")
-
 		post.save()
 
 	return JsonResponse({'post':post.content})
