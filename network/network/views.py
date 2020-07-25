@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 from datetime import datetime
 from .models import User,Post
 from json import loads
+
 def index(request):
 	posts = list(reversed(Post.objects.all()))
 	paginator = Paginator(posts,10)
@@ -146,7 +147,7 @@ def edit_post(request,post_id):
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def follow(request,id):
-	followed = false
+	followed = False
 	chosen_user = User.objects.get(pk=id)
 	if request.user == chosen_user.username:
 		followed = False
@@ -156,12 +157,12 @@ def follow(request,id):
 			chosen_user.followers.remove(request.user)
 		else:
 			chosen_user.followers.add(request.user)
-			followed = true
+			followed = True
 
 	return JsonResponse({
 		'followed':followed,
-		'followers':chosen_user.following.count(),
-		'following':chosen_user.followers.count()
+		'followers':chosen_user.followers.count(),
+		'following':chosen_user.following.count()
 	})
 
 @login_required(login_url='login')

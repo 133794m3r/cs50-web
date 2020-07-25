@@ -18,12 +18,13 @@
 			<hr>
 			<div class="row">
 				<div class="col-2">
-				<span id="followers">Followers:&nbsp;{{ selected_user.followers_all|length }}</span>
+					Followers:&nbsp;<span id="followers">{{ selected_user.followers_all|length }}</span>
 				</div>
 				<div class="col-2">
-					<span id="following">Following:&nbsp;{{ selected_user.following.all|length }}</span>
+					Following:&nbsp;<span id="following">{{ selected_user.following.all|length }}</span>
 				</div>
 			</div>
 		</div>
 	</div>
+	{% include 'network/posts.html' %}
 {% endblock %}

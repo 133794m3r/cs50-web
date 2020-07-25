@@ -8,8 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
 			edit_post(event,el.dataset.postid);
 		})
 	})
-
-	document.getElementById('edit_form').addEventListener('submit',event=>{submit_edit(event)});
+	let el = document.getElementById('edit_form');
+	if(el !== null) {
+		document.getElementById('edit_form').addEventListener('submit', event => {
+			submit_edit(event)
+		});
+	}
 });
 
 
@@ -18,7 +22,7 @@ function like(event,element_id){
 	const el = document.getElementById(element_id);
 	console.log(el);
 	let id = el.dataset.postid;
-	fetch(`like/${id}`)
+	fetch(`/like/${id}`)
 		.then(response => response.json())
 		.then(result =>{
 			el.className = (result.liked?'like liked':'like');
@@ -38,7 +42,16 @@ function edit_post(event,id){
 }
 
 function follow_user(id){
-	fetch(`follow/${id}`)
+	const csrftoken = cookie_value('csrftoken');
+	fetch(`/follow/${id}`,{
+		method:'POST',
+		headers:{
+		'Content-Type':'application/json',
+			'X-CSRFToken':csrftoken,
+			'X-Requested-With':'XMLHttpRequest'
+		},
+		credentials:"same-origin"
+	})
 		.then(response=>response.json())
 		.then(result=>{
 			document.getElementById('follow').innerText = (result['followed']?'UnFollow':'Follow');
@@ -70,7 +83,7 @@ function submit_edit(event){
 	const content = el.value;
 	console.log(content);
 	const csrftoken = cookie_value('csrftoken');
-	fetch(`edit/post/${id}`,{
+	fetch(`/edit/post/${id}`,{
 		method:"POST",
 		headers:{
 			'Content-Type':'application/json',
