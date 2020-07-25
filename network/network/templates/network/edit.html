@@ -46,9 +46,9 @@
 					<form class="form-group" action="{% url 'edit' post.id %}" method="POST">
 						<div class="form-row">
 							<label for="textarea"></label>
-							<textarea class="form-control" name="content" id="new_post" cols="20" rows="2">{{ post.content }}</textarea>
+							<textarea class="form-control" name="content" id="edit_content" cols="20" rows="2">{{ post.content }}</textarea>
 						</div>
-						<button class="btn btn-primary">Post</button>
+						<button class="btn btn-primary" type="button">Edit Post</button>
 						{% csrf_token %}
 					</form>
 				</div>

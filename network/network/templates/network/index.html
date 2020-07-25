@@ -5,13 +5,25 @@
 		{% if user.is_authenticated %}
 		<div class="col p-2 m-2" id="new_post">
 			<h5>New Post</h5>
-			<form class="form-group" action="{% url 'new_post' %}" method="POST">
+			<form class="form-group" action="{% url 'new_post' %}" method="POST" id="new_post_form">
 				<div class="form-row">
 					<label for="textarea"></label><textarea class="form-control" name="content" id="new_post" cols="20" rows="2"></textarea>
 				</div>
-				<button class="btn btn-primary">Post</button>
+				<button class="btn btn-primary" type="submit">Post</button>
+				{% csrf_token %}
+			</form>
+		</div>
+		<div class="col p-2 m-2" id="edit_post" style="display:none">
+			<h5>Editing Your Post</h5>
+			<form class="form-group" action="#" method="POST" id="edit_form">
+				<div class="form-row">
+					<label for="textarea"></label>
+					<textarea class="form-control" name="content" id="edit_content" cols="20" rows="2" data-postid="0"></textarea>
+				</div>
+				<button class="btn btn-primary" type="submit">Edit Post</button>
 				{% csrf_token %}
 			</form>
 		</div>
 		{% endif %}
+	{% include 'network/posts.html' %}
 {% endblock %}

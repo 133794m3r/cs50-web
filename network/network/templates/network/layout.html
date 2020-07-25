@@ -31,7 +31,8 @@
 			  <ul class="navbar-nav mr-auto">
 				{% if user.is_authenticated %}
 					<li class="nav-item">
-						<a class="nav-link" href="{% url 'user' user.username %}"><strong>{{ user.username }}</strong></a>
+{#						<a class="nav-link" href="{% url profile user.username %}"><strong>{{ user.username }}</strong></a>#}
+						<a class="nav-link" href="/profile/{{ user.username }}"><strong>{{ user.username }}</strong></a>
 					</li>
 				{% endif %}
 				<li class="nav-item">
@@ -60,73 +61,7 @@
 			{% block body %}
 			{% endblock %}
 
-			{% for post in page_obj %}
-				<div class="card">
-					<div class="card-body">
-						<div class="d-flex justify-content-between">
-							<h4 class="card-title">
-								<a href="{% url 'user' post.username %}">
-									{{ post.username }}
-								</a>
-							</h4>
-							{% if post.username == user %}
-								<a href="{% url 'edit' post.id %}"><span class="text-danager">Edit</span>
-								</a>
-							{% endif %}
-						</div>
-						<p class="card-text">{{ post.content }}</p>
-						<p class="text-muted">{{ post.datetime }}</p>
-						<div class="row">
-							<div class="col-1">
-							{#	If the user has liked it then we set the class to be liked. Meaning that the heart needs to be filled in.#}
-							{% if user in post.likes.all %}
-								<a id="like-{{ post.id }}" href="#" class="like liked" data-postid="{{ post.id }}" data-liked="1">
-							{% else %}
-								<a id="like-{{ post.id }}" href="#"class="like unliked" data-postid="{{ post.id }}" data-liked="0">
-							{% endif %}
 
-							<svg viewBox="0 0 16 16" height="1rem" width="1rem" class="heart-empty"><use xlink:href="#heart-empty"></use></svg>
-							<svg viewBox="0 0 16 16" height="1rem" width="1rem" class="heart-full"><use xlink:href="#heart-full"></use></svg>
-							</a>
-								</div>
-							<div class="ml-2">
-								<span class="font-weight-bold" id="likes-{{ post.id }}">{{ post.likes.all|length }}</span>
-							</div>
-						</div>
-			{% empty %}
-				<div class="d-flex">
-					<h2 class="text-muted mx-auto m-4">No posts to show, what do <u>you</u> have to share?
-					</h2>
-				</div>
-			{% endfor %}
-				</div>
-			</div>
-			<div class="pagination justify-content-center m-3">
-				<nav aria-label="Page Navigation">
-					<ul class="pagination">
-						{% if page_obj.has_previous %}
-							<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
-						{% else %}
-							<li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-						{% endif %}
-
-					{% for page_number in iterator %}
-						{% if page_number == page_obj.number %}
-						<li class="page-item active"><a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a></li>
-						{% else %}
-							<li class="page-item"><a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a></li>
-						{% endif %}
-					{% endfor %}
-					{% if page_obj.has_next %}
-						<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
-					{% else %}
-						<li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
-					{% endif %}
-					</ul>
-				</nav>
-			</div>
 		</div>
-
-
 	</body>
 </html>

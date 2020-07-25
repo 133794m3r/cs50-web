@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 
 from datetime import datetime
 from .models import User,Post
-
+from json import loads
 def index(request):
 	posts = list(reversed(Post.objects.all()))
 	paginator = Paginator(posts,10)
@@ -105,18 +105,24 @@ def new_post(request):
 
 	return HttpResponseRedirect(reverse('index'))
 
-def user(request,username):
-	user_chosen = User.objects.get(username=username)
+def profile(request,username):
+	print(username)
+	user_chosen = User.objects.get(username = username)
 	posts=list(reversed(user_chosen.posts.all()))
 	paginator = Paginator(posts,10)
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
 	return render(request, "network/profile.html", {'selected_user':user_chosen, 'page_obj':page_obj, 'pages':paginator.page_range})
 
+#For the edit page I need to make it work with fetch, and have the "new post" section be replaced with their content's and then
+#reshow that element with it's default values.
 @login_required(login_url='login')
 @require_http_methods(["POST","GET"])
 def edit(request,post_id):
 	post = Post.objects.get(pk=post_id)
+	#can't try to edit someone else's post.
+	if post.username != request.user:
+		return HttpResponseRedirect(reverse('index'))
 	if request.method == "POST":
 		post.content = request.POST.get("content")
 		post.save()
@@ -124,16 +130,33 @@ def edit(request,post_id):
 	else:
 		return render(request,"network/edit.html",{'post':post})
 
+
+@login_required(login_url='login')
+@require_http_methods(["POST","GET"])
+def edit_post(request,post_id):
+	post = Post.objects.get(pk=post_id)
+	if request.method == "POST" and request.user == post.username:
+		content = loads(request.body)
+		post.content = content.get("content")
+
+		post.save()
+
+	return JsonResponse({'post':post.content})
+
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def follow(request,id):
 	followed = false
 	chosen_user = User.objects.get(pk=id)
-	if request.user in chosen_user.followers.all():
-		chosen_user.followers.remove(request.user)
+	if request.user == chosen_user.username:
+		followed = False
+	#otherwise we need to update the counts appropriately.
 	else:
-		chosen_user.followers.add(request.user)
-		followed = true
+		if request.user in chosen_user.followers.all():
+			chosen_user.followers.remove(request.user)
+		else:
+			chosen_user.followers.add(request.user)
+			followed = true
 
 	return JsonResponse({
 		'followed':followed,
@@ -145,3 +168,6 @@ def follow(request,id):
 @require_http_methods(["POST"])
 def home(request):
 	pass
+
+def blank(request):
+	return JsonResponse('none',safe=False)
