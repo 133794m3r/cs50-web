@@ -113,7 +113,10 @@ def user(request,username):
 	page_obj = paginator.get_page(page_number)
 	return render(request, "network/profile.html", {'selected_user':user_chosen, 'page_obj':page_obj, 'pages':paginator.page_range})
 
+@login_required(login_url='login')
+@require_http_methods(["POST","GET"])
 def edit(request,post_id):
+	post = Post.objects.get(pk=post_id)
 	if request.method == "POST":
 		post.content = request.POST.get("content")
 		post.save()
