@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.core.paginator import Paginator
@@ -76,23 +76,27 @@ def register(request):
 @login_required(login_url='login')
 def like(request,post_id):
 	post = Post.objects.get(pk=post_id)
-	liked = false
+	liked = False
 	if request.user in post.likes.all():
 		post.likes.remove(request.user)
 	else:
 		post.likes.add(request.user)
-		liked = true
+		liked = True
 
 	likes = post.likes.count()
 
-	return JSONResponse({
+	return JsonResponse({
 		'liked':liked,
 		'likes':likes
 	})
 
+
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def new_post(request):
+	if request.POST['content'] == '':
+		return HttpResponseRedirect(reverse('index'))
+
 	Post.objects.create(
 		username = request.user,
 		content = request.POST['content'],
@@ -103,7 +107,6 @@ def new_post(request):
 
 def user(request,username):
 	user_chosen = User.objects.get(username=username)
-
 	posts=list(reversed(user_chosen.posts.all()))
 	paginator = Paginator(posts,10)
 	page_number = request.GET.get('page')
@@ -121,10 +124,21 @@ def edit(request,post_id):
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def follow(request,id):
+	followed = false
+	chosen_user = User.objects.get(pk=id)
+	if request.user in chosen_user.followers.all():
+		chosen_user.followers.remove(request.user)
+	else:
+		chosen_user.followers.add(request.user)
+		followed = true
 
-	pass
+	return JsonResponse({
+		'followed':followed,
+		'followers':chosen_user.following.count(),
+		'following':chosen_user.followers.count()
+	})
 
 @login_required(login_url='login')
 @require_http_methods(["POST"])
-def following_posts(request):
+def home(request):
 	pass

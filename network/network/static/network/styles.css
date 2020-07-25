@@ -2,22 +2,23 @@
  * By default the heart should be empty since the user isn't likely to have liked every single post
  * thus we set it so that it is shown as empty and upon hover it'll be changed to filled in.
 .*/
-.heart-full {
+.like> .heart-full {
 	display: none;
 }
-.heart-empty{
+.like>.heart-empty{
 	display:block;
 }
 
-.like:hover > .heart-full,
-.like:active > .heart-full{
-	display:block;
-}
+/*.like.unliked:hover > .heart-full,*/
+/*.like.unliked:active > .heart-full{*/
+/*	display:block ;*/
+/*}*/
 
-.like:hover > .heart-empty,
-.like:active > .heart-empty {
-	display: none;
-}
+/*.like.unliked:hover > .heart-empty,*/
+/*.like.unliked:active > .heart-empty {*/
+/*	display: none ;*/
+/*}*/
+
 .like{
 	height:100%;
 }
@@ -36,24 +37,23 @@ svg{
  * The code below is for when the post is liked by the logged in user. This will cause the heart icon
  * to be filled in and when they hover it'll cause it to become empty.
  */
-/*.like.liked > heart-full {*/
-/*	display: block;*/
-/*}*/
-/*.like.liked > heart-empty{*/
-/*	display:none;*/
-/*}*/
+.like.liked > .heart-full {
+	display: block;
+}
+.like.liked > .heart-empty{
+	display:none;
+}
 /*
 When the user hovers over it and the like has the active class we'll show the heart switch from full to empty. So that they can see what it'll be changed to.
  */
-/*.like:hover > .heart-full,*/
-/*.like:active > .heart-full,*/
-/*.like.liked{*/
-/*	display:none;*/
+
+/*.like.liked:hover> .heart-full,*/
+/*.like.liked:active> .heart-full{*/
+/*	display:none ;*/
 /*}*/
 
-/*.like:hover > .heart-empty,*/
-/*.like:active > .heart-empty,*/
-/*.like.liked{*/
-/*	display:block;*/
+/*.like.liked:hover .liked > .heart-empty,*/
+/*.like.liked:active .liked > .heart-empty {*/
+/*	display:block ;*/
 /*}*/
 

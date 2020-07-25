@@ -31,7 +31,7 @@
 			  <ul class="navbar-nav mr-auto">
 				{% if user.is_authenticated %}
 					<li class="nav-item">
-						<a class="nav-link" href="#"><strong>{{ user.username }}</strong></a>
+						<a class="nav-link" href="{% url 'user' user.username %}"><strong>{{ user.username }}</strong></a>
 					</li>
 				{% endif %}
 				<li class="nav-item">
@@ -80,9 +80,9 @@
 							<div class="col-1">
 							{#	If the user has liked it then we set the class to be liked. Meaning that the heart needs to be filled in.#}
 							{% if user in post.likes.all %}
-								<a href="#" class="like liked" data-postid="{{ post.id }}" data-liked="1">
+								<a id="like-{{ post.id }}" href="#" class="like liked" data-postid="{{ post.id }}" data-liked="1">
 							{% else %}
-								<a href="#" class="like" data-postid="{{ post.id }}" data-liked="0">
+								<a id="like-{{ post.id }}" href="#"class="like unliked" data-postid="{{ post.id }}" data-liked="0">
 							{% endif %}
 
 							<svg viewBox="0 0 16 16" height="1rem" width="1rem" class="heart-empty"><use xlink:href="#heart-empty"></use></svg>
