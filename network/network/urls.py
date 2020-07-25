@@ -13,7 +13,6 @@ urlpatterns = [
 	path("edit/<int:post_id>",views.edit,name="edit"),
 	path("follow/<int:id>",views.follow,name="follow"),
 	path("like/<int:post_id>",views.like,name="like"),
-	path("home",views.home,name="home"),
-	path("edit/post/<int:post_id>",views.edit_post,name="edit_post"),
-	path("favicon.ico",views.blank,name='favicon')
+	path("following",views.home,name="following"),
+	path("edit/post/<int:post_id>",views.edit_post,name="edit_post")
 ]

@@ -107,7 +107,6 @@ def new_post(request):
 	return HttpResponseRedirect(reverse('index'))
 
 def profile(request,username):
-	print(username)
 	user_chosen = User.objects.get(username = username)
 	posts=list(reversed(user_chosen.posts.all()))
 	paginator = Paginator(posts,10)
@@ -166,9 +165,18 @@ def follow(request,id):
 	})
 
 @login_required(login_url='login')
-@require_http_methods(["POST"])
+@require_http_methods(["GET"])
 def home(request):
-	pass
+	posts = []
+	for followed_user in request.user.following.all():
+		for post in followed_user.posts.all():
+			posts.append(post)
 
-def blank(request):
-	return JsonResponse('none',safe=False)
+	posts = list(reversed(posts))
+	paginator = Paginator(posts,10)
+
+	page_number = request.GET.get('page')
+	page = paginator.get_page(page_number)
+
+	return render(request,'network/home.html',{'page_obj':page,'iterator':paginator.page_range})
+

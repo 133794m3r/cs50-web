@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function like(event,element_id){
 	event.preventDefault();
 	const el = document.getElementById(element_id);
-	console.log(el);
 	let id = el.dataset.postid;
 	fetch(`/like/${id}`)
 		.then(response => response.json())
