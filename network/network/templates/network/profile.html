@@ -1,0 +1,30 @@
+{% extends "network/layout.html" %}
+{% block body %}
+	<div class="card">
+		<div class="card-body p-5">
+			<div class="d-flex justify-content-between">
+				<h1 class="card-title"><strong id="username">{{ selected_user.username }}</strong></h1>
+				{#	You shouldn't be allowed to follow yourself, and you must be authenticated to follow/unfollow someone.#}
+				{% if user.is_authenticated and user.username != selected_user.username %}
+					<button id="follow" onclick="javascript:follow_user({{selected_user.id}})" class="btn btn-primary">
+					{% if user in selected_user.followers.all %}
+						Unfollow
+					{% else %}
+					Follow
+					{% endif %}
+					</button>
+				{% endif %}
+			</div>
+			<hr>
+			<div class="row">
+				<div class="col-2">
+					Followers:&nbsp;<span id="followers">{{ selected_user.followers_all|length }}</span>
+				</div>
+				<div class="col-2">
+					Following:&nbsp;<span id="following">{{ selected_user.following.all|length }}</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% include 'network/posts.html' %}
+{% endblock %}

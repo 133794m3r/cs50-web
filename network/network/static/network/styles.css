@@ -1,0 +1,60 @@
+/*
+ * By default the heart should be empty since the user isn't likely to have liked every single post
+ * thus we set it so that it is shown as empty and upon hover it'll be changed to filled in.
+.*/
+.like> .heart-full {
+	display: none;
+}
+.like>.heart-empty{
+	display:block;
+}
+
+/*.like.unliked:hover > .heart-full,*/
+/*.like.unliked:active > .heart-full{*/
+/*	display:block ;*/
+/*}*/
+
+/*.like.unliked:hover > .heart-empty,*/
+/*.like.unliked:active > .heart-empty {*/
+/*	display: none ;*/
+/*}*/
+
+.like{
+	height:100%;
+}
+svg{
+	height:2rem;
+	width:2rem;
+}
+/*
+ * Really I should find a better way to do this but I don't know of a cleaner one w/o having to rewrite the DOM,
+ * which is very expensive. As it requires the browser to re-render everything. Whereas this just changes a single element's
+ * visibility. I know from my old programming days that you should never manpiulate the DOM unless absolutely required, and that
+ * when you do, you should do it in batches.
+ */
+
+/*
+ * The code below is for when the post is liked by the logged in user. This will cause the heart icon
+ * to be filled in and when they hover it'll cause it to become empty.
+ */
+.like.liked > .heart-full {
+	display: block;
+}
+.like.liked > .heart-empty{
+	display:none;
+}
+/*
+When the user hovers over it and the like has the active class we'll show the heart switch from full to empty. So that they can see what it'll be changed to.
+ */
+
+/*.like.liked:hover> .heart-full,*/
+/*.like.liked:active> .heart-full{*/
+/*	display:none ;*/
+/*}*/
+
+/*.like.liked:hover .liked > .heart-empty,*/
+/*.like.liked:active .liked > .heart-empty {*/
+/*	display:block ;*/
+/*}*/
+
+
