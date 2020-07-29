@@ -31,13 +31,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+	'ctf_club',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ctf_club.apps.CtfClubConfig',
+#    'ctf_club.apps.CtfClubConfig',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +56,8 @@ ROOT_URLCONF = 'capstone_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
+        'DIRS': [os.path.join(BASE_DIR, 'templates'),os.path.join(BASE_DIR,'ctf_club/templates')]
+		#'DIRS': []
 	    ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -69,6 +71,10 @@ TEMPLATES = [
     },
 ]
 
+STATICFILES_DIRS = [
+	os.path.join(BASE_DIR,'static'),
+	os.path.join(BASE_DIR, 'ctf_club/../static')
+]
 WSGI_APPLICATION = 'capstone_project.wsgi.application'
 
 
@@ -83,7 +89,12 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = "ctf_club.User"
-
+PASSWORD_HASHERS = [
+	'django.contrib.auth.hashers.BCryptSHA255PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.Argon2PasswordHasher'
+]
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
