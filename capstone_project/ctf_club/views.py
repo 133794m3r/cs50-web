@@ -8,6 +8,7 @@ from django.views.decorators.http import require_http_methods
 
 from .models import User,Challenges,Solves,Hints,Files
 from json import loads as json_decode
+from .util import make_index
 
 # Create your views here.
 def profile(request,username):
@@ -15,10 +16,13 @@ def profile(request,username):
 
 def index(request):
 	challenges= Challenges.objects.all()
-	return render(request,"index.html")
+	chals,categories = make_index(challenges)
+	return render(request,"index.html",{'challenges':chals,'categories':categories})
+
 
 def login(request):
 	pass
+
 
 @login_required(login_url='login')
 def logout(request):
@@ -47,4 +51,9 @@ def control_panel(request,username):
 	pass
 
 def solves(request):
+	pass
+
+@login_required(login_url='login')
+@require_http_methods(["POST"])
+def challenge_admin(request):
 	pass

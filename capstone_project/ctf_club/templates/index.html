@@ -2,11 +2,37 @@
 {% block body %}
 	<div class="container-lg">
 		<div class="row">
-			<div class="col-1">
+			<div class="col-12">
+				<br />
 				Below you can see all of the challenges broken up into different categories. Select a challenge to attempt to solve it.
 				Note that you have to be signed-in to have your solves be remembered. You can attempt any challenge as a guest user though.
 				Hints require you to be signed in for all but the one that's included in the challenge itself.
 			</div>
 		</div>
+		{% for category in categories %}
+			<div class="row">
+				<div class="col-md-12">
+					<h2>
+						{{ category }}
+					</h2>
+				</div>
+			{% for challenge in challenges.category %}
+				<div class="col-md-6">
+					<div class="card">
+						<div class="card-title">
+							{{ chalenge.name }}
+						</div>
+						<div class="card-body">
+							{{ challenge.description }}
+						</div>
+						<div class="card-footer">
+							<a href="#" id="challenge_{{ challenge.id }}" class="view_challenge">View Challenge</a>
+						</div>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		{% endfor %}
+
 	</div>
 {% endblock %}

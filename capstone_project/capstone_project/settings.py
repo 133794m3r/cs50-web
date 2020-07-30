@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-
+from .hashers import ScryptPasswordHasher
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -73,7 +73,7 @@ TEMPLATES = [
 
 STATICFILES_DIRS = [
 	os.path.join(BASE_DIR,'static'),
-	os.path.join(BASE_DIR, 'ctf_club/../static')
+	#os.path.join(BASE_DIR, 'ctf_club/../static')
 ]
 WSGI_APPLICATION = 'capstone_project.wsgi.application'
 
@@ -89,11 +89,13 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = "ctf_club.User"
+
 PASSWORD_HASHERS = [
-	'django.contrib.auth.hashers.BCryptSHA255PasswordHasher',
-    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
-    'django.contrib.auth.hashers.Argon2PasswordHasher'
+	'capstone_project.hashers.ScryptPasswordHasher',
+	# 'django.contrib.auth.hashers.BCryptSHA255PasswordHasher',
+    # 'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    # 'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    # 'django.contrib.auth.hashers.Argon2PasswordHasher'
 ]
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
