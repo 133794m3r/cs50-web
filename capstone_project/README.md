@@ -26,3 +26,7 @@ This folder contains the Capstone project that I wrote. It has the features list
 - Models are setup with many different relational types.
 - Challenges are shown via a modal-dialogue for the user upon clicking on one.
 - User control panel(simply lets them update their password right now)
+
+
+### Requirements.txt
+The cryptodome requirement is only there for the making of full RSA keys otherwise it's not needed. The functions are never called from within this repo itself.

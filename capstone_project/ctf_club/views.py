@@ -74,7 +74,7 @@ def register(request):
 			return render(request,"register.html",{
 				"message":"Username must be unique."
 			})
-		login_view(request,user)
+		login(request,user)
 		return HttpResponseRedirect(reverse("index"))
 	else:
 		return render(request,"register.html")
@@ -82,7 +82,7 @@ def register(request):
 
 @login_required(login_url='login')
 @require_http_methods(["POST"])
-def solve(request,chal):
+def solve(request,challenge_id):
 	pass
 
 @login_required(login_url='login')

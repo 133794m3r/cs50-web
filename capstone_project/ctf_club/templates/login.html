@@ -10,11 +10,15 @@
     <form action="{% url 'login' %}" method="post" id="login">
         {% csrf_token %}
         <div class="form-group">
-            <input autofocus class="form-control" type="text" name="username" placeholder="Username">
-        </div>
+			  <label>
+				  <input autofocus class="form-control" type="text" name="username" placeholder="Username">
+			  </label>
+		  </div>
         <div class="form-group">
-            <input class="form-control" type="password" name="password" placeholder="Password">
-        </div>
+			  <label>
+				  <input class="form-control" type="password" name="password" placeholder="Password">
+			  </label>
+		  </div>
         <input class="btn btn-primary" type="submit" value="Login">
     </form>
 

@@ -99,7 +99,7 @@
 		}
 		let result=zxcvbn(password,inputs);
 		let guesses = result.guesses_log10;
-		let score = 0;
+		let score;
 
 		if(guesses < 3){
 			score = 0;

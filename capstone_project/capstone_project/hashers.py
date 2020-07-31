@@ -60,7 +60,7 @@ class ScryptPasswordHasher(BasePasswordHasher):
 		:returns: Hashed string
 		:rtype: str
 		"""
-		salt = salt or super().salt(length=16,allowed_chars='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!-_|#&%')
+		salt = salt or get_random_string(16,'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!-_|#&%')
 		n = n or self.n
 		r = r or self.r
 		p = p or self.p

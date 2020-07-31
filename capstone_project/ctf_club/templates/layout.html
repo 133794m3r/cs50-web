@@ -9,19 +9,19 @@
 	<script>
 (function() {
 
-  var bs_src = "{% static 'js/bootstrap.min.js' %}";
+	const bs_src = "{% static 'js/bootstrap.min.js' %}";
 
-  var async_load = function() {
-    var first, s;
-    s = document.createElement('script');
-    s.src = bs_src;
-    s.type = 'text/javascript';
-    s.async = true;
-    first = document.getElementsByTagName('script')[0];
-    return first.parentNode.insertBefore(s, first);
-  };
+	const async_load = function () {
+		let first, s;
+		s = document.createElement('script');
+		s.src = bs_src;
+		s.type = 'text/javascript';
+		s.async = true;
+		first = document.getElementsByTagName('script')[0];
+		return first.parentNode.insertBefore(s, first);
+	};
 
-  if (window.attachEvent != null) {
+	if (window.attachEvent != null) {
     window.attachEvent('onload', async_load);
   } else {
     window.addEventListener('load', async_load, false);

@@ -16,7 +16,7 @@
 		function modal_challenge(event,challenge_type){
 			event.preventDefault();
 			let inner_content;
-			let description;
+
 
 			switch(challenge_type){
 				case "fizzbuzz":
@@ -43,7 +43,7 @@
 					inner_content=`<div class="col-6 form-group">
 						<textarea id='plain_text' name='plain_text' class="input_items form-text" rows="3" cols="40"></textarea>
 					</div>`
-					 if(challenge_type == 'hill' || challenge_type == 'affine'){
+					 if(challenge_type === 'hill' || challenge_type === 'affine'){
 					 	inner_content += `<div class="col-6 form-group">
 							<select><option value="1">Easy</option>
 							<option value="2">Hard</option></select>`
@@ -52,7 +52,7 @@
 			}
 			let chal = CHALLENGES[challenge_type]
 			document.getElementById('input_description').innerText = chal.description;
-			let category = chal.category;
+
 			document.getElementById('challenge_modal_title').innerText = `${chal.name} -- Category:${chal.category}`;
 			document.getElementById('input_row').innerHTML = inner_content;
 			console.log('test')

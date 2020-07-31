@@ -18,7 +18,7 @@ def make_hill(plaintext,variety):
 	#currently I just remove spaces to keep things simple.
 	plaintext = plaintext.replace(' ','')
 	key = generate_random_key(26)
-	ct = hill_encrypt(plaintext)
+	ct = hill_encrypt(plaintext,key)
 	key = ','.join(key)
 	flag = plaintext
 	description = f"""Given the following string of characters you have to decrypt them. {ct}.<br />"""
@@ -29,7 +29,7 @@ def make_hill(plaintext,variety):
 
 
 def make_rsa(plaintext):
-	M = rsa_ascii_encode(plaintext)
+	M = rsa_ascii_encode(plaintext,len(plaintext))
 
 def make_common_mod(plaintext):
 	pass
@@ -105,7 +105,7 @@ def make_fizzbuzz(start,end):
 			if not(i%num1):
 				num1_counts +=1
 			elif not(i%num2):
-				num2_coutns +=1
+				num2_counts += 1
 			elif not(i%num3):
 				num3_counts +=1
 			else:
