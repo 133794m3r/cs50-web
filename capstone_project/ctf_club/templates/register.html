@@ -1,5 +1,5 @@
 {% extends 'layout.html' %}
-
+{% load static %}
 {% block head %}
 	<script type="text/javascript" defer async src="{% static '/js/zxcvbn.js' %}"></script>
 
@@ -27,7 +27,8 @@
 		{% endif %}
 		<div class="row">
 			<div class="col">
-				<form action="{{ url_for("register") }}" method="post">
+				<form action="{% url 'register' %}" method="post">
+					{% csrf_token %}
 				<div class="input-group mb-3">
 					<div class="input-group-prepend">
 						<label for="username" class="input-group-text">
@@ -154,7 +155,7 @@
 		}
 
 		if(result.score <= 3){
-			let feedback=(result.feedback.warning !== '')?result.feedback.warning+'. ':+'Also think about adding numbers.';
+			let feedback=(result.feedback.warning !== '')?result.feedback.warning+'. ':'Also think about adding numbers.';
 			feedback+=result.feedback.suggestions.join(' ');
 			document.getElementById('password_feedback').innerText=feedback;
 		}

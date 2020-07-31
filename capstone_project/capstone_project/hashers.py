@@ -60,7 +60,7 @@ class ScryptPasswordHasher(BasePasswordHasher):
 		:returns: Hashed string
 		:rtype: str
 		"""
-		salt = salt or super().salt(16,'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!-_|#&%')
+		salt = salt or super().salt(length=16,allowed_chars='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!-_|#&%')
 		n = n or self.n
 		r = r or self.r
 		p = p or self.p
@@ -97,7 +97,6 @@ class ScryptPasswordHasher(BasePasswordHasher):
 
 	def verify(self, password: str, encoded: str) -> bool:
 		decoded = self.decode(encoded)
-		print(decoded)
 		encoded_2 = self.encode(password,decoded['salt'],decoded['n'],decoded['r'],decoded['p'],decoded['dklen'])
 		return constant_time_compare(encoded,encoded_2)
 

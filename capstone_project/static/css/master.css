@@ -1,3 +1,11 @@
-.container-lg{
-	max-width:90vw !important;
+
+
+
+@media only screen and (min-width:1500px){
+	.modal-dialog {
+		max-width: 800px;
+	}
+	.container-lg{
+		max-width: 1300px !important;
+	}
 }
