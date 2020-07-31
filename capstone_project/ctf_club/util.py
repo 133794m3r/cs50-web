@@ -1,5 +1,6 @@
 from .libctf import *
 from random import randint
+
 def make_index(objects):
 	output = {}
 	categories = []
@@ -12,11 +13,23 @@ def make_index(objects):
 
 	return categories,output
 
-def make_hill(plaintext):
-	pass
+def make_hill(plaintext,variety):
+
+	#currently I just remove spaces to keep things simple.
+	plaintext = plaintext.replace(' ','')
+	key = generate_random_key(26)
+	ct = hill_encrypt(plaintext)
+	key = ','.join(key)
+	flag = plaintext
+	description = f"""Given the following string of characters you have to decrypt them. {ct}.<br />"""
+	if variety == 1:
+		description+=f"""From your "inside man", you were able to get the following string of numbers. What could they mean?<br /> {key}"""
+
+	return description,flag
+
 
 def make_rsa(plaintext):
-	pass
+	M = rsa_ascii_encode(plaintext)
 
 def make_common_mod(plaintext):
 	pass
@@ -30,7 +43,7 @@ def make_bsa(plaintext):
 def make_fermat(plaintext):
 	pass
 
-def make_affine(plaintext):
+def make_affine(plaintext,variety):
 	pass
 
 def make_fizzbuzz(start,end):
@@ -100,6 +113,8 @@ def make_fizzbuzz(start,end):
 
 		description = f"""Write a program that goes from {start} to {max_num - 1}(inclusvie). Get the number of times that a number is divisible by {num1},{num2},{num3}, and a count for the numbers no divisible by any of the previous 3. At the end arrange the counts like so(seperated by a comma. num1_count,num2_count,num3_count,other_count. The example case is given to you below.<br /><br /> If you run the same algoright on all numbers between {start} and {(num1*num2)+9}(inclusive). You'd get the following answer. {num1_counts},{num2_counts},{num3_counts},{other_counts}. So your flag would be the preceeding string. with the numbers seperated by a single "," and no other characters around them.
 				"""
+
+	return description,flag
 
 CHALLENGE_FUNCS = {
 	"fizzbuzz":make_fizzbuzz,

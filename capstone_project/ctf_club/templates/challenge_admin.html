@@ -43,6 +43,11 @@
 					inner_content=`<div class="col-6 form-group">
 						<textarea id='plain_text' name='plain_text' class="input_items form-text" rows="3" cols="40"></textarea>
 					</div>`
+					 if(challenge_type == 'hill' || challenge_type == 'affine'){
+					 	inner_content += `<div class="col-6 form-group">
+							<select><option value="1">Easy</option>
+							<option value="2">Hard</option></select>`
+					 }
 					break;
 			}
 			let chal = CHALLENGES[challenge_type]
