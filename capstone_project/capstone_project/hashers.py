@@ -60,6 +60,7 @@ class ScryptPasswordHasher(BasePasswordHasher):
 		:returns: Hashed string
 		:rtype: str
 		"""
+
 		salt = salt or get_random_string(16,'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!-_|#&%')
 		n = n or self.n
 		r = r or self.r
@@ -82,6 +83,7 @@ class ScryptPasswordHasher(BasePasswordHasher):
 		:rtype: dict
 
 		"""
+
 		algorithm,salt,n,r,p,dklen,hash = encoded.split('$')
 		assert algorithm == self.algorithm
 		return {

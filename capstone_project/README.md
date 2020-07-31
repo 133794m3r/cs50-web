@@ -29,4 +29,4 @@ This folder contains the Capstone project that I wrote. It has the features list
 
 
 ### Requirements.txt
-The cryptodome requirement is only there for the making of full RSA keys otherwise it's not needed. The functions are never called from within this repo itself.
+This includes all packages required.

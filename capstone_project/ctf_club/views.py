@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from json import loads as json_decode
 from json import dumps as json_encode
 
-from .models import User,Challenges,Solves,Hints,Files
+from .models import User,Challenges,Solves,Hints,Files,Categories
 from .util import *
 
 
@@ -51,6 +51,7 @@ def chal(request,challenge):
 	pass
 
 def register(request):
+
 	if request.method == "POST":
 		username = request.POST["username"]
 		#email = request.POST["email"]
@@ -102,7 +103,62 @@ def solves(request):
 @require_http_methods(["GET","POST"])
 def challenge_admin(request):
 	if request.method == "POST":
+		description = ''
+		flag = ''
 		content = json_decode(request.body)
-	else:
+		print(content)
+		name = content['name']
+		category = content['category']
+		if content['sn'] == 'fizzbuzz':
+			min = content['min']
+			max = content['max']
+			description,flag = CHALLENGE_FUNCS[content['sn']](min,max)
+		else:
+			plaintext = content['plaintext']
+			if content['sn'] in ["affine","hill"]:
+				variety = content['variety']
+				name +=f'- {variety}'
+				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext,variety)
+			else:
+				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext)
+		points = content.get('points') or 100
+		if content.get('edit'):
+			pass
+		else:
+			Challenges.objects.create(
+				name = name,
+				description = description,
+				flag = flag,
+				points = points,
+				category = Categories.objects.get(name=category)
+			)
 
-		return render(request,"challenge_admin.html",{"challenges":CHALLENGES,'json':json_encode(CHALLENGES)})
+		return JsonResponse({'description':description,'flag':flag})
+	else:
+		challenges = Challenges.objects.all()
+		all_challenges = []
+		challenges_used = []
+		for challenge in challenges:
+			#Remove the - {VARIETY} part.
+			tmp_name = ''
+			if '-' in challenge.name:
+				tmp_name = challenge.name[:-4]
+			else:
+				tmp_name = challenge.name
+			if tmp_name in CHALLENGES_TEMPLATES_NAMES:
+				indexed = CHALLENGES_TEMPLATES_NAMES[tmp_name][1]
+				challenges_used.append(indexed)
+				challenge_template = CHALLENGES_TEMPLATES[indexed]
+				all_challenges.append({
+					'name':challenge.name, 'category':challenge.category.name, 'full_description':challenge.description,
+					'description':challenge_template['description'], 'sn':challenge_template['sn'],'edit':True})
+
+		for i,challenge in enumerate(CHALLENGES_TEMPLATES):
+			if i in challenges_used:
+				continue
+			else:
+				challenge['edit'] = False
+				all_challenges.append(challenge)
+		print(all_challenges)
+		return render(request,"challenge_admin.html", {"challenges":all_challenges,
+		                                               'json':json_encode(CHALLENGES_TEMPLATES)})

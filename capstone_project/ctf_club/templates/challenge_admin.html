@@ -3,17 +3,24 @@
 	<script type="application/javascript">
 		document.addEventListener('DOMContentLoaded',function(){
 			document.querySelectorAll('.make_challenge').forEach(el=>{
-				console.log(el);
+				{#console.log(el);#}
 				el.addEventListener("click",event=>{
 						modal_challenge(event,el.dataset.sn,el.innerText);
-				})
-			})
+				});
+			});
+			document.getElementById('submit_chal').addEventListener("click",event=>{
+				event.preventDefault()
+				submit_challenge()
+			});
+
 		});
 		let CHALLENGES = {};
 		{{  json | safe}}.forEach(chal=>{
 			CHALLENGES[chal.sn] = chal;
 		})
-		function modal_challenge(event,challenge_type){
+
+
+	  function modal_challenge(event,challenge_type){
 			event.preventDefault();
 			let inner_content;
 
@@ -27,7 +34,7 @@
 								Min
 								</label>
 							</div>
-							<input type="text" name="min" id="min" class="input_items"/>
+							<input type="number" name="min" id="min" min="3" max="1200" class="input_items numbers"/>
 						</div>
 						<div class="modal-input input-group mb-3">
 							<div class="input-group-prepend">
@@ -35,38 +42,95 @@
 								Max
 								</label>
 							</div>
-							<input type="text" name="max" id="max" class="input_items"/>
+							<input type="number" name="max" id="max" min="1201" max="3000" class="input_items numbers"/>
 						</div>
-					</div>`
+					</div>`;
 					break;
 				default:
+					document.getElementById('submit_chal').disabled = true
 					inner_content=`<div class="col-6 form-group">
-						<textarea id='plain_text' name='plain_text' class="input_items form-text" rows="3" cols="40"></textarea>
-					</div>`
+						<textarea id='plain_text' name='plain_text' class="input_items form-text" rows="3" cols="40" onkeyup="check_len()"></textarea>
+					</div>`;
 					 if(challenge_type === 'hill' || challenge_type === 'affine'){
 					 	inner_content += `<div class="col-6 form-group">
-							<select><option value="1">Easy</option>
-							<option value="2">Hard</option></select>`
+							<select id="variety"><option value="0">Easy</option>
+					<option value="1">Hard</option></select>`;
 					 }
 					break;
 			}
-			let chal = CHALLENGES[challenge_type]
-			document.getElementById('input_description').innerText = chal.description;
 
+
+			let chal = CHALLENGES[challenge_type];
+			document.getElementById('input_description').innerText = chal.description;
 			document.getElementById('challenge_modal_title').innerText = `${chal.name} -- Category:${chal.category}`;
 			document.getElementById('input_row').innerHTML = inner_content;
-			console.log('test')
-			$('#challenge_modal').modal('toggle')
+			document.getElementById('sn').value = chal.sn;
+
+
+			$('#challenge_modal').modal('toggle');
+		}
+
+		function check_len(){
+			const len = document.getElementById('plain_text').value.length;
+	//		console.log((len>1));
+//			console.log(document.getElementById('plain_text').value.length > 0)
+			document.getElementById('submit_chal').disabled = (len == 0 )
+		}
+		function submit_challenge(){
+			let content = {}
+			const sn = document.getElementById('sn').value;
+			content['sn'] = sn;
+			content['name'] = CHALLENGES[sn].name;
+			content['category'] = CHALLENGES[sn].category;
+			if(sn in ['affine','hill']){
+				content['variety'] = document.getElementById('variety').value;
+			}
+			else if(sn === 'fizzbuzz'){
+				let min = parseInt(document.getElementById('min').value);
+				let max = parseInt(document.getElementById('max').value);
+				content['min'] = (min < 2 || min > 1200)?undefined:min
+				content['max'] = (max < 1201 || max > 3000)?undefined:max
+			}
+			else{
+				content['plaintext'] = document.getElementById('plain_text').value;
+				if(content['plaintext'].length == 0 ){
+					return;
+				}
+			}
+			console.log(content)
+			submit('/challenge_admin',content,response=>{
+				console.log(response)
+			})
 		}
 	</script>
 {% endblock %}
 {% block body %}
-	<div class="container-lg container">
+	<div class="container-lg container mt-3">
 		<div class="row">
 		{% for challenge in challenges %}
-			<div class="col-4">
-				<a href="#" class="make_challenge" data-sn="{{ challenge.sn }}">{{ challenge.name }}</a>
+			<div class="col-md-6">
+				<div class="card text-white bg-secondary mb-3">
+					<div class="card-header">
+						<span>{{ challenge.name }}</span>
+					</div>
+					<div class="card-title ml-2">
+						{{ challenge.category }}
+					</div>
+					<div class="card-body">
+						{{ challenge.description }}
+					</div>
+					<div class="card-footer">
+						{% if challenge.edit == True %}
+							<a href="#" class="btn btn-dark make_challenge" data-sn="{{ challenge.sn }}">Edit Challenge</a>
+						{% else %}
+							<a href="#" class="btn btn-dark make_challenge" data-sn="{{ challenge.sn }}">Create Challenge</a>
+						{% endif %}
+					</div>
+				</div>
 			</div>
+{#			<div class="col-4">#}
+{#				<a href="#" <class></class>="make_challenge" data-sn="{{ challenge.sn }}">{{ challenge.name }}</a>#}
+{#			</div>#}
 		{% endfor %}
 		</div>
 	</div>
@@ -89,9 +153,10 @@
 					<div class="row" id="input_row">
 
 					</div>
+					<input type="text" class="hidden" name="sn" id="sn" />
 				</div>
 				<div class="modal-footer">
-					<button id="close_button" type="button" class="btn btn-secondary" data-dismiss="modal" disabled>Submit Challenge</button>
+					<button id="submit_chal" type="button" class="btn btn-secondary" data-dismiss="modal">Submit Challenge</button>
 				</div>
 			</div>
 		</div>
