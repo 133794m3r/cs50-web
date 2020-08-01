@@ -15,6 +15,9 @@
 
 		});
 		let CHALLENGES = {};
+
+		//I cache the challenges information to an object that's indexed based upon the challenge's sn or shortname.
+		// | safe is there b/c otherwise django will escape all special chars to prevent XSS which I don't want as I made the text.
 		{{  json | safe}}.forEach(chal=>{
 			CHALLENGES[chal.sn] = chal;
 		})
@@ -24,9 +27,9 @@
 			event.preventDefault();
 			let inner_content;
 
-
 			switch(challenge_type){
 				case "fizzbuzz":
+					//Code like the one below makes me thing I should've done it in react's JSX.
 					inner_content=`<div class="col-6">
 						<div class="modal-input input-group mb-3">
 							<div class="input-group-prepend">
@@ -72,10 +75,9 @@
 
 		function check_len(){
 			const len = document.getElementById('plain_text').value.length;
-	//		console.log((len>1));
-//			console.log(document.getElementById('plain_text').value.length > 0)
 			document.getElementById('submit_chal').disabled = (len == 0 )
 		}
+
 		function submit_challenge(){
 			let content = {}
 			const sn = document.getElementById('sn').value;
@@ -108,7 +110,7 @@
 	<div class="container-lg container mt-3">
 		<div class="row">
 		{% for challenge in challenges %}
-			<div class="col-md-6">
+			<div class="col-md-4">
 				<div class="card text-white bg-secondary mb-3">
 					<div class="card-header">
 						<span>{{ challenge.name }}</span>
@@ -128,9 +130,6 @@
 					</div>
 				</div>
 			</div>
-{#			<div class="col-4">#}
-{#				<a href="#" <class></class>="make_challenge" data-sn="{{ challenge.sn }}">{{ challenge.name }}</a>#}
-{#			</div>#}
 		{% endfor %}
 		</div>
 	</div>

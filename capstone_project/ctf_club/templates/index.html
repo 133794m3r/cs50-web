@@ -9,26 +9,26 @@
 				Hints require you to be signed in for all but the one that's included in the challenge itself.
 			</div>
 		</div>
-		{% for category in categories %}
+		<br />
+		{% comment %}
+			The code below goes over the objects that are passed to it(a dict) which is indexed based upon the category.
+			The category is then used as a header for the category. The challenges that are contained are then parsed
+			and added to the page.
+
+		{% endcomment %}
+		{% for category,challenges in objects.items %}
 			<div class="row">
-				<div class="col-md-12">
+				<div class="col-md-12 mb-3">
 					<h2>
 						{{ category }}
 					</h2>
 				</div>
-			{% for challenge in challenges.category %}
-				<div class="col-md-6">
-					<div class="card">
-						<div class="card-title">
-							{{ challenge.name }}
-						</div>
-						<div class="card-body">
-							{{ challenge.description }}
-						</div>
-						<div class="card-footer">
-							<a href="#" id="challenge_{{ challenge.id }}" class="view_challenge">View Challenge</a>
-						</div>
-					</div>
+			{% for challenge in challenges %}
+				<div class="col-md-4">
+				{# The button below will eventually call the /chal route and get the challenge's information more likely than not. #}
+					<button id="challenge_{{ challenge.id }}" class="w-100 view_challenge btn btn-secondary mb-2 pt-2 p-3">
+						{{ challenge.name }}
+					</button>
 				</div>
 				{% endfor %}
 			</div>

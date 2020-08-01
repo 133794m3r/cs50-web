@@ -5,18 +5,30 @@ import re
 def make_index(objects):
 	output = {}
 	categories = []
+	maximum = 0
+	i = 0
 	for challenge in objects:
-		if output.get(challenge.category) is None:
-			output[challenge.category] = [challenge]
-			categories.append(challenge.category)
+		if challenge.category.name not in output:
+			output[challenge.category.name] = [challenge]
+			maximum +=1
 		else:
-			output[challenge.category].append(challenge)
+			#i = categores.index(challenge.category.name)
+			output[challenge.category.name].append(challenge)
 
-	return categories,output
+	return output
 
 
-def make_hill(plaintext,variety):
+def make_hill(plaintext: str, variety: int) -> tuple:
+	"""
+	make_hill
 
+	The function creates a flag based upon the hill cipher.
+
+	:param plaintext: The plaintext string we're going to encrypt.
+	:param variety: 0 or 1. Where 0 means to give them the encryption key, and
+	1 is to give them a crib.
+	:return: A tuple containing the description for the flag, and the flag itself.
+	"""
 	#currently I just remove spaces to keep things simple.
 	plaintext = plaintext.replace(' ','')
 	key = generate_random_key(26)
@@ -33,7 +45,17 @@ def make_hill(plaintext,variety):
 	return description,flag
 
 
-def make_rsa(plaintext):
+def make_rsa(plaintext: str) -> tuple:
+	"""
+	make_rsa
+
+	The function creates a basic RSA challenge where someone has to decrypt a
+	message encrypted with RSA.
+
+	:param plaintext: The plaintext to encrypt.
+	:return: The tuple containing the description,flag. Where flag is the answer.
+	:rtype: tuple
+	"""
 	pt_len = len(plaintext)
 	M = int(radford_ascii_encode(plaintext,pt_len))
 	prime_length = (pt_len * 15)+1
@@ -44,13 +66,15 @@ def make_rsa(plaintext):
 	C = hex(C).replace('L','')
 	e = hex(e).replace('L','')
 	N = hex(N).replace('L','')
-	description = f"""<p>You see a strange message popup on neppit as you're scrolling through your feed it looks interesting so you click on it. It leads to you to two files one a text file and the other an encrypted disk image....</p><br />
+	description = f"""<p>You see a strange message popup on neppit as you're scrolling through your feed it looks interesting
+so you click on it. It leads to you to two files one a text file and the other an encrypted disk image....</p><br />
 <p>
 As you open up the file you see the message below come across your screen.
 </p>
 <br />
 <p>
-Recallling your prior training you know that e is the exponent, n is the modulus, and that C is the ciphertext. The message seems important, the only hint you're given is that the message is encoded with a naive form.
+Recallling your prior training you know that e is the exponent, n is the modulus, and that C is the ciphertext. 
+The message seems important, the only hint you're given is that the message is encoded with a naive form.
 </p><br />
 <pre>
 e={e}
@@ -64,7 +88,18 @@ n={N}
 	return description,flag
 
 
-def make_hba(plaintext):
+def make_hba(plaintext:str) -> tuple:
+	"""
+	make_hba
+
+	Makes a Hastaad Braodcast Attack flag. The value of e is 3 and the encoding
+	is the standard OS2IP to keep it simple for users. That want to attempt to
+	complete the challenge.
+
+	:param plaintext:
+	:return:
+	:rtype: tuple
+	"""
 	m_len = len(plaintext)
 	M = rsa_ascii_encode(plaintext,m_len)
 	n_len =(m_len*9)+1

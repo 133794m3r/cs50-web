@@ -18,8 +18,10 @@ def profile(request,username):
 
 def index(request):
 	challenges= Challenges.objects.all()
-	chals,categories = make_index(challenges)
-	return render(request,"index.html",{'challenges':chals,'categories':categories})
+	chals= make_index(challenges)
+	print(chals)
+
+	return render(request,"index.html",{'objects':chals})
 
 
 def login_view(request):
@@ -159,6 +161,6 @@ def challenge_admin(request):
 			else:
 				challenge['edit'] = False
 				all_challenges.append(challenge)
-		print(all_challenges)
+
 		return render(request,"challenge_admin.html", {"challenges":all_challenges,
 		                                               'json':json_encode(CHALLENGES_TEMPLATES)})
