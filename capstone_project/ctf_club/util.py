@@ -4,9 +4,7 @@ import re
 
 def make_index(objects):
 	output = {}
-	categories = []
 	maximum = 0
-	i = 0
 	for challenge in objects:
 		if challenge.category.name not in output:
 			output[challenge.category.name] = [challenge]
@@ -112,12 +110,15 @@ def make_hba(plaintext:str) -> tuple:
 
 	p,q,n3 = crt_e_maker(e,n_len)
 	c3=rsa_encrypt(M,e,n3)
+
+	#The code below makes sure that python doesn't append an "L" to the end of the hex encoded number.
 	c3 = hex(c3).replace('L','')
 	c2 = hex(c2).replace('L','')
 	c1 = hex(c1).replace('L','')
 	n1 = hex(n1).replace('L','')
 	n2 = hex(n2).replace('L','')
 	n3 = hex(n3).replace('L','')
+
 	description =f"""<p>You were enjoying your leftover Chinese food minding your own business watching reruns of Broadcast tv when your buddy sent you a message. He managed to intercept some secret communications. The messages were encrypted with RSA he's managed to get your the ciphertexts and also the public key components below.</p>
 <p>He heard it's from the secretive group calling themselves "The Transcendentalists"</p>
 <pre>
@@ -137,7 +138,7 @@ n3:{n3}
 	return description,plaintext
 
 
-def make_common_mod(plaintext):
+def make_common_mod(plaintext: str) -> tuple:
 	m_len = len(plaintext)
 	M = int(radford_ascii_encode(plaintext,m_len))
 	n_len = (m_len*15)+1
@@ -174,7 +175,7 @@ The flag is the original plaintext message.
 	return description,plaintext
 
 
-def make_bsa(plaintext):
+def make_bsa(plaintext: str) -> tuple:
 	m_len = len(plaintext)
 	M=rsa_ascii_encode(plaintext,m_len)
 	n_len=(m_len*9)+1
@@ -220,7 +221,7 @@ S={S}
 	return description,flag
 
 
-def make_fermat(plaintext):
+def make_fermat(plaintext: str) -> tuple:
 	m_len = len(plaintext)
 	M = rsa_ascii_encode(plaintext,m_len)
 	n_len = (m_len * 9) + 1
@@ -243,14 +244,12 @@ Free hint. This plaintext was encoded with OS2IP.
 	return description,plaintext
 
 
-def make_affine(plaintext,variety):
+def make_affine(plaintext: str, variety: int) -> tuple:
 	plaintext = plaintext.replace(' ','X').upper()
-	plaintext = re.sub('[^A-Za-z]',plaintext)
+	plaintext = re.sub('[^A-Za-z]','',plaintext)
 
-	input_len = len(plaintext)
 	if input_len == 0:
 		plaintext="IXHATEXMONDAYS"
-		input_len = len(plaintext)
 	coprimes=[1,3,5,7,9,11,15,17,19,21,23,25]
 	a = coprimes[randint(0,11)]
 	b = randint(1,26)
@@ -269,7 +268,9 @@ def make_affine(plaintext,variety):
 
 	return description,flag
 
-def make_fizzbuzz(start,end):
+def make_fizzbuzz(start: int, end: int) -> tuple:
+	flag = ''
+	description = ''
 	start = start or randint(1,3)
 	max_num = end or randint(2500,3000)
 	variety = randint(1,2)
@@ -325,7 +326,7 @@ def make_fizzbuzz(start,end):
 
 		flag = f"{num1_counts},{num2_counts},{num3_counts},{other_counts}"
 		summed = 0
-		num1_counts = 0;num2_counts=0;num3_counts=0;other_counts=0;
+		num1_counts = 0;num2_counts=0;num3_counts=0;other_counts=0
 		for i in range(start,(num1*num2)+10):
 			if not(i%num3):
 				num3_counts += 1

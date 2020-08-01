@@ -5,7 +5,7 @@
 			document.querySelectorAll('.make_challenge').forEach(el=>{
 				{#console.log(el);#}
 				el.addEventListener("click",event=>{
-						modal_challenge(event,el.dataset.sn,el.innerText);
+						modal_challenge(event,el.dataset.sn,el.dataset.edit);
 				});
 			});
 			document.getElementById('submit_chal').addEventListener("click",event=>{
@@ -15,18 +15,20 @@
 
 		});
 		let CHALLENGES = {};
-
+		{#let CHALLENGES2 = {};#}
 		//I cache the challenges information to an object that's indexed based upon the challenge's sn or shortname.
 		// | safe is there b/c otherwise django will escape all special chars to prevent XSS which I don't want as I made the text.
-		{{  json | safe}}.forEach(chal=>{
+{#		{{  json | safe}}.forEach(chal=>{#}
+{#			CHALLENGES[chal.sn] = chal;#}
+{#		});#}
+
+		{{ json | safe }}.forEach(chal=>{
 			CHALLENGES[chal.sn] = chal;
 		})
 
-
-	  function modal_challenge(event,challenge_type){
+	  function modal_challenge(event,challenge_type,edit){
 			event.preventDefault();
 			let inner_content;
-
 			switch(challenge_type){
 				case "fizzbuzz":
 					//Code like the one below makes me thing I should've done it in react's JSX.
@@ -64,12 +66,18 @@
 
 
 			let chal = CHALLENGES[challenge_type];
-			document.getElementById('input_description').innerText = chal.description;
-			document.getElementById('challenge_modal_title').innerText = `${chal.name} -- Category:${chal.category}`;
+			const el = document.getElementById('input_description');
+		 if (edit == 'true') {
+			 el.innerHTML = `<p>For reference, the old challenge is below here.</p>`+chal.full_description+
+				  `<pre>Flag: ${chal.flag}</pre>`;
+		 }
+		 else {
+			 el.innerHTML = `<span>${chal.description}</span>`;
+		 }
+		 document.getElementById('challenge_modal_title').innerText = `${chal.name} -- Category:${chal.category}`;
 			document.getElementById('input_row').innerHTML = inner_content;
 			document.getElementById('sn').value = chal.sn;
-
-
+			document.getElementById('editing').checked = (edit === 'true');
 			$('#challenge_modal').modal('toggle');
 		}
 
@@ -99,6 +107,7 @@
 					return;
 				}
 			}
+			content['edit'] = document.getElementById('editing').checked;
 			console.log(content)
 			submit('/challenge_admin',content,response=>{
 				console.log(response)
@@ -123,9 +132,9 @@
 					</div>
 					<div class="card-footer">
 						{% if challenge.edit == True %}
-							<a href="#" class="btn btn-dark make_challenge" data-sn="{{ challenge.sn }}">Edit Challenge</a>
+							<a href="#" class="btn btn-dark make_challenge" data-sn="{{ challenge.sn }}" data-edit="true">Edit Challenge</a>
 						{% else %}
-							<a href="#" class="btn btn-dark make_challenge" data-sn="{{ challenge.sn }}">Create Challenge</a>
+							<a href="#" class="btn btn-dark make_challenge" data-sn="{{ challenge.sn }}" data-edit="false">Create Challenge</a>
 						{% endif %}
 					</div>
 				</div>
@@ -145,14 +154,14 @@
 				</div>
 				<div class="modal-body">
 					<div class="row">
-						<div class="col-11">
-							<span id="input_description"></span>
+						<div class="col-11" id="input_description">
 						</div>
 					</div>
 					<div class="row" id="input_row">
 
 					</div>
 					<input type="text" class="hidden" name="sn" id="sn" />
+					<input type="checkbox" class="hidden" name="editing" id="editing" />
 				</div>
 				<div class="modal-footer">
 					<button id="submit_chal" type="button" class="btn btn-secondary" data-dismiss="modal">Submit Challenge</button>

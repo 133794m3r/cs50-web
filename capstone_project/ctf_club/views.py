@@ -125,7 +125,10 @@ def challenge_admin(request):
 				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext)
 		points = content.get('points') or 100
 		if content.get('edit'):
-			pass
+			challenge = Challenges.objects.get(name=name)
+			challenge.description = description
+			challenge.flag = flag
+			challenge.save()
 		else:
 			Challenges.objects.create(
 				name = name,
@@ -153,7 +156,8 @@ def challenge_admin(request):
 				challenge_template = CHALLENGES_TEMPLATES[indexed]
 				all_challenges.append({
 					'name':challenge.name, 'category':challenge.category.name, 'full_description':challenge.description,
-					'description':challenge_template['description'], 'sn':challenge_template['sn'],'edit':True})
+					'description':challenge_template['description'], 'sn':challenge_template['sn'], 'edit':True,
+					'flag':challenge.flag})
 
 		for i,challenge in enumerate(CHALLENGES_TEMPLATES):
 			if i in challenges_used:
@@ -161,6 +165,7 @@ def challenge_admin(request):
 			else:
 				challenge['edit'] = False
 				all_challenges.append(challenge)
-
+		print(all_challenges)
+		print(CHALLENGES_TEMPLATES)
 		return render(request,"challenge_admin.html", {"challenges":all_challenges,
-		                                               'json':json_encode(CHALLENGES_TEMPLATES)})
+		                                               'json':json_encode(all_challenges)})
