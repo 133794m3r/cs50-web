@@ -378,5 +378,5 @@ CHALLENGES_TEMPLATES = [
 ]
 CHALLENGES_TEMPLATES_NAMES = {}
 
-for i,chal in enumerate(CHALLENGES_TEMPLATES):
-	CHALLENGES_TEMPLATES_NAMES[chal['name']] = [chal['sn'],i]
+for _,chal in enumerate(CHALLENGES_TEMPLATES):
+	CHALLENGES_TEMPLATES_NAMES[chal['name']] = [chal['sn'],_]

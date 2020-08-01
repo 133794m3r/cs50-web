@@ -14,10 +14,12 @@
 			});
 
 		});
+		//the standard challenges. Will be merged when it's really done.
 		let CHALLENGES = {};
 		{{ json | safe }}.forEach(chal=>{
 			CHALLENGES[chal.sn] = chal;
-		})
+		});
+		//the full data itself.
 		FULL_CHALLENGES = {{ json | safe }};
 
 

@@ -67,10 +67,12 @@ function modal_challenge(event,challenge_type,edit){
 	$('#challenge_modal').modal('toggle');
 }
 
+
 function check_len(){
 	const len = document.getElementById('plain_text').value.length;
 	document.getElementById('submit_chal').disabled = (len === 0 )
 }
+
 
 function submit_challenge(){
 	let content = {}
@@ -96,16 +98,27 @@ function submit_challenge(){
 	content['edit'] = document.getElementById('editing').checked;
 	console.log(content)
 	submit('/challenge_admin',content,response=>{
+		//Eventually I'll actually use this data to update the local challenge data but that's not for now.
+		// It's for a later thing. For now I just log the response. In the end I'll actually use the response to edit the
+		// cached values.
 		console.log(response)
 	})
 }
 
+
+/**
+ *
+ * @param challenge_type {string} The shortname for the challenge aka it's functional shorthand.
+ * @param variety {number} The variety.
+ * @returns {object} Will return the object with the various fields I need to get.
+ */
 function get_challenge_info(challenge_type,variety=0){
 	let tmp = {}
 	let chal = {}
 	for(let challenge in FULL_CHALLENGES){
 		chal = FULL_CHALLENGES[challenge];
 		if(chal.variety && chal.sn === challenge_type){
+			//only call this if a variety is set and the shortname is the same as the one we're trying to get.
 			if(chal.variety == variety) {
 				tmp['full_description'] = chal.full_description;
 				tmp['flag'] = chal.flag;
@@ -115,13 +128,14 @@ function get_challenge_info(challenge_type,variety=0){
 			}
 		}
 	}
+	return tmp
 }
 
 function change_variety(){
 	let sn = document.getElementById('sn').value;
 	let variety = document.getElementById('variety').value
 	let tmp = get_challenge_info(sn,variety);
-	if(tmp) {
+	if(tmp.variety) {
 		document.getElementById('editing').checked = true
 		document.getElementById('full_description').innerHTML = tmp.full_description;
 		document.getElementById('plain_text').value = tmp.flag;
