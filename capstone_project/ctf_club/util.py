@@ -10,7 +10,7 @@ def make_index(objects):
 			output[challenge.category.name] = [challenge]
 			maximum +=1
 		else:
-			#i = categores.index(challenge.category.name)
+			#i = categories.index(challenge.category.name)
 			output[challenge.category.name].append(challenge)
 
 	return output
@@ -29,12 +29,21 @@ def make_hill(plaintext: str, variety: int) -> tuple:
 	"""
 	#currently I just remove spaces to keep things simple.
 	plaintext = plaintext.replace(' ','')
+	#to make sure that it's only containing the letters of the alphabet.
+	plaintext = re.sub('[^A-Za-z]','',plaintext).upper()
+	#to make sure that it's not always an X that's padded at the end.
+	padding_char = chr(randint(65,90))
+	if len(plaintext) % 4 != 0:
+		plaintext += padding_char*(len(plaintext) % 4)
 	key = generate_random_key(26)
 	ct = hill_encrypt(plaintext,key)
-	key = ','.join(key)
+
+	#doing it raw here b/c it works.
+	#eventually I'll make the key be a 1d list.
+	key = f'{key[0][0]},{key[0][1]},{key[1][0]},{key[1][1]}'
 	flag = plaintext
 	crib = plaintext[0:4]
-	description = f"""<p>Given the following string of characters you have to decrypt them.<br /> {ct}.</p><br />"""
+	description = f"""<p>Given the following string of characters you have to decrypt them.<br /> "{ct}".</p><br /> Note that any repeated characters at the end should be discarded."""
 	if variety == 0:
 		description+=f"""<p>From your "inside man", you were able to get the following string of numbers. What could they mean?</p><br /> {key}"""
 	else:
@@ -71,7 +80,7 @@ As you open up the file you see the message below come across your screen.
 </p>
 <br />
 <p>
-Recallling your prior training you know that e is the exponent, n is the modulus, and that C is the ciphertext. 
+Recalling your prior training you know that e is the exponent, n is the modulus, and that C is the ciphertext. 
 The message seems important, the only hint you're given is that the message is encoded with a naive form.
 </p><br />
 <pre>
@@ -90,7 +99,7 @@ def make_hba(plaintext:str) -> tuple:
 	"""
 	make_hba
 
-	Makes a Hastaad Braodcast Attack flag. The value of e is 3 and the encoding
+	Makes a Hastad Broadcast Attack flag. The value of e is 3 and the encoding
 	is the standard OS2IP to keep it simple for users. That want to attempt to
 	complete the challenge.
 
@@ -245,9 +254,9 @@ Free hint. This plaintext was encoded with OS2IP.
 
 
 def make_affine(plaintext: str, variety: int) -> tuple:
-	plaintext = plaintext.replace(' ','X').upper()
+	plaintext = plaintext.replace(' ','').upper()
 	plaintext = re.sub('[^A-Za-z]','',plaintext)
-
+	input_len = len(plaintext)
 	if input_len == 0:
 		plaintext="IXHATEXMONDAYS"
 	coprimes=[1,3,5,7,9,11,15,17,19,21,23,25]

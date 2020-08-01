@@ -61,7 +61,11 @@ class ScryptPasswordHasher(BasePasswordHasher):
 		:rtype: str
 		"""
 
-		salt = salt or get_random_string(16,'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!-_|#&%')
+		#should give ~100bits of entropy. Characters are safe for SQL characterset and programming.
+		if salt and len(salt) < 16:
+				salt = get_random_string(16,'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_+=.')
+		elif not salt:
+			salt = get_random_string(16,'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_+=.')
 		n = n or self.n
 		r = r or self.r
 		p = p or self.p
