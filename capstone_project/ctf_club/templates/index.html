@@ -1,4 +1,17 @@
 {% extends 'layout.html' %}
+{% load static %}
+{% block head %}
+	<script type="text/javascript" src="{% static '/js/client.js' %}"></script>
+	<script type="text/javascript">
+		document.addEventListener('DOMContentLoaded',function(){
+			document.querySelectorAll('.view_challenge').forEach(el=>{
+				el.addEventListener('click',()=>{
+					fetch_chal(el.dataset.id);
+				})
+			})
+		})
+	</script>
+{% endblock %}
 {% block body %}
 	<div class="container-lg">
 		<div class="row">
@@ -26,7 +39,7 @@
 			{% for challenge in challenges %}
 				<div class="col-md-4">
 				{# The button below will eventually call the /chal route and get the challenge's information more likely than not. #}
-					<button id="challenge_{{ challenge.id }}" class="w-100 view_challenge btn btn-secondary mb-2 pt-2 p-3">
+					<button id="challenge_{{ challenge.id }}" class="w-100 view_challenge btn btn-secondary mb-2 pt-2 p-3" data-id="{{ challenge.id }}">
 						{{ challenge.name }}
 					</button>
 				</div>

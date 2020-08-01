@@ -49,9 +49,10 @@ def logout_view(request):
 
 
 @require_http_methods(["GET"])
-def chal(request,challenge):
-	pass
-
+def challenge_view(request,challenge_id):
+	chal = Challenges.objects.get(pk=challenge_id)
+	print(chal)
+	return JsonResponse({'content':None})
 def register(request):
 
 	if request.method == "POST":
