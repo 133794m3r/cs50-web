@@ -127,7 +127,8 @@ def solves(request):
 		all_solves = jsonify_queryset(user_solves.all())
 
 	print(all_solves)
-	return JsonResponse(all_solves)
+	#return JsonResponse(all_solves)
+	return render(request,"solves.html",{"objects":all_solves})
 
 @login_required(login_url='login')
 @require_http_methods(["GET","POST"])

@@ -1,1 +1,71 @@
 {% extends 'layout.html' %}
+{% load static %}
+{% block head %}
+	<script type="text/javascript" src="{% static '/js/client.js' %}"></script>
+	<script type="text/javascript">
+	   document.addEventListener('DOMContentLoaded',function(){
+		   document.querySelectorAll('.view_challenge').forEach(el=>{
+			   el.addEventListener('click',()=>{
+			   	document.getElementById('answer').innerText=`Flag: ${el.dataset.answer}`
+				   fetch_chal(el.dataset.id);
+			   })
+		   })
+	   })
+	</script>
+{% endblock %}
+{% block body %}
+	<div class="container container-lg">
+
+		<div class="row m-2">
+			<div class="col-3">
+				<h3>
+				{{ request.user }}'s Solves
+				</h3>
+			</div>
+		</div>
+		{% for challenge in objects %}
+		<div class="row">
+				<div class="col-md-4">
+					{# The button below will eventually call the /chal route and get the challenge's information more likely than not. #}
+					<button id="challenge_{{ challenge.challenge_id }}" class="w-100 view_challenge btn btn-secondary mb-2 pt-2 p-3" data-answer="{{ challenge.challenge_flag }}" data-id="{{ challenge.challenge_id }}">
+						{{ challenge.challenge_name }} -- {{ challenge.challenge_category }}
+					</button>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+
+
+	<div class="modal fade" id="challenge_modal" tabindex="-1" role="dialog" aria-labelledby="modal_title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 class="modal-title text-center" id="challenge_modal_title"></h2>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="row m-2">
+						<div class="col-11 text-center">
+							<h3 id="points"></h3>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-11" id="description">
+						</div>
+					</div>
+					<div class="row" id="input_row">
+						<div class="col-3">
+							<span id="answer"></span>
+							<input id="challenge_id" type="text" aria-hidden="true" class="hidden" />
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<span><strong> Already Solved </strong></span>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
