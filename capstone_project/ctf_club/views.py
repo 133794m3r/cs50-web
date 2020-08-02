@@ -50,23 +50,28 @@ def logout_view(request):
 @require_http_methods(["GET"])
 def challenge_view(request,challenge_id):
 	chal = Challenges.objects.get(pk=challenge_id)
-	print(len(Challenges.objects.all()))
-	#print(Challenges.objects.values())
-	print(jsonify_queryset(chal))
-	return JsonResponse({'content':None})
+	return JsonResponse(chal.to_dict())
 
 def register(request):
 
 	if request.method == "POST":
-		username = request.POST["username"]
-		#email = request.POST["email"]
+		username = request.POST.get("username")
+		email = request.POST.get("email")
 
-		password=request.POST["password"]
-		confirmation=request.POST["password_confirm"]
+		password=request.POST.get("password")
+		confirmation=request.POST.get("password_confirm")
 
 		if password != confirmation:
 			return render(request,"register.html",{
 				"message":"Passwords must match."
+			})
+		elif password is None:
+			return render(request,"register.html",{
+				"message":"Password cannot be blank."
+			})
+		elif username is None:
+			return render(request,"register.html",{
+				"message":"Username can't be blank."
 			})
 		elif len(password) < 5:
 			return render(request,"register.html",{
@@ -74,7 +79,7 @@ def register(request):
 			})
 
 		try:
-			user = User.objects.create_user(username=username,password=password)
+			user = User.objects.create_user(username=username,email=email,password=password)
 			user.save()
 		except IntegrityError:
 			return render(request,"register.html",{
@@ -105,8 +110,12 @@ def solves(request):
 	pass
 
 @login_required(login_url='login')
+
 @require_http_methods(["GET","POST"])
 def challenge_admin(request):
+	if not request.user.is_staff or not request.user.is_superuser:
+		return HttpResponseRedirect(reverse('index'))
+
 	if request.method == "POST":
 		description = ''
 		flag = ''

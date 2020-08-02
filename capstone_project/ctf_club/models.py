@@ -41,7 +41,7 @@ class Challenges(models.Model):
 		return self.__repr__()
 
 	def to_dict(self):
-		return {'id':self.id,'category':self.category.name,'points':self.points,'description':self.description,'flag':self.flag}
+		return {'id':self.id,'category':self.category.name,'name':self.name,'points':self.points,'description':self.description,'flag':self.flag}
 
 	def __len__(self):
 		return 1

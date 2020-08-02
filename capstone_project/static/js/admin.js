@@ -1,3 +1,16 @@
+/**
+ * When I created the code below only I and God knew what I was thinking.
+ * Now only God knows. Be forewarned.
+ */
+
+/**
+ * modal_challenge
+ *
+ * @param event {event} The event sent to it.
+ * @param challenge_type {str} The challenge's short name.
+ * @param edit {bool} Whether this challenge already exists and should be an edit version.
+ */
+
 function modal_challenge(event,challenge_type,edit){
 	event.preventDefault();
 	let inner_content;
@@ -49,7 +62,7 @@ function modal_challenge(event,challenge_type,edit){
 	}
 	let chal = CHALLENGES[challenge_type];
 	const el = document.getElementById('input_description');
-	if (edit === 'true') {
+	if (edit === true) {
 		const fd = document.getElementById('full_description');
 		if(full_description == ''){
 			full_description = chal.full_description;

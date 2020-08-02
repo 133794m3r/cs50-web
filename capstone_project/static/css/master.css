@@ -2,7 +2,6 @@
 	display:none;
 }
 
-
 @media only screen and (min-width:1500px){
 	.modal-dialog {
 		max-width: 800px;
