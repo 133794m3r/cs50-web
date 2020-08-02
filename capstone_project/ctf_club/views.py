@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.db import IntegrityError
-from django.http import JsonResponse, HttpResponseRedirect,HttpResponse
+from django.http import JsonResponse, HttpResponseRedirect,HttpResponse,HttpResponseNotFound
 from django.urls import reverse
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import  login_required
@@ -110,11 +110,11 @@ def solves(request):
 	pass
 
 @login_required(login_url='login')
-
 @require_http_methods(["GET","POST"])
 def challenge_admin(request):
+	#If the user is not an admin or in the staff pretend like this route doesn't exist.
 	if not request.user.is_staff or not request.user.is_superuser:
-		return HttpResponseRedirect(reverse('index'))
+		return HttpResponseNotFound("<h1>Error 404</h1><h2> That route doesn't exist on this server.</h2>")
 
 	if request.method == "POST":
 		description = ''
