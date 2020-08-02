@@ -17,10 +17,9 @@ def profile(request,username):
 	pass
 
 def index(request):
-	challenges= Challenges.objects.all()
-	chals= make_index(challenges)
-	print(chals)
+	challenges=Challenges.objects.all()
 
+	chals= make_index(challenges)
 	return render(request,"index.html",{'objects':chals})
 
 
@@ -51,8 +50,11 @@ def logout_view(request):
 @require_http_methods(["GET"])
 def challenge_view(request,challenge_id):
 	chal = Challenges.objects.get(pk=challenge_id)
-	print(chal)
+	print(len(Challenges.objects.all()))
+	#print(Challenges.objects.values())
+	print(jsonify_queryset(chal))
 	return JsonResponse({'content':None})
+
 def register(request):
 
 	if request.method == "POST":

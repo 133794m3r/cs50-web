@@ -376,7 +376,20 @@ CHALLENGES_TEMPLATES = [
 	{"name":"Really Simple Algorithm - It's all the Same","sn":"common_mod","category":"Modern Crypto","description":"This challenge requires someone to carry out a common modulus attack against RSA."},
 	{"name":"Really Simple Algorithm - Leftover Chinese Food","sn":"hba","category":"Modern Crypto","description":"This challenge requires the solver to utilize the Hastaad Broadcast Attack against RSA."}
 ]
-CHALLENGES_TEMPLATES_NAMES = {}
 
-for _,chal in enumerate(CHALLENGES_TEMPLATES):
-	CHALLENGES_TEMPLATES_NAMES[chal['name']] = [chal['sn'],_]
+def __func():
+	CHALLENGES_TEMPLATES_NAMES = {}
+	for i,chal in enumerate(CHALLENGES_TEMPLATES):
+		CHALLENGES_TEMPLATES_NAMES[chal['name']] = [chal['sn'],i]
+	return CHALLENGES_TEMPLATES_NAMES
+
+CHALLENGES_TEMPLATES_NAMES = __func()
+
+def jsonify_queryset(queryset):
+	out = []
+	if len(queryset) > 1:
+		for result in queryset:
+			out.append(result.to_dict())
+	else:
+		out.append(queryset.to_dict())
+	return out
