@@ -391,5 +391,10 @@ def jsonify_queryset(queryset):
 		for result in queryset:
 			out.append(result.to_dict())
 	else:
-		out.append(queryset.to_dict())
+		try:
+			if queryset.count() == 1:
+				return queryset.first().to_dict()
+		except AttributeError:
+			return queryset.to_dict()
+
 	return out

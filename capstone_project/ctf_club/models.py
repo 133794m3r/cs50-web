@@ -5,7 +5,13 @@ from django.contrib.auth.models import AbstractUser
 
 # User model is just here so I can reference it, I use the default model.
 class User(AbstractUser):
-	pass
+	def to_dict(self):
+		return {'id':self.id, 'username':self.username, 'email':self.email,
+		        'is_staff':self.is_staff, 'is_superuser':self.is_superuser,
+		        'first_name':self.first_name, 'last_name':self.last_name,
+		        'date_joined':self.date_joined, 'is_active':self.is_active,
+		        'last_login':self.last_login
+		}
 
 
 class Categories(models.Model):
@@ -52,8 +58,8 @@ class Solves(models.Model):
 
 	def to_dict(self):
 		__chal = self.challenge.to_dict()
-		__user == self.user.to_dict()
-		return {'challenge':{'id':__chal.id,'name':__chal.name},'user':__user.name}
+		__user = self.user.to_dict()
+		return {'challenge':{'id':__chal['id'],'name':__chal['name']},'user':__user['username']}
 
 
 	def __repr__(self):

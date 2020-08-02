@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.db import IntegrityError
-from django.http import JsonResponse, HttpResponseRedirect,HttpResponse,HttpResponseNotFound
+from django.http import JsonResponse, HttpResponseRedirect,HttpResponse,HttpResponseNotFound,Http404
 from django.urls import reverse
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import  login_required
@@ -18,7 +18,6 @@ def profile(request,username):
 
 def index(request):
 	challenges=Challenges.objects.all()
-
 	chals= make_index(challenges)
 	return render(request,"index.html",{'objects':chals})
 
@@ -53,7 +52,6 @@ def challenge_view(request,challenge_id):
 	return JsonResponse(chal.to_dict())
 
 def register(request):
-
 	if request.method == "POST":
 		username = request.POST.get("username")
 		email = request.POST.get("email")
@@ -94,7 +92,20 @@ def register(request):
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def solve(request,challenge_id):
-	pass
+	correct_flag = Challenges.objects.filter(pk=challenge_id).first().flag
+	data = json_decode(request.body)
+	answer = data['answer']
+	solved = Solves.objects.filter(user=request.user).first()
+	if answer == correct_flag:
+		if solved is None:
+			new_solve = Solves(user=request.user,challenge_id=challenge_id)
+			new_solve.save()
+		was_solved = True
+	else:
+		was_solved = False
+
+	return JsonResponse({'solved':was_solved})
+
 
 @login_required(login_url='login')
 @require_http_methods(["POST"])
@@ -106,15 +117,25 @@ def hint(request,hint_id):
 def control_panel(request,username):
 	pass
 
+@login_required(login_url='login')
 def solves(request):
-	pass
+	all_solves = {}
+	user_solves = Solves.objects.filter(user=request.user)
+	if user_solves.first() is None:
+		all_solves = {}
+	else:
+		all_solves = jsonify_queryset(user_solves.all())
+
+	print(all_solves)
+	return JsonResponse(all_solves)
 
 @login_required(login_url='login')
 @require_http_methods(["GET","POST"])
 def challenge_admin(request):
 	#If the user is not an admin or in the staff pretend like this route doesn't exist.
 	if not request.user.is_staff or not request.user.is_superuser:
-		return HttpResponseNotFound("<h1>Error 404</h1><h2> That route doesn't exist on this server.</h2>")
+		#return HttpResponseNotFound("<h1>Error 404</h1><h2> That route doesn't exist on this server.</h2>")
+		raise Http404()
 
 	if request.method == "POST":
 		description = ''

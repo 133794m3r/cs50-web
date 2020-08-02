@@ -8,7 +8,11 @@ function fetch_chal(challenge_id){
 	})
 }
 
-function solve_chal(event){
+function solve(event){
 	event.preventDefault();
-
+	const id = document.getElementById('challenge_id').value;
+	const answer = document.getElementById('answer').value;
+	submit(`/solve/${id}`,{'answer':answer},resp=>{
+		console.log(resp);
+	});
 }
