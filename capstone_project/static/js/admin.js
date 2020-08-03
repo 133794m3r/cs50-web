@@ -7,8 +7,8 @@
  * modal_challenge
  *
  * @param event {event} The event sent to it.
- * @param challenge_type {str} The challenge's short name.
- * @param edit {bool} Whether this challenge already exists and should be an edit version.
+ * @param challenge_type {string} The challenge's short name.
+ * @param edit {boolean} Whether this challenge already exists and should be an edit version.
  */
 
 function modal_challenge(event,challenge_type,edit){
@@ -42,20 +42,20 @@ function modal_challenge(event,challenge_type,edit){
 		 default:
 			flag = CHALLENGES[challenge_type].flag;
 			let variety = 0;
-			if ((challenge_type === 'hill' || challenge_type === 'affine') && edit){
+			if ((challenge_type === 'hill' || challenge_type === 'affine')){
 				let tmp = get_challenge_info(challenge_type,0);
 				full_description = tmp.full_description;
 				flag = tmp.flag;
 				variety = tmp.variety;
-				edit = 'true';
+				edit = tmp.edit;
 			}
 			document.getElementById('submit_chal').disabled = true;
 			flag = flag ? flag : ''
-			inner_content = `<div class="col-6 form-group">
-				<textarea id='plain_text' name='plain_text' class="input_items form-text" rows="3" cols="40" onkeyup="check_len()">${flag}</textarea>
+			inner_content = `<div class="col-lg-7 col-md-8 col-sm-9 form-group">
+				<textarea id='plain_text' name='plain_text' class="input_items form-text w-100" rows="3" cols="40" onkeyup="check_len()">${flag}</textarea>
 			</div>`;
 			 if (challenge_type === 'hill' || challenge_type === 'affine') {
-			 inner_content += `<div class="col-6 form-group">
+			 inner_content += `<div class="col-lg-5 col-md-4 col-sm-3 form-group">
 					<select id="variety" onchange="change_variety()"><option value="0">Easy</option><option value="1">Hard</option></select>`;
 			}
 		 break;
@@ -69,6 +69,10 @@ function modal_challenge(event,challenge_type,edit){
 		}
 		 fd.innerHTML = `<p>For reference, the old challenge is below here.</p>`+full_description+
 			 `<pre>Flag: ${flag}</pre>`;
+		document.getElementById('submit_chal').disabled = false
+	}
+	else{
+		document.getElementById('submit_chal').disabled = true
 	}
 	// else{
 	el.innerHTML = `<span>${chal.description}</span>`;
@@ -76,7 +80,7 @@ function modal_challenge(event,challenge_type,edit){
 	document.getElementById('challenge_modal_title').innerText = `${chal.name} -- Category:${chal.category}`;
 	document.getElementById('input_row').innerHTML = inner_content;
 	document.getElementById('sn').value = chal.sn;
-	document.getElementById('editing').checked = (edit === 'true');
+	document.getElementById('editing').checked = (edit === true);
 	$('#challenge_modal').modal('toggle');
 }
 
@@ -157,5 +161,6 @@ function change_variety(){
 		document.getElementById('editing').checked = false;
 		document.getElementById('full_description').innerHTML='';
 		document.getElementById('plain_text').value = ''
+		document.getElementById('submit_chal').disabled = true;
 	}
 }

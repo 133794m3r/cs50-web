@@ -5,7 +5,8 @@
 		document.addEventListener('DOMContentLoaded',function(){
 			document.querySelectorAll('.make_challenge').forEach(el=>{
 				el.addEventListener("click",event=>{
-						modal_challenge(event,el.dataset.sn,el.dataset.edit);
+						const edit = (el.dataset.edit === 'true')
+						modal_challenge(event,el.dataset.sn,edit)
 				});
 			});
 			document.getElementById('submit_chal').addEventListener("click",event=>{

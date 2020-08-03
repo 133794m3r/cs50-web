@@ -160,7 +160,6 @@ def challenge_admin(request):
 				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext)
 		points = content.get('points') or 100
 		if content.get('edit'):
-			print(name)
 			challenge = Challenges.objects.get(name=name)
 			challenge.description = description
 			challenge.flag = flag
@@ -189,7 +188,6 @@ def challenge_admin(request):
 				variety = challenge.name[-1]
 			else:
 				tmp_name = challenge.name
-			print(tmp_name)
 			if tmp_name in CHALLENGES_TEMPLATES_NAMES:
 				indexed = CHALLENGES_TEMPLATES_NAMES[tmp_name][1]
 				challenges_used.append(indexed)
@@ -223,3 +221,7 @@ def challenge_admin(request):
 
 		return render(request,"challenge_admin.html", {"challenges":all_challenges,
 		                                               'json':json_encode(all_challenges)})
+
+
+def solves_admin(request):
+	return JsonResponse({'error':None})
