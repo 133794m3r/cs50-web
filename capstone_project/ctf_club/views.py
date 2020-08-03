@@ -224,4 +224,9 @@ def challenge_admin(request):
 
 
 def solves_admin(request):
+	print(Solves.objects.all())
+	solves = Solves.objects.order_by('challenge__category__name').values('user__username','challenge__name','challenge__category__name','timestamp','challenge__datetime')
+	print(solves.all())
+	solves = jsonify_queryset(solves)
+	print(solves)
 	return JsonResponse({'error':None})

@@ -16,8 +16,7 @@ class User(AbstractUser):
 
 class Categories(models.Model):
 	name = models.CharField(max_length=50)
-	# def __dict__(self):
-	# 	return {'id':self.id,'name':self.name}
+
 	def to_dict(self):
 		return {'id':self.id,'name':self.name}
 
@@ -36,9 +35,7 @@ class Challenges(models.Model):
 	name = models.CharField(max_length=50)
 	description = models.TextField()
 	flag = models.TextField()
-
-	# def __dict__(self):
-	# 	return {'id':self.id,'category':self.category,'points':self.points,'description':self.description,'flag':self.flag}
+	timestamp = models.DateTimeField()
 
 	def __repr__(self):
 		return 'Challenges(id={!r},category={!r},points={!r},name={!r},description={!r},flag={!r}'.format(self.id,self.category,self.points,self.name,self.description,self.flag)
@@ -55,6 +52,7 @@ class Challenges(models.Model):
 class Solves(models.Model):
 	challenge = models.ForeignKey('Challenges',on_delete=models.CASCADE,related_name='solves')
 	user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='solves')
+	timestamp = models.DateTimeField()
 
 	def to_dict(self):
 		__chal = self.challenge.to_dict()
@@ -97,6 +95,7 @@ class Hints(models.Model):
 	hidden = models.BooleanField(default=True)
 	level = models.IntegerField()
 	used = models.ManyToManyField(User)
+	timestamp = models.DateTimeField()
 
 	def __repr__(self):
 		return 'Hints(challenge={!r},description={!r},hidden={!r},level={!r},used={!r}'.format(self.challenge,self.description,self.hidden,self.self.level,self.used)
