@@ -35,6 +35,7 @@ class Challenges(models.Model):
 	description = models.TextField()
 	flag = models.TextField()
 	timestamp = models.DateTimeField(default=timezone.now)
+	num_solves = models.IntegerField(default=0)
 
 	def __repr__(self):
 		return 'Challenges(id={!r},category={!r},points={!r},name={!r},description={!r},flag={!r}'.format(self.id,self.category,self.points,self.name,self.description,self.flag)
@@ -43,6 +44,11 @@ class Challenges(models.Model):
 		return self.__repr__()
 
 	def to_dict(self):
+		"""
+		to_dict method returns a dict representation of the object.
+
+		:return: {dict} A dict containing the fields that are important.
+		"""
 		return {'id':self.id,'category':self.category.name,'name':self.name,'points':self.points,'description':self.description,'flag':self.flag}
 
 	def __len__(self):
@@ -70,6 +76,18 @@ class Solves(models.Model):
 	def __len__(self):
 		return 1
 
+
+# Was going to make this it's own table but honestly why. It's a single field and should be part of the challenge itself.
+# this way it can be easily removed.
+# class TotalSolves(models.Model):
+# 	challenge = models.ForeignKey('Challenges',on_delete=models.CASCADE)
+# 	num_solves = models.IntegerField()
+#
+# 	def to_dict(self):
+# 		return {'id':self.id,'challenge_id':self.challenge_id,'challenge_name':self.challenge.name,'category_name':self.challenge.category.name,'category_id':self.challenge.category.id}
+#
+# 	def __repr__(self):
+# 		return 'TotalSolves(challenge={!r},num_solves={!r}'.format(self.challenge,self.num_solves)
 
 class Files(models.Model):
 	filename = models.TextField()

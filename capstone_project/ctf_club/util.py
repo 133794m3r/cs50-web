@@ -387,9 +387,15 @@ CHALLENGES_TEMPLATES_NAMES = __func()
 
 def jsonify_queryset(queryset):
 	out = []
-	if len(queryset) > 1:
+	print(type(queryset))
+	if type(queryset) is dict:
+		return queryset
+	elif len(queryset) > 1:
 		for result in queryset:
-			out.append(result.to_dict())
+			if type(result) is dict:
+				out.append(result)
+			else:
+				out.append(result.to_dict())
 	else:
 		try:
 			if queryset.count() == 1:

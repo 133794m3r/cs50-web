@@ -92,14 +92,21 @@ def register(request):
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def solve(request,challenge_id):
-	correct_flag = Challenges.objects.filter(pk=challenge_id).first().flag
+	challenge = Challenges.objects.filter(pk=challenge_id).first()
+	correct_flag = challenge.flag
 	data = json_decode(request.body)
 	answer = data['answer']
-	solved = Solves.objects.filter(user=request.user).first()
+	solved = Solves.objects.filter(user=request.user,challenge_id=challenge_id).first()
 	if answer == correct_flag:
 		if solved is None:
-			new_solve = Solves(user=request.user,challenge_id=challenge_id)
+			new_solve = Solves.objects.create(
+				user=request.user,
+				challenge_id=challenge_id
+			)
 			new_solve.save()
+			#modify the number of solves to increase it by one.
+			challenge.num_solves +=1
+			challenge.save()
 		was_solved = True
 	else:
 		was_solved = False
@@ -166,7 +173,10 @@ def challenge_admin(request):
 			challenge = Challenges.objects.get(name=name)
 			challenge.description = description
 			challenge.flag = flag
+			challenge.num_solves = 0
 			challenge.save()
+			#remove all solves for the challenge as it's been modified.
+			Solves.objects.filter(challenge_id=challenge.id).delete()
 		else:
 			Challenges.objects.create(
 				name = name,
@@ -228,17 +238,33 @@ def challenge_admin(request):
 		                                               'json':json_encode(all_challenges)})
 
 
+@login_required()
 def solves_admin(request):
-	print(Solves.objects.all())
-	solves = Solves.objects.order_by('challenge__category__name').values('user__username','challenge__name','challenge__category__name','timestamp','challenge__timestamp')
-	print(solves.all())
-	solves = jsonify_queryset(solves)
-	print(solves)
-	solve_dict = {}
-	for isolve in solves:
-		print(isolve)
+	all_challenges = Challenges.objects.order_by('category__name').values('id','name','category__name','num_solves')
+	all_challenges = jsonify_queryset(all_challenges)
+	return JsonResponse(all_challenges,safe=False)
 
-	return JsonResponse({'error':None})
+@login_required()
+def get_all_solves(request):
+	if not request.user.is_staff:
+		return Http404
+
+	all_solves = Solves.objects.order_by('challenge__category__name').values('user__username', 'challenge__name', 'challenge__category__name', 'timestamp')
+	all_solves = jsonify_queryset(all_solves)
+	solve_dict = {}
+
+	if type(all_solves) is dict:
+		solve_dict[all_solves.get('challenge__category__name')] = [all_solves]
+	elif len(all_solves) > 1:
+		for isolve in all_solves:
+			if solve_dict.get(isolve['challenge__category__name']):
+				solve_dict[isolve['challenge__category__name']].append(isolve)
+			else:
+				solve_dict[isolve['challenge__category__name']] = [isolve]
+	else:
+		pass
+
+	return JsonResponse({'error':solve_dict})
 
 @login_required()
 def admin_view(request):
