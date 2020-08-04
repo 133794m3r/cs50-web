@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
-
+from django.utils import timezone
 
 # User model is just here so I can reference it, I use the default model.
 class User(AbstractUser):
@@ -35,7 +34,7 @@ class Challenges(models.Model):
 	name = models.CharField(max_length=50)
 	description = models.TextField()
 	flag = models.TextField()
-	timestamp = models.DateTimeField()
+	timestamp = models.DateTimeField(default=timezone.now)
 
 	def __repr__(self):
 		return 'Challenges(id={!r},category={!r},points={!r},name={!r},description={!r},flag={!r}'.format(self.id,self.category,self.points,self.name,self.description,self.flag)
@@ -52,7 +51,7 @@ class Challenges(models.Model):
 class Solves(models.Model):
 	challenge = models.ForeignKey('Challenges',on_delete=models.CASCADE,related_name='solves')
 	user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='solves')
-	timestamp = models.DateTimeField()
+	timestamp = models.DateTimeField(default=timezone.now)
 
 	def to_dict(self):
 		__chal = self.challenge.to_dict()
@@ -89,13 +88,14 @@ class Files(models.Model):
 		__challenge = self.challenge.to_dict()
 		return {'id':self.id,'filname':self.filename,'challenge':self.challenge.name}
 
+
 class Hints(models.Model):
 	challenge = models.ForeignKey('Challenges',on_delete=models.CASCADE,related_name='hints')
 	description = models.TextField()
 	hidden = models.BooleanField(default=True)
 	level = models.IntegerField()
 	used = models.ManyToManyField(User)
-	timestamp = models.DateTimeField()
+	timestamp = models.DateTimeField(default=timezone.now)
 
 	def __repr__(self):
 		return 'Hints(challenge={!r},description={!r},hidden={!r},level={!r},used={!r}'.format(self.challenge,self.description,self.hidden,self.self.level,self.used)
