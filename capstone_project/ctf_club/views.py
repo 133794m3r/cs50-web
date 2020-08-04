@@ -211,10 +211,12 @@ def challenge_admin(request):
 		for i,challenge in enumerate(CHALLENGES_TEMPLATES):
 			if i in challenges_used:
 				if varieties_used.get(i):
-						if len(varieties_used[i]) != 2:
-							all_challenges.append(challenge)
-				else:
-					continue
+				#	print(varieties_used)
+					if len(varieties_used[i]) == 2:
+						challenge['edit'] = True
+
+
+				all_challenges.append(challenge)
 			else:
 				challenge['edit'] = False
 				all_challenges.append(challenge)

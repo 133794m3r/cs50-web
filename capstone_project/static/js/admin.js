@@ -50,6 +50,7 @@ function modal_challenge(event,challenge_type,edit){
 				edit = tmp.edit;
 			}
 			document.getElementById('submit_chal').disabled = true;
+
 			flag = flag ? flag : ''
 			inner_content = `<div class="col-lg-7 col-md-8 col-sm-9 form-group">
 				<textarea id='plain_text' name='plain_text' class="input_items form-text w-100" rows="3" cols="40" onkeyup="check_len()">${flag}</textarea>
@@ -67,17 +68,18 @@ function modal_challenge(event,challenge_type,edit){
 		if(full_description == ''){
 			full_description = chal.full_description;
 		}
-		 fd.innerHTML = `<p>For reference, the old challenge is below here.</p>`+full_description+
-			 `<pre>Flag: ${flag}</pre>`;
+		 fd.innerHTML = `<p>For reference, the old challenge is below here.</p>`+full_description;
+		 //+`<pre>Flag: ${flag}</pre>`;
 		document.getElementById('submit_chal').disabled = false
 	}
 	else{
+		document.getElementById('full_description').innerHTML = ''
 		document.getElementById('submit_chal').disabled = true
 	}
 	// else{
 	el.innerHTML = `<span>${chal.description}</span>`;
 	// }
-	document.getElementById('challenge_modal_title').innerText = `${chal.name} -- Category:${chal.category}`;
+	document.getElementById('challenge_modal_title').innerText = `${chal.name}`; //-- Category:${chal.category}`;
 	document.getElementById('input_row').innerHTML = inner_content;
 	document.getElementById('sn').value = chal.sn;
 	document.getElementById('editing').checked = (edit === true);
