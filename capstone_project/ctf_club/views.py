@@ -240,14 +240,19 @@ def challenge_admin(request):
 
 @login_required()
 def solves_admin(request):
+	if not request.user.is_staff or not request.user.is_superuser:
+		raise Http404()
 	all_challenges = Challenges.objects.order_by('category__name').values('id','name','category__name','num_solves')
 	all_challenges = jsonify_queryset(all_challenges)
-	return JsonResponse(all_challenges,safe=False)
+
+	#return JsonResponse(all_challenges,safe=False)
+	return render(request,"solves_admin.html",{"challenges":all_challenges})
+
 
 @login_required()
 def get_all_solves(request):
-	if not request.user.is_staff:
-		return Http404
+	if not request.user.is_staff or not request.user.is_superuser:
+		raise Http404()
 
 	all_solves = Solves.objects.order_by('challenge__category__name').values('user__username', 'challenge__name', 'challenge__category__name', 'timestamp')
 	all_solves = jsonify_queryset(all_solves)
@@ -265,6 +270,7 @@ def get_all_solves(request):
 		pass
 
 	return JsonResponse({'error':solve_dict})
+
 
 @login_required()
 def admin_view(request):

@@ -366,15 +366,17 @@ CHALLENGE_FUNCS = {
 
 CATEGORIES = ["Classical Crypto","Modern Crypto","Programming"]
 
+#TODO: Move all of this into an SQL table that'll actually hold this meta-data for me.
+
 CHALLENGES_TEMPLATES = [
-	{"name":"Cola and the Bee", "sn":"fizzbuzz", "category":"Programming", "description":"This is a basic fizzbuzz challgen where you have to  provide a min an maximum number."},
-	{"name":"Really Simple Algorithm - Frenchman's Revenge", "sn":"fermat", "category":"Modern Crypto", "description":"This is an attack on RSA. This challenge is also known as 'Fermat's Near prime' attack. Provide the plain-text and the app will do the rest."},
-	{"name":"Master of Hill Climbing", "sn":"hill", "category":"Classical Crypto", "description":"This challenge is all about the hill cipher. Select the easy version for one where the user is given the key. The hard mode for when they shouldn't be given the key at the start."},
-	{"name":"Really Simple Algorithm - Intro", "sn":"rsa", "category":"Classical Crypto", "description":"This challenge is just a simple RSA based challenge that requires the user to decrypt some message."},
-	{"name":"Really Simple Algorithm - Fake it till you make it", "sn":"bsa", "category":"Modern Crypto", "description":"This is an attack on RSA called the 'Blind Signature Attack'. To keep it simple we're going to have them work with a message that's already been signed."},
-	{"name":"A-fine Cipher", "sn":"affine", "category":"Classical Crypto", "description":"This challenge is all about the affine cipher which is basically just a 2-step Ceaser Cipher."},
-	{"name":"Really Simple Algorithm - It's all the Same","sn":"common_mod","category":"Modern Crypto","description":"This challenge requires someone to carry out a common modulus attack against RSA."},
-	{"name":"Really Simple Algorithm - Leftover Chinese Food","sn":"hba","category":"Modern Crypto","description":"This challenge requires the solver to utilize the Hastaad Broadcast Attack against RSA."}
+	{"name":"Cola and the Bee", "sn":"fizzbuzz", "category":"Programming", "description":"This is a basic fizzbuzz challgen where you have to  provide a min an maximum number.","points":75},
+	{"name":"Really Simple Algorithm - Frenchman's Revenge", "sn":"fermat", "category":"Modern Crypto", "description":"This is an attack on RSA. This challenge is also known as 'Fermat's Near prime' attack. Provide the plain-text and the app will do the rest.","points":240},
+	{"name":"Master of Hill Climbing", "sn":"hill", "category":"Classical Crypto", "description":"This challenge is all about the hill cipher. Select the easy version for one where the user is given the key. The hard mode for when they shouldn't be given the key at the start.","points":125},
+	{"name":"Really Simple Algorithm - Intro", "sn":"rsa", "category":"Classical Crypto", "description":"This challenge is just a simple RSA based challenge that requires the user to decrypt some message.","points":150},
+	{"name":"Really Simple Algorithm - Fake it till you make it", "sn":"bsa", "category":"Modern Crypto", "description":"This is an attack on RSA called the 'Blind Signature Attack'. To keep it simple we're going to have them work with a message that's already been signed.","points":225},
+	{"name":"A-fine Cipher", "sn":"affine", "category":"Classical Crypto", "description":"This challenge is all about the affine cipher which is basically just a 2-step Ceaser Cipher.","points":100},
+	{"name":"Really Simple Algorithm - It's all the Same","sn":"common_mod","category":"Modern Crypto","description":"This challenge requires someone to carry out a common modulus attack against RSA.","points":250},
+	{"name":"Really Simple Algorithm - Leftover Chinese Food","sn":"hba","category":"Modern Crypto","description":"This challenge requires the solver to utilize the Hastaad Broadcast Attack against RSA.","points":300}
 ]
 
 def __func():
@@ -385,9 +387,18 @@ def __func():
 
 CHALLENGES_TEMPLATES_NAMES = __func()
 
-def jsonify_queryset(queryset):
+def jsonify_queryset(queryset: object) -> dict:
+	"""
+	jsonify_queryset will take a queryset object from the Django.models result
+	and return a list of dicts that are ready to be serialized into JSON for
+	the use by the API and consumed by the client.
+
+
+	:param queryset: The object we're working with. May already be a dict.o
+	:return: {dict} A dict that's ready to be serialized as JSON.
+	"""
+
 	out = []
-	print(type(queryset))
 	if type(queryset) is dict:
 		return queryset
 	elif len(queryset) > 1:

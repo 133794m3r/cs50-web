@@ -97,10 +97,14 @@ function submit_challenge(){
 	let content = {}
 	const sn = document.getElementById('sn').value;
 	content['sn'] = sn;
-	content['name'] = CHALLENGES[sn].name;
-	content['category'] = CHALLENGES[sn].category;
+	let chal = CHALLENGES[sn]
+	content['name'] = chal.name;
+	content['category'] = chal.category;
+	content['points'] = chal.points
 	if(sn === 'affine' || sn === 'hill'){
 		content['variety'] = parseInt(document.getElementById('variety').value);
+		//Points are adjusted based upon the variety value. Where the point bonus is basically 1+(0.25*(variety-1))
+		content['points'] =chal.points * ( (content['variety'] - 1) /4 );
 	}
 	if(sn === 'fizzbuzz'){
 		let min = parseInt(document.getElementById('min').value);
