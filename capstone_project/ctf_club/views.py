@@ -120,15 +120,18 @@ def control_panel(request,username):
 @login_required(login_url='login')
 def solves(request):
 	all_solves = {}
+	num_solves = 0
 	user_solves = Solves.objects.filter(user=request.user)
 	if user_solves.first() is None:
 		all_solves = {}
+		num_solves = 0
 	else:
 		all_solves = jsonify_queryset(user_solves.all())
+		num_solves = user_solves.count()
 
 	print(all_solves)
 	#return JsonResponse(all_solves)
-	return render(request,"solves.html",{"objects":all_solves})
+	return render(request,"solves.html",{"objects":all_solves,'num_solves':num_solves})
 
 @login_required(login_url='login')
 @require_http_methods(["GET","POST"])
@@ -231,6 +234,10 @@ def solves_admin(request):
 	print(solves.all())
 	solves = jsonify_queryset(solves)
 	print(solves)
+	solve_dict = {}
+	for isolve in solves:
+		print(isolve)
+
 	return JsonResponse({'error':None})
 
 @login_required()

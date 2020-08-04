@@ -32,7 +32,7 @@ def make_hill(plaintext: str, variety: int) -> tuple:
 	#to make sure that it's only containing the letters of the alphabet.
 	plaintext = re.sub('[^A-Za-z]','',plaintext).upper()
 	#to make sure that it's not always an X that's padded at the end.
-	padding_char = chr(randint(65,90))
+	padding_char = chr(randint(80,90))
 	if len(plaintext) % 4 != 0:
 		plaintext += padding_char*(len(plaintext) % 4)
 	key = generate_random_key(26)

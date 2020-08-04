@@ -156,7 +156,7 @@ function change_variety(){
 	let tmp = get_challenge_info(sn,variety);
 	if(tmp.variety) {
 		document.getElementById('editing').checked = true
-		document.getElementById('full_description').innerHTML = tmp.full_description;
+		document.getElementById('full_description').innerHTML = `For reference, the old challenge is below here.<br /><br />${tmp.full_description}`;
 		document.getElementById('plain_text').value = tmp.flag;
 	}
 	else{
