@@ -153,8 +153,8 @@ def challenge_admin(request):
 			plaintext = content['plaintext']
 			if content['sn'] in ["affine","hill"]:
 				variety = content['variety']
-				if content.get('edit'):
-					name +=f' - {variety}'
+				#if content.get('edit'):
+				name +=f' - {variety}'
 				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext,variety)
 			else:
 				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext)
