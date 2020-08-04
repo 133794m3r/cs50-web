@@ -1,0 +1,1 @@
+[{"model": "ctf_club.categories", "pk": 1, "fields": {"name": "Classical Crypto"}}, {"model": "ctf_club.categories", "pk": 2, "fields": {"name": "Modern Crypto"}}, {"model": "ctf_club.categories", "pk": 3, "fields": {"name": "Programming"}}]

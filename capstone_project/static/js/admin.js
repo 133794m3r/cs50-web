@@ -114,7 +114,7 @@ function submit_challenge(){
 	}
 	content['edit'] = document.getElementById('editing').checked;
 	console.log(content)
-	submit('/challenge_admin',content,response=>{
+	submit('/admin/challenge',content,response=>{
 		//Eventually I'll actually use this data to update the local challenge data but that's not for now.
 		// It's for a later thing. For now I just log the response. In the end I'll actually use the response to edit the
 		// cached values.

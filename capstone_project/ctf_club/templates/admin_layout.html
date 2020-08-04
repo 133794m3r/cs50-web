@@ -38,36 +38,22 @@
 <body>
 
 <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-	<a class="navbar-brand" href="#">CTF Club</a>
+	<a class="navbar-brand" href="#">CTF Club Admin</a>
 	<div>
 		<ul class="navbar-nav mr-auto">
-			{% if user.is_authenticated %}
-				<li class="nav-item">
-					<a class="nav-link" href="{% url 'control_panel' user.username %}"> Control Panel</a>
-				</li>
-			{% endif %}
-
-			{% if user.is_staff %}
-				<li class="nav-item">
-					<a class="nav-link" href="{% url 'challenge_admin' %}">Admin</a>
-				</li>
-			{% endif %}
 			<li class="nav-item">
 				<a class="nav-link" href="{% url 'index' %}">Index</a>
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'challenge_admin' %}">Challenge Page</a>
 			</li>
-			{% if not user.is_authenticated %}
-				<li class="nav-link">
-					<a class="nav-item" href="{% url 'login' %}">Login</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="{% url 'register' %}">Register</a>
-				</li>
-			{% else %}
-				<li class="nav-item">
-					<a class="nav-link" href="{% url 'logout' %}">Logout</a>
-				</li>
+			<li class="navi-item">
+				<a class="nav-link" href="{% url 'solves_admin' %}">All Solves</a>
+			</li>
+			{% if user.is_superuser %}
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'admin:index'  %}">Django Admin Page</a>
+			</li>
 			{% endif %}
-
 			{% block nav %}
 			{% endblock %}
 		</ul>

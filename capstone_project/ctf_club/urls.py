@@ -12,5 +12,6 @@ urlpatterns = [
 	path("hint/<int:id>",views.hint,name="hint"),
 	path("control_panel/<str:username>",views.control_panel,name="control_panel"),
 	path("admin/challenge",views.challenge_admin,name="challenge_admin"),
-	path("admin/solves",views.solves_admin,name="solves_admin")
+	path("admin/solves",views.solves_admin,name="solves_admin"),
+	path("admin/",views.admin_view,name="admin"),
 ]
