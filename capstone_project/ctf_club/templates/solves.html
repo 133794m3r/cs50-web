@@ -34,13 +34,21 @@
 				</div>
 			</div>
 	{% endfor %}
-			{% else %}
+			{% else if num_solves == 1  %}
 			<div class="row">
 				<div class="col-md-5">
 					{# The button below will eventually call the /chal route and get the challenge's information more likely than not. #}
 					<button id="challenge_{{ objects.challenge_id }}" class="w-101 view_challenge btn btn-secondary mb-2 pt-2 p-3" data-answer="{{ objects.challenge_flag }}" data-id="{{ objects.challenge_id }}">
 						{{ objects.challenge_name }}  -- {{ objects.challenge_category }}
 					</button>
+				</div>
+			</div>
+			{% else %}
+			<div class="row">
+				<div class="col-md-5">
+					<p>
+						You haven't solved anything yet!
+					</p>
 				</div>
 			</div>
 		{% endif %}
