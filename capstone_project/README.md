@@ -28,5 +28,8 @@ This folder contains the Capstone project that I wrote. It has the features list
 - User control panel(simply lets them update their password right now)
 
 
-### Requirements.txt
+### Requirements
+Also requires Python 3.6 or later as it utilizes hashlib for Scrypt.
+
+pip3 install -r requirements.txt
 This includes all packages required.
