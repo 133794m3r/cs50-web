@@ -5,13 +5,24 @@
 		document.addEventListener('DOMContentLoaded',function(){
 			document.querySelectorAll('.make_challenge').forEach(el=>{
 				el.addEventListener("click",event=>{
-						const edit = (el.dataset.edit === 'true')
-						modal_challenge(event,el.dataset.sn,edit)
+						const edit = (el.dataset.edit === 'true');
+						modal_challenge(event,el.dataset.sn,edit);
 				});
 			});
 			document.getElementById('submit_chal').addEventListener("click",event=>{
-				event.preventDefault()
-				submit_challenge()
+				event.preventDefault();
+				submit_challenge();
+			});
+			document.querySelectorAll('.manage_hints').forEach(el=>{
+				el.addEventListener("click",event=>{
+					event.preventDefault();
+					fetch_challenge_hints(el.dataset.sn);
+				})
+			});
+			document.getElementById('manage_challenge_hint').addEventListener("click",event=>{
+				event.preventDefault();
+				const name = document.getElementById('challenge_modal_title').innerText;
+				fetch_challenge_hints(name,true);
 			});
 
 		});

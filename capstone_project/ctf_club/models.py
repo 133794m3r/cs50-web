@@ -106,17 +106,21 @@ class Files(models.Model):
 		__challenge = self.challenge.to_dict()
 		return {'id':self.id,'filname':self.filename,'challenge':self.challenge.name}
 
+#Unbelievably unperformant way of using this but oh well.
+class HintsUnlocked(models.Model):
+	user = models.ForeignKey('User',on_delete=models.CASCADE)
+	challenge = models.ForeignKey('Challenges',on_delete=models.CASCADE)
 
 class Hints(models.Model):
 	challenge = models.ForeignKey('Challenges',on_delete=models.CASCADE,related_name='hints')
 	description = models.TextField()
 	hidden = models.BooleanField(default=True)
 	level = models.IntegerField()
-	used = models.ManyToManyField(User)
+	#used = models.ManyToManyField(User)
 	timestamp = models.DateTimeField(default=timezone.now)
 
 	def __repr__(self):
-		return 'Hints(challenge={!r},description={!r},hidden={!r},level={!r},used={!r}'.format(self.challenge,self.description,self.hidden,self.self.level,self.used)
+		return 'Hints(challenge={!r},description={!r},hidden={!r},level={!r},used={!r}'.format(self.challenge,self.description,self.hidden,self.level,self.used)
 
 	def __str__(self):
 		return self.__repr__()
@@ -124,7 +128,7 @@ class Hints(models.Model):
 	def __len__(self):
 		return 1
 
-	# def to_dict(self):
-	# 	__challenge_name = self.challenge.to_dict()['name']
-	# 	__used = self.used.to_dict()
-	# 	return {'id':self.id}
+	def to_dict(self):
+		__challenge_name = self.challenge.to_dict()['name']
+
+		return {'id':self.id,'challenge_name':self.challenge.name,'description':self.description,'hidden':self.hidden,'level':self.level,'used':1}

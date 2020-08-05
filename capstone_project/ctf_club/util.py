@@ -397,11 +397,11 @@ def jsonify_queryset(queryset: object) -> dict:
 	:param queryset: The object we're working with. May already be a dict.o
 	:return: {dict} A dict that's ready to be serialized as JSON.
 	"""
-
+	print(type(queryset))
 	out = []
 	if type(queryset) is dict:
 		return queryset
-	elif len(queryset) > 1:
+	elif queryset.count() > 1:
 		for result in queryset:
 			if type(result) is dict:
 				out.append(result)
@@ -414,6 +414,8 @@ def jsonify_queryset(queryset: object) -> dict:
 				if type(tmp) is dict:
 					return tmp
 				else:
+					print('c')
+					print(tmp)
 					return tmp.to_dict()
 		except AttributeError:
 			print('b')

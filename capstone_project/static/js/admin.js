@@ -100,6 +100,9 @@ function modal_challenge(event,challenge_type,edit){
 	$('#challenge_modal').modal('toggle');
 }
 
+function modal_hint(event,challenge_sn){
+
+}
 
 function check_len(){
 	const len = document.getElementById('plain_text').value.length;
@@ -168,11 +171,19 @@ function get_challenge_info(challenge_type,variety=0){
 	return tmp
 }
 
-function fetch_challenge_hints(challenge_id){
-	get(`/challenge/hint/${challenge_id}`,resp=>{
-
-	})
+function fetch_challenge_hints(name,full=false){
+	let challenge_name = name
+	if(full === false) {
+		if (name === 'hill' || name === 'affine') {
+			challenge_name = `${CHALLENGES[name].name} - 0`
+		}
+	}
+	challenge_name = encodeURI(challenge_name);
+	get(`/admin/challenge/hints/${challenge_name}`,resp=>{
+		console.log(resp);
+	});
 }
+
 function change_variety(){
 	let sn = document.getElementById('sn').value;
 	let variety = document.getElementById('variety').value
@@ -181,6 +192,7 @@ function change_variety(){
 		document.getElementById('editing').checked = true
 		document.getElementById('full_description').innerHTML = `For reference, the old challenge is below here.<br /><br />${tmp.full_description}`;
 		document.getElementById('plain_text').value = tmp.flag;
+
 		let el = document.getElementById('submit_chal');
 		el.disabled = false;
 		el.setAttribute('aria-disabled',"false");
@@ -194,6 +206,7 @@ function change_variety(){
 		document.getElementById('editing').checked = false;
 		document.getElementById('full_description').innerHTML='';
 		document.getElementById('plain_text').value = '';
+
 		let el = document.getElementById('submit_chal');
 		el.disabled = true;
 		el.setAttribute('aria-disabled',"true");

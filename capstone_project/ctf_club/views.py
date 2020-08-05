@@ -291,6 +291,15 @@ def get_all_solves(request):
 
 	return JsonResponse({'error':solve_dict})
 
+@login_required()
+@require_http_methods(["POST","GET"])
+def hint_admin(request,challenge_name):
+	print(challenge_name)
+	challenge_hints = Hints.objects.filter(challenge__name=challenge_name)
+	print(challenge_hints)
+	print(challenge_hints.first())
+	challenge_hints = jsonify_queryset(challenge_hints)
+	return JsonResponse({'a':challenge_hints})
 
 @login_required()
 def admin_view(request):

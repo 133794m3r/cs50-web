@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,re_path
 from . import views
 urlpatterns = [
 	path("profile/<str:username>",views.profile,name="profile"),
@@ -12,6 +12,7 @@ urlpatterns = [
 	path("hint/<int:id>",views.hint,name="hint"),
 	path("control_panel/<str:username>",views.control_panel,name="control_panel"),
 	path("admin/challenge",views.challenge_admin,name="challenge_admin"),
+	re_path(r"^admin/challenge/hints/(?P<challenge_name>.+?)/$",views.hint_admin,name="admin_hint"),
 	path("admin/solves", views.solves_admin, name="solves_admin"),
 	path("admin/",views.admin_view,name="admin"),
 ]
