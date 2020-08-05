@@ -45,10 +45,12 @@
 					</div>
 					<div class="card-footer">
 						{% if challenge.edit == True %}
+							<a href="#" class="btn btn-dark manage_hints" data-sn="{{ challenge.sn }}" data-edit="true">Manage Hints</a>
 							<a href="#" class="btn btn-dark make_challenge" data-sn="{{ challenge.sn }}" data-edit="true">Edit Challenge</a>
 						{% else %}
 							<a href="#" class="btn btn-dark make_challenge" data-sn="{{ challenge.sn }}" data-edit="false">Create Challenge</a>
 						{% endif %}
+
 					</div>
 				</div>
 			</div>
@@ -80,7 +82,14 @@
 					<input type="checkbox" class="hidden" aria-hidden="true" name="editing" id="editing" />
 				</div>
 				<div class="modal-footer">
-					<button id="submit_chal" type="button" class="btn btn-secondary" data-dismiss="modal">Submit Challenge</button>
+					<div class="row w-80 d-flex flex-row">
+					<div class="p-2 mr-auto">
+					<buton id="manage_challenge_hint" type="button" class="btn btn-secondary align-left" aria-hidden="true">Manage Hints</buton>
+					</div>
+					<div class="p-2">
+					<button id="submit_chal" type="button" class="btn btn-secondary" data-dismiss="modal" >Submit Challenge</button>
+					</div>
+					</div>
 				</div>
 			</div>
 		</div>

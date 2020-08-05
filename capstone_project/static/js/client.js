@@ -8,6 +8,10 @@ function fetch_chal(challenge_id){
 	})
 }
 
+
+function fetch_hint(hint_id){
+
+}
 function solve(event){
 	event.preventDefault();
 	const id = document.getElementById('challenge_id').value;

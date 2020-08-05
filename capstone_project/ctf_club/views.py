@@ -52,6 +52,9 @@ def challenge_view(request,challenge_id):
 	return JsonResponse(chal.to_dict())
 
 def register(request):
+	if request.user.is_authenticated:
+		return HttpResponseRedirect('index')
+
 	if request.method == "POST":
 		username = request.POST.get("username")
 		email = request.POST.get("email")
@@ -92,22 +95,32 @@ def register(request):
 @login_required(login_url='login')
 @require_http_methods(["POST"])
 def solve(request,challenge_id):
+
 	challenge = Challenges.objects.filter(pk=challenge_id).first()
-	correct_flag = challenge.flag
 	data = json_decode(request.body)
-	answer = data['answer']
+
+	#Make sure that all matches are case-insensitve for simplicty's sake.
+	answer = data['answer'].upper()
+	correct_flag = challenge.flag.upper()
+
 	solved = Solves.objects.filter(user=request.user,challenge_id=challenge_id).first()
-	if answer == correct_flag:
-		if solved is None:
-			new_solve = Solves.objects.create(
-				user=request.user,
-				challenge_id=challenge_id
-			)
-			new_solve.save()
-			#modify the number of solves to increase it by one.
-			challenge.num_solves +=1
-			challenge.save()
+
+	#if they have solved something don't do anything else.
+	if solved:
 		was_solved = True
+	#they hadn't already solved it see if they did solve it.
+	elif answer == correct_flag:
+		#if so make sure to create a new solve.
+		new_solve = Solves.objects.create(
+			user=request.user,
+			challenge_id=challenge_id
+		)
+		new_solve.save()
+		#modify the number of solves to increase it by one.
+		challenge.num_solves +=1
+		challenge.save()
+		was_solved = True
+	#otherwise no solve was had.
 	else:
 		was_solved = False
 
@@ -115,7 +128,12 @@ def solve(request,challenge_id):
 
 
 @login_required(login_url='login')
-@require_http_methods(["POST"])
+@require_http_methods(["GET","POST"])
+def challenge_hint(request,challenge_id):
+	pass
+
+@login_required()
+@require_http_methods(["GET","POST"])
 def hint(request,hint_id):
 	pass
 
@@ -123,6 +141,7 @@ def hint(request,hint_id):
 @require_http_methods(["GET","POST"])
 def control_panel(request,username):
 	pass
+
 
 @login_required(login_url='login')
 def solves(request):
@@ -139,6 +158,7 @@ def solves(request):
 	print(all_solves)
 	#return JsonResponse(all_solves)
 	return render(request,"solves.html",{"objects":all_solves,'num_solves':num_solves})
+
 
 @login_required(login_url='login')
 @require_http_methods(["GET","POST"])

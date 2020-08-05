@@ -53,14 +53,15 @@ function modal_challenge(event,challenge_type,edit){
 
 			flag = flag ? flag : ''
 			inner_content = `<div class="col-lg-7 col-md-8 col-sm-9 form-group">
-				<textarea id='plain_text' name='plain_text' class="input_items form-text w-100" rows="3" cols="40" onkeyup="check_len()">${flag}</textarea>
+				<textarea id='plain_text' name='plain_text' class="input_items form-text w-100" rows="2" cols="40" onkeyup="check_len()">${flag}</textarea>
 			</div>`;
 			 if (challenge_type === 'hill' || challenge_type === 'affine') {
 			 inner_content += `<div class="col-lg-5 col-md-4 col-sm-3 form-group">
-					<select id="variety" onchange="change_variety()"><option value="0">Easy</option><option value="1">Hard</option></select>`;
+					<select id="variety" onchange="change_variety()"><option value="0">Easy</option><option value="1">Medium</option></select>`;
 			}
 		 break;
 	}
+
 	let chal = CHALLENGES[challenge_type];
 	const el = document.getElementById('input_description');
 	if (edit === true) {
@@ -70,15 +71,28 @@ function modal_challenge(event,challenge_type,edit){
 		}
 		 fd.innerHTML = `<p>For reference, the old challenge is below here.</p>`+full_description;
 		 //+`<pre>Flag: ${flag}</pre>`;
-		document.getElementById('submit_chal').disabled = false
+
+		let el2 = document.getElementById('submit_chal');
+		el2.disabled = false;
+		el2.setAttribute('aria-disabled',"false");
+		el2=document.getElementById('manage_challenge_hint');
+		el2.hidden = false;
+		el2.disabled = false;
+		el2.setAttribute('aria-hidden',"false");
 	}
 	else{
 		document.getElementById('full_description').innerHTML = ''
-		document.getElementById('submit_chal').disabled = true
+
+		let el2 = document.getElementById('submit_chal');
+		el2.disabled = true;
+		el2.setAttribute('aria-disabled',"true");
+		el2=document.getElementById('manage_challenge_hint');
+		el2.hidden = true;
+		el2.disabled = true;
+		el2.setAttribute('aria-hidden',"true");
+
 	}
-	// else{
 	el.innerHTML = `<span>${chal.description}</span>`;
-	// }
 	document.getElementById('challenge_modal_title').innerText = `${chal.name}`; //-- Category:${chal.category}`;
 	document.getElementById('input_row').innerHTML = inner_content;
 	document.getElementById('sn').value = chal.sn;
@@ -154,6 +168,11 @@ function get_challenge_info(challenge_type,variety=0){
 	return tmp
 }
 
+function fetch_challenge_hints(challenge_id){
+	get(`/challenge/hint/${challenge_id}`,resp=>{
+
+	})
+}
 function change_variety(){
 	let sn = document.getElementById('sn').value;
 	let variety = document.getElementById('variety').value
@@ -162,11 +181,26 @@ function change_variety(){
 		document.getElementById('editing').checked = true
 		document.getElementById('full_description').innerHTML = `For reference, the old challenge is below here.<br /><br />${tmp.full_description}`;
 		document.getElementById('plain_text').value = tmp.flag;
+		let el = document.getElementById('submit_chal');
+		el.disabled = false;
+		el.setAttribute('aria-disabled',"false");
+		el=document.getElementById('manage_challenge_hint');
+		el.hidden = false;
+		el.disabled = false;
+		el.setAttribute('aria-hidden',"false");
+
 	}
 	else{
 		document.getElementById('editing').checked = false;
 		document.getElementById('full_description').innerHTML='';
-		document.getElementById('plain_text').value = ''
-		document.getElementById('submit_chal').disabled = true;
+		document.getElementById('plain_text').value = '';
+		let el = document.getElementById('submit_chal');
+		el.disabled = true;
+		el.setAttribute('aria-disabled',"true");
+		el = document.getElementById('manage_challenge_hint');
+		el.disabled = true;
+		el.hidden = true;
+		el.setAttribute('aria-hidden',"true")
+
 	}
 }
