@@ -156,7 +156,6 @@ def solves(request):
 		num_solves = user_solves.count()
 
 	print(all_solves)
-	#return JsonResponse(all_solves)
 	return render(request,"solves.html",{"objects":all_solves,'num_solves':num_solves})
 
 
@@ -294,12 +293,10 @@ def get_all_solves(request):
 @login_required()
 @require_http_methods(["POST","GET"])
 def hint_admin(request,challenge_name):
-	print(challenge_name)
 	challenge_hints = Hints.objects.filter(challenge__name=challenge_name)
-	print(challenge_hints)
-	print(challenge_hints.first())
+	num_hints = challenge_hints.count()
 	challenge_hints = jsonify_queryset(challenge_hints)
-	return JsonResponse({'a':challenge_hints})
+	return JsonResponse({'hints':challenge_hints,'len':num_hints})
 
 @login_required()
 def admin_view(request):

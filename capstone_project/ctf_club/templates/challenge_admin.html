@@ -2,6 +2,7 @@
 {% load static %}
 {% block head %}
 	<script type="application/javascript">
+		 let modal_lv = 0;
 		document.addEventListener('DOMContentLoaded',function(){
 			document.querySelectorAll('.make_challenge').forEach(el=>{
 				el.addEventListener("click",event=>{
@@ -15,16 +16,32 @@
 			});
 			document.querySelectorAll('.manage_hints').forEach(el=>{
 				el.addEventListener("click",event=>{
-					event.preventDefault();
+					//event.preventDefault();
 					fetch_challenge_hints(el.dataset.sn);
 				})
 			});
+			let el = document.getElementById('add_hint');
+			el.addEventListener("click",event=>{
+					event.preventDefault();
+					modal_hint();
+				});
+			});
 			document.getElementById('manage_challenge_hint').addEventListener("click",event=>{
-				event.preventDefault();
+				//event.preventDefault();
 				const name = document.getElementById('challenge_modal_title').innerText;
 				fetch_challenge_hints(name,true);
+
 			});
 
+			$('.modal').on('shown.bs.modal', function (e) {
+				 $('.modal-backdrop:last').css('zIndex',1051+modal_lv);
+				 $(e.currentTarget).css('zIndex',1052+modal_lv);
+				 modal_lv++;
+			});
+
+			$('.modal').on('hidden.bs.modal', function (e) {
+				 modal_lv--;
+			});
 		});
 		//the standard challenges. Will be merged when it's really done.
 		let CHALLENGES = {};
@@ -44,7 +61,8 @@
 		{% for challenge in challenges %}
 			{% if not challenge.variety %}
 			<div class="col-md-4">
-				<div class="card text-white bg-secondary mb-3">
+{#				<div class="card text-white bg-dark mb-3">#}
+				<div class="card">
 					<div class="card-header">
 						<span>{{ challenge.name }}</span>
 					</div>
@@ -56,10 +74,10 @@
 					</div>
 					<div class="card-footer">
 						{% if challenge.edit == True %}
-							<a href="#" class="btn btn-dark manage_hints" data-sn="{{ challenge.sn }}" data-edit="true">Manage Hints</a>
-							<a href="#" class="btn btn-dark make_challenge" data-sn="{{ challenge.sn }}" data-edit="true">Edit Challenge</a>
+							<button class="btn btn-primary manage_hints" data-sn="{{ challenge.sn }}" data-edit="true">Manage Hints</button>
+							<button class="btn btn-primary make_challenge" data-sn="{{ challenge.sn }}" data-edit="true">Edit Challenge</button>
 						{% else %}
-							<a href="#" class="btn btn-dark make_challenge" data-sn="{{ challenge.sn }}" data-edit="false">Create Challenge</a>
+							<button class="btn btn-primary make_challenge" data-sn="{{ challenge.sn }}" data-edit="false">Create Challenge</button>
 						{% endif %}
 
 					</div>
@@ -70,7 +88,7 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="challenge_modal" tabindex="-1" role="dialog" aria-labelledby="modal_title" aria-hidden="true">
+	<div class="modal fade" id="challenge_modal" tabindex="-1" role="dialog" aria-labelledby="challenge_modal_title" aria-hidden="true" >
 		<div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -95,14 +113,96 @@
 				<div class="modal-footer">
 					<div class="row w-80 d-flex flex-row">
 					<div class="p-2 mr-auto">
-					<buton id="manage_challenge_hint" type="button" class="btn btn-secondary align-left" aria-hidden="true">Manage Hints</buton>
+					<buton id="manage_challenge_hint" type="button" class="btn btn-primary align-left" aria-hidden="true">Manage Hints</buton>
 					</div>
 					<div class="p-2">
-					<button id="submit_chal" type="button" class="btn btn-secondary" data-dismiss="modal" >Submit Challenge</button>
+					<button id="submit_chal" type="button" class="btn btn-primary" data-dismiss="modal" >Submit Challenge</button>
 					</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+	<div class="modal fade" id="hint_modal" tabindex="-1" role="dialog" aria-labelledby="hint_modal_title" aria-hidden="true" data-background="static">
+		<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header text-center">
+					<h2 class="modal-title text-center w-100" id="hint_modal_title"></h2>
+			 	 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					 <span aria-hidden="true">&times;</span>
+			 	 </button>
+				</div>
+				<div class="modal-body">
+
+					<div class="container">
+						<div class="row pb-3">
+							<div class="col-12 text-center">
+								<button class="btn btn-primary f-100" id="add_hint">Add hint</button>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-12">
+								<table class="table table-striped">
+									<thead>
+									<tr>
+										<td class="text-center font-weight-bold w-75">
+											Hint Description
+										</td>
+										<td class="text-center font-weight-bold w-25">
+											Hint Level
+										</td>
+									</tr>
+									</thead>
+									<tbody id="hints_body">
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<div class="row" id="input_row">
+
+					</div>
+					<input type="input" class="hidden" aria-hidden="true" id="hint_id" />
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="add_hint_modal" tabindex="-1" role="dialog" aria-labelledby="add_hint_modal_title" aria-hidden="true" >
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 class="modal-title text-center w-100" id="add_hint_modal_title"></h2>
+			 	 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					 <span aria-hidden="true">&times;</span>
+			 	 </button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-12">
+							Formatting help: HTML is the only way to format the text beyond new lines.
+						</div>
+					</div>
+					<div class="row" id="hint_information">
+						<div class="col-12">
+							<textarea class="text form-control" rows="7" id="hint_description" placeholder="Hint Text" onkeyup="check_len('hint_description','submit_hint')"></textarea>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<input type="number" class="form-control" id="hint_level" min="0" max="10" placeholder="Hint Level"/>
+						</div>
+					</div>
+					<input type="text" class="hidden" aria-hidden="true" name="sn" id="hint_id"/>
+				</div>
+				<div class="modal-footer">
+					<div class="row w-80 d-flex flex-row">
+						<div class="p-2">
+							<button id="submit_hint" type="button" class="btn btn-primary" data-dismiss="modal" >Submit Hint</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>>
 {% endblock %}

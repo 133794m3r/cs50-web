@@ -10,3 +10,19 @@
 		max-width: 1300px !important;
 	}
 }
+.f-100{
+	font-size:1.0rem !important;
+}
+.f-125{
+	font-size:1.25rem !important;
+}
+.f-150{
+	font-size:1.5rem !important;
+}
+
+/*.modal:nth-of-type(even) {*/
+/*    z-index: 1052 !important;*/
+/*}*/
+/*.modal-backdrop.show:nth-of-type(even) {*/
+/*    z-index: 1051 !important;*/
+/*}*/

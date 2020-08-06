@@ -16,6 +16,8 @@ function modal_challenge(event,challenge_type,edit){
 	let inner_content;
 	let full_description = ''
 	let flag = ''
+	let chal = CHALLENGES[challenge_type];
+	let challenge_name = chal.name;
 	switch(challenge_type) {
 		case "fizzbuzz":
 		 //Code like the one below makes me thing I should've done it in react's JSX.
@@ -43,6 +45,7 @@ function modal_challenge(event,challenge_type,edit){
 			flag = CHALLENGES[challenge_type].flag;
 			let variety = 0;
 			if ((challenge_type === 'hill' || challenge_type === 'affine')){
+				challenge_name+=' - 0';
 				let tmp = get_challenge_info(challenge_type,0);
 				full_description = tmp.full_description;
 				flag = tmp.flag;
@@ -53,7 +56,7 @@ function modal_challenge(event,challenge_type,edit){
 
 			flag = flag ? flag : ''
 			inner_content = `<div class="col-lg-7 col-md-8 col-sm-9 form-group">
-				<textarea id='plain_text' name='plain_text' class="input_items form-text w-100" rows="2" cols="40" onkeyup="check_len()">${flag}</textarea>
+				<textarea id='plain_text' name='plain_text' class="input_items form-text w-100" rows="2" cols="40" onkeyup="check_len('plain_text','submit_chal')">${flag}</textarea>
 			</div>`;
 			 if (challenge_type === 'hill' || challenge_type === 'affine') {
 			 inner_content += `<div class="col-lg-5 col-md-4 col-sm-3 form-group">
@@ -62,7 +65,7 @@ function modal_challenge(event,challenge_type,edit){
 		 break;
 	}
 
-	let chal = CHALLENGES[challenge_type];
+
 	const el = document.getElementById('input_description');
 	if (edit === true) {
 		const fd = document.getElementById('full_description');
@@ -93,20 +96,29 @@ function modal_challenge(event,challenge_type,edit){
 
 	}
 	el.innerHTML = `<span>${chal.description}</span>`;
-	document.getElementById('challenge_modal_title').innerText = `${chal.name}`; //-- Category:${chal.category}`;
+	document.getElementById('challenge_modal_title').innerText = `${challenge_name}`; //-- Category:${chal.category}`;
 	document.getElementById('input_row').innerHTML = inner_content;
 	document.getElementById('sn').value = chal.sn;
 	document.getElementById('editing').checked = (edit === true);
 	$('#challenge_modal').modal('toggle');
 }
 
-function modal_hint(event,challenge_sn){
+function modal_hint(hint_id=0,hint_desc=''){
+	document.getElementById('add_hint_modal').dataset.backdrop = 'static';
+	document.getElementById('add_hint_modal_title').innerText = (hint_id)?"Edit Hint":"Add Hint";
+	if(hint_desc) {
+		document.getElementById("hint_description").value = hint_desc;
+	}
+	document.getElementById('hint_id').value = hint_id;
+	document.getElementById('submit_hint').innerText = (hint_id)?"Edit Hint":"Add Hint";
+	document.getElementById('submit_hint').disabled = (hint_id !== 0)
+	$('#add_hint_modal').modal("toggle");
 
 }
 
-function check_len(){
-	const len = document.getElementById('plain_text').value.length;
-	document.getElementById('submit_chal').disabled = (len === 0 )
+function check_len(input_id,button_id){
+	const len = document.getElementById(input_id).value.length;
+	document.getElementById(button_id).disabled = (len === 0 )
 }
 
 
@@ -141,6 +153,8 @@ function submit_challenge(){
 		//Eventually I'll actually use this data to update the local challenge data but that's not for now.
 		// It's for a later thing. For now I just log the response. In the end I'll actually use the response to edit the
 		// cached values.
+		let variety = content['variety'] || -1;
+		set_challenge_info(response,sn,variety);
 		console.log(response)
 	})
 }
@@ -171,6 +185,30 @@ function get_challenge_info(challenge_type,variety=0){
 	return tmp
 }
 
+function set_challenge_info(new_info,challenge_type,variety = -1){
+	let chal = {}
+	for(let challenge in FULL_CHALLENGES){
+		chal = FULL_CHALLENGES[challenge];
+		if(chal.sn === challenge_type){
+			chal.full_description = new_info.description;
+			chal.flag = new_info.flag;
+			if(variety === -1){
+				chal.edit = true;
+			}
+			else if(variety !== -1){
+				chal.edit = true;
+				if(!chal.variety){
+					chal.name = new_info.name;
+					chal.variety = variety;
+					FULL_CHALLENGES.push(chal);
+					return;
+				}
+			}
+			FULL_CHALLENGES[challenge] = chal;
+		}
+	}
+}
+
 function fetch_challenge_hints(name,full=false){
 	let challenge_name = name
 	if(full === false) {
@@ -179,14 +217,50 @@ function fetch_challenge_hints(name,full=false){
 		}
 	}
 	challenge_name = encodeURI(challenge_name);
-	get(`/admin/challenge/hints/${challenge_name}`,resp=>{
+	get(`/admin/challenge/hints/${challenge_name}/`,resp=>{
 		console.log(resp);
+		document.getElementById('hint_modal_title').innerText = `${resp.hints.challenge_name} : Hints`
+		const len = resp.len;
+		let content = ''
+		if(len === 1){
+			content= `<tr><td id="${resp.hints.id}-desc">${resp.hints.description}</td><td><a href="#" data-id="${resp.hints.id}" class="edit_hint">Edit</a></td></tr>`
+		}
+		else{
+			let hints = resp.hints;
+			for(let i=0;i<len;i++){
+				content+= `<tr><td id="${resp.hints.id}-desc">${hints[i].description}</td><td><a href="#" data-id="${hints[i].id}" class="edit_hint">Edit</a></td></tr>`
+			}
+		}
+		//document.getElementById('hints').innerHTML = content;
+		document.getElementById('hints_body').innerHTML = content;
+		document.querySelectorAll('.edit_hint').forEach(el=>{
+
+			el.addEventListener("click",event=>{
+				event.preventDefault();
+				const id = el.dataset.id;
+				const desc = document.getElementById(`${id}-desc`).innerHTML;
+				modal_hint(id,desc);
+			});
+		})
+
+		if(full) {
+			document.getElementById('hint_modal').dataset.backdrop = 'static';
+		}
+		else{
+			document.getElementById('hint_modal').dataset.backdrop = '';
+		}
+		$('#hint_modal').modal("toggle");
+
 	});
 }
 
 function change_variety(){
 	let sn = document.getElementById('sn').value;
 	let variety = document.getElementById('variety').value
+	let title = document.getElementById('challenge_modal_title').innerText
+	title = title.slice(0,-1);
+	title = title + variety;
+	document.getElementById('challenge_modal_title').innerText = title;
 	let tmp = get_challenge_info(sn,variety);
 	if(tmp.variety) {
 		document.getElementById('editing').checked = true

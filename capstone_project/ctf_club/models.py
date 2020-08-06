@@ -106,21 +106,35 @@ class Files(models.Model):
 		__challenge = self.challenge.to_dict()
 		return {'id':self.id,'filname':self.filename,'challenge':self.challenge.name}
 
-#Unbelievably unperformant way of using this but oh well.
+# Unbelievably unperformant way of using this but oh well.
+# Better way may be to have multiple tables so that I can avoid full table scans as it is a many-to-many
+# Relationship but I'll leave it be for now.
 class HintsUnlocked(models.Model):
 	user = models.ForeignKey('User',on_delete=models.CASCADE)
 	challenge = models.ForeignKey('Challenges',on_delete=models.CASCADE)
 
+	def __len__(self):
+		return 1
+
+	def __repr__(self):
+		return "HintsUnlocked(user={!r},challenge={!r})".format(self.user,self.challenge)
+
+	def __str__(self):
+		return self.__repr__()
+
+	def to_dict(self):
+		return {'id':self.id,'username':self.user.username,'user_id':self.user_id,'challenge_id':self.challenge_id}
+
+
 class Hints(models.Model):
 	challenge = models.ForeignKey('Challenges',on_delete=models.CASCADE,related_name='hints')
 	description = models.TextField()
-	hidden = models.BooleanField(default=True)
 	level = models.IntegerField()
 	#used = models.ManyToManyField(User)
 	timestamp = models.DateTimeField(default=timezone.now)
 
 	def __repr__(self):
-		return 'Hints(challenge={!r},description={!r},hidden={!r},level={!r},used={!r}'.format(self.challenge,self.description,self.hidden,self.level,self.used)
+		return 'Hints(challenge={!r},description={!r},level={!r}'.format(self.challenge,self.description,self.level)
 
 	def __str__(self):
 		return self.__repr__()
@@ -129,6 +143,4 @@ class Hints(models.Model):
 		return 1
 
 	def to_dict(self):
-		__challenge_name = self.challenge.to_dict()['name']
-
-		return {'id':self.id,'challenge_name':self.challenge.name,'description':self.description,'hidden':self.hidden,'level':self.level,'used':1}
+		return {'id':self.id,'challenge_name':self.challenge.name,'description':self.description,'level':self.level}
