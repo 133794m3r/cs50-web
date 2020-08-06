@@ -210,6 +210,7 @@ def challenge_admin(request):
 		challenges = Challenges.objects.all()
 		all_challenges = []
 		challenges_used = []
+		base_challenges = []
 		varieties_used = {}
 		variety = None
 		for challenge in challenges:
@@ -220,6 +221,8 @@ def challenge_admin(request):
 				variety = challenge.name[-1]
 			else:
 				tmp_name = challenge.name
+				variety = None
+			print(tmp_name)
 			if tmp_name in CHALLENGES_TEMPLATES_NAMES:
 				indexed = CHALLENGES_TEMPLATES_NAMES[tmp_name][1]
 				challenges_used.append(indexed)
@@ -234,26 +237,33 @@ def challenge_admin(request):
 						'description':challenge_template['description'], 'sn':challenge_template['sn'], 'variety':variety,
 						'edit':True, 'flag':challenge.flag})
 				else:
-
 					all_challenges.append({
 						'name':tmp_name, 'category':challenge.category.name, 'full_description':challenge.description,
 						'description':challenge_template['description'], 'sn':challenge_template['sn'],
 						'edit':True, 'flag':challenge.flag})
+					base_challenges.append({
+						'name':tmp_name, 'category':challenge.category.name, 'full_description':challenge.description,
+						'description':challenge_template['description'], 'sn':challenge_template['sn'],
+						'edit':True, 'flag':challenge.flag})
+
 
 		for i,challenge in enumerate(CHALLENGES_TEMPLATES):
-			if i in challenges_used:
-				if varieties_used.get(i):
-				#	print(varieties_used)
-					if len(varieties_used[i]) == 2:
-						challenge['edit'] = True
-
-
+			if challenge['variety']:
+				if i in challenges_used:
+					if varieties_used.get(i):
+					#	print(varieties_used)
+						if len(varieties_used[i]) == 2:
+							challenge['edit'] = True
+					base_challenges.append(challenge)
+					all_challenges.append(challenge)
+				else:
+					challenge['edit'] = False
+					all_challenges.append(challenge)
+			elif i not in challenges_used:
+				base_challenges.append(challenge)
 				all_challenges.append(challenge)
-			else:
-				challenge['edit'] = False
-				all_challenges.append(challenge)
 
-		return render(request,"challenge_admin.html", {"challenges":all_challenges,
+		return render(request,"challenge_admin.html", {"challenges":base_challenges,
 		                                               'json':json_encode(all_challenges)})
 
 
@@ -293,9 +303,28 @@ def get_all_solves(request):
 @login_required()
 @require_http_methods(["POST","GET"])
 def hint_admin(request,challenge_name):
-	challenge_hints = Hints.objects.filter(challenge__name=challenge_name)
-	num_hints = challenge_hints.count()
-	challenge_hints = jsonify_queryset(challenge_hints)
+	if request.method == "POST":
+		content = json_decode(request.body)
+		print(content)
+		if content['id'] == 0:
+			new_hint = Hints.objects.create(
+				description=content['description'],
+				level=content['level'],
+				challenge_id = Challenges.objects.get(name=challenge_name)
+			)
+		else:
+			edit_hint = Hints.objects.get(pk=content['id'])
+			edit_hint.description = content['description']
+			edit_hint.level = content['level']
+			print(edit_hint)
+			edit_hint.save()
+
+		return JsonResponse({'OK':True})
+	else:
+		challenge_hints = Hints.objects.filter(challenge__name=challenge_name)
+		num_hints = challenge_hints.count()
+		challenge_hints = jsonify_queryset(challenge_hints)
+
 	return JsonResponse({'hints':challenge_hints,'len':num_hints})
 
 @login_required()

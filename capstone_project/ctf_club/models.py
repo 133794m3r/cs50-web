@@ -38,7 +38,7 @@ class Challenges(models.Model):
 	num_solves = models.IntegerField(default=0)
 
 	def __repr__(self):
-		return 'Challenges(id={!r},category={!r},points={!r},name={!r},description={!r},flag={!r}'.format(self.id,self.category,self.points,self.name,self.description,self.flag)
+		return 'Challenges(id={!r},category={!r},points={!r},name={!r},description={!r},flag={!r},timestamp={!r},num_solves={!r}'.format(self.id,self.category,self.points,self.name,self.description,self.flag,self.timestamp,self.num_solves)
 
 	def __str__(self):
 		return self.__repr__()
@@ -49,7 +49,7 @@ class Challenges(models.Model):
 
 		:return: {dict} A dict containing the fields that are important.
 		"""
-		return {'id':self.id,'category':self.category.name,'name':self.name,'points':self.points,'description':self.description,'flag':self.flag}
+		return {'id':self.id,'category':self.category.name,'name':self.name,'points':self.points,'description':self.description,'flag':self.flag,'timestamp':self.timestamp,'num_solves':self.num_solves}
 
 	def __len__(self):
 		return 1
@@ -66,7 +66,7 @@ class Solves(models.Model):
 
 
 	def __repr__(self):
-		return 'Solves(challenge={!r},user={!r})'.format(self.challenge,self.user)
+		return 'Solves(challenge={!r},user={!r},timestamp={!r})'.format(self.challenge,self.user,self.timestamp)
 
 
 	def __str__(self):
@@ -134,7 +134,7 @@ class Hints(models.Model):
 	timestamp = models.DateTimeField(default=timezone.now)
 
 	def __repr__(self):
-		return 'Hints(challenge={!r},description={!r},level={!r}'.format(self.challenge,self.description,self.level)
+		return 'Hints(challenge={!r},description={!r},level={!r},timestamp={!r}'.format(self.challenge,self.description,self.level,self.timestamp)
 
 	def __str__(self):
 		return self.__repr__()

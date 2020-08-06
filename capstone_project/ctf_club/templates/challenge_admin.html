@@ -23,9 +23,13 @@
 			let el = document.getElementById('add_hint');
 			el.addEventListener("click",event=>{
 					event.preventDefault();
-					modal_hint();
-				});
+					modal_hint(el,false);
 			});
+
+			document.getElementById('submit_hint').addEventListener("click",event=>{
+				submit_hint();
+			 });
+
 			document.getElementById('manage_challenge_hint').addEventListener("click",event=>{
 				//event.preventDefault();
 				const name = document.getElementById('challenge_modal_title').innerText;
@@ -59,7 +63,7 @@
 	<div class="container-lg container mt-3">
 		<div class="row">
 		{% for challenge in challenges %}
-			{% if not challenge.variety %}
+{#			{% if not challenge.variety %}#}
 			<div class="col-md-4">
 {#				<div class="card text-white bg-dark mb-3">#}
 				<div class="card">
@@ -83,7 +87,7 @@
 					</div>
 				</div>
 			</div>
-			{% endif %}
+{#			{% endif %}#}
 		{% endfor %}
 		</div>
 	</div>
@@ -137,7 +141,7 @@
 					<div class="container">
 						<div class="row pb-3">
 							<div class="col-12 text-center">
-								<button class="btn btn-primary f-100" id="add_hint">Add hint</button>
+								<button class="btn btn-primary f-110" id="add_hint" data-id="0" data-cn="">Add hint</button>
 							</div>
 						</div>
 						<div class="row">
@@ -193,6 +197,7 @@
 							<input type="number" class="form-control" id="hint_level" min="0" max="10" placeholder="Hint Level"/>
 						</div>
 					</div>
+					<input type="text" class="hidden" aria-hidden="true" id="hint_challenge_name" />
 					<input type="text" class="hidden" aria-hidden="true" name="sn" id="hint_id"/>
 				</div>
 				<div class="modal-footer">

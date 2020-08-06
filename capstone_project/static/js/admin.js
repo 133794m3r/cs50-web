@@ -87,7 +87,7 @@ function modal_challenge(event,challenge_type,edit){
 		document.getElementById('full_description').innerHTML = ''
 
 		let el2 = document.getElementById('submit_chal');
-		el2.disabled = true;
+		el2.disabled = (challenge_type !== 'fizzbuzz');
 		el2.setAttribute('aria-disabled',"true");
 		el2=document.getElementById('manage_challenge_hint');
 		el2.hidden = true;
@@ -103,15 +103,25 @@ function modal_challenge(event,challenge_type,edit){
 	$('#challenge_modal').modal('toggle');
 }
 
-function modal_hint(hint_id=0,hint_desc=''){
+function modal_hint(element,edit=true){
+	const hint_id = element.dataset.id;
 	document.getElementById('add_hint_modal').dataset.backdrop = 'static';
-	document.getElementById('add_hint_modal_title').innerText = (hint_id)?"Edit Hint":"Add Hint";
-	if(hint_desc) {
-		document.getElementById("hint_description").value = hint_desc;
+	document.getElementById('add_hint_modal_title').innerText = (hint_id) ? "Edit Hint" : "Add Hint";
+	document.getElementById("hint_challenge_name").value = element.dataset.cn;
+	document.getElementById('submit_hint').innerText = (hint_id) ? "Edit Hint" : "Add Hint";
+	document.getElementById('submit_hint').disabled = (hint_id == 0)
+	if(edit) {
+		const hint_desc = document.getElementById(`${hint_id}-desc`).innerHTML;
+		console.log(element);
+		if (hint_desc) {
+			document.getElementById("hint_description").value = hint_desc;
+		}
+		else {
+			document.getElementById("hint_description").value = '';
+		}
+		document.getElementById('hint_id').value = hint_id;
+		document.getElementById('hint_level').value = element.dataset.lvl;
 	}
-	document.getElementById('hint_id').value = hint_id;
-	document.getElementById('submit_hint').innerText = (hint_id)?"Edit Hint":"Add Hint";
-	document.getElementById('submit_hint').disabled = (hint_id !== 0)
 	$('#add_hint_modal').modal("toggle");
 
 }
@@ -121,6 +131,27 @@ function check_len(input_id,button_id){
 	document.getElementById(button_id).disabled = (len === 0 )
 }
 
+function submit_hint(){
+	let hint_id = parseInt(document.getElementById("hint_id").value)
+	const hint_level = parseInt(document.getElementById("hint_level").value);
+	const hint_description = document.getElementById("hint_description").value;
+	const challenge_name = document.getElementById("hint_challenge_name").value;
+	if(hint_description.length === 0 || isNaN(hint_level) || challenge_name.length == 0 ){
+		return;
+	}
+	hint_id = (isNaN(hint_id))?0:hint_id;
+
+	let content = {};
+	content['id'] = hint_id;
+	// content['challenge_name'] = challenge_name;
+	content['description'] = hint_description;
+	content['level'] = hint_level;
+
+	submit(`/admin/challenge/hints/${challenge_name}/`,content,resp=>{
+		console.log(resp);
+		document.getElementById(`${hint_id}-desc`).innerHTML = hint_description;
+	})
+}
 
 function submit_challenge(){
 	let content = {}
@@ -190,6 +221,7 @@ function set_challenge_info(new_info,challenge_type,variety = -1){
 	for(let challenge in FULL_CHALLENGES){
 		chal = FULL_CHALLENGES[challenge];
 		if(chal.sn === challenge_type){
+			console.log('in category');
 			chal.full_description = new_info.description;
 			chal.flag = new_info.flag;
 			if(variety === -1){
@@ -204,7 +236,9 @@ function set_challenge_info(new_info,challenge_type,variety = -1){
 					return;
 				}
 			}
+			CHALLENGES[chal.sn].edit = true;
 			FULL_CHALLENGES[challenge] = chal;
+			return;
 		}
 	}
 }
@@ -219,16 +253,22 @@ function fetch_challenge_hints(name,full=false){
 	challenge_name = encodeURI(challenge_name);
 	get(`/admin/challenge/hints/${challenge_name}/`,resp=>{
 		console.log(resp);
-		document.getElementById('hint_modal_title').innerText = `${resp.hints.challenge_name} : Hints`
+		document.getElementById('hint_modal_title').innerText = `${resp.hints.challenge_name} : Hints`;
 		const len = resp.len;
 		let content = ''
-		if(len === 1){
-			content= `<tr><td id="${resp.hints.id}-desc">${resp.hints.description}</td><td><a href="#" data-id="${resp.hints.id}" class="edit_hint">Edit</a></td></tr>`
+		if(len == 0){
+			let name = CHALLENGES[challenge_name]
+			document.getElementById('hint_modal_title').innerText = `${CHALLENGES[challenge_name].name} : Hints`;
+		}
+		else if(len === 1){
+			content= `<tr><td id="${resp.hints.id}-desc">${resp.hints.description}</td><td><a href="#" data-id="${resp.hints.id}" 
+				data-lvl="${resp.hints.level}" data-cn="${resp.hints.challenge_name}" class="edit_hint">Edit</a></td></tr>`;
 		}
 		else{
 			let hints = resp.hints;
 			for(let i=0;i<len;i++){
-				content+= `<tr><td id="${resp.hints.id}-desc">${hints[i].description}</td><td><a href="#" data-id="${hints[i].id}" class="edit_hint">Edit</a></td></tr>`
+				content+= `<tr><td id="${resp.hints.id}-desc">${hints[i].description}</td><td><a href="#" data-id="${hints[i].id}"
+					data-lvl="${resp.hints[i].level}" data-cn="${resp.hints[i].challenge_name}" class="edit_hint">Edit</a></td></tr>`;
 			}
 		}
 		//document.getElementById('hints').innerHTML = content;
@@ -237,9 +277,7 @@ function fetch_challenge_hints(name,full=false){
 
 			el.addEventListener("click",event=>{
 				event.preventDefault();
-				const id = el.dataset.id;
-				const desc = document.getElementById(`${id}-desc`).innerHTML;
-				modal_hint(id,desc);
+				modal_hint(el);
 			});
 		})
 
@@ -249,6 +287,7 @@ function fetch_challenge_hints(name,full=false){
 		else{
 			document.getElementById('hint_modal').dataset.backdrop = '';
 		}
+		document.getElementById('add_hint').dataset.cn = name;
 		$('#hint_modal').modal("toggle");
 
 	});
