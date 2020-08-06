@@ -257,8 +257,8 @@ function fetch_challenge_hints(name,full=false){
 		const len = resp.len;
 		let content = ''
 		if(len == 0){
-			let name = CHALLENGES[challenge_name]
-			document.getElementById('hint_modal_title').innerText = `${CHALLENGES[challenge_name].name} : Hints`;
+			name = CHALLENGES[challenge_name].name;
+			document.getElementById('hint_modal_title').innerText = `${name} : Hints`;
 		}
 		else if(len === 1){
 			content= `<tr><td id="${resp.hints.id}-desc">${resp.hints.description}</td><td><a href="#" data-id="${resp.hints.id}" 
