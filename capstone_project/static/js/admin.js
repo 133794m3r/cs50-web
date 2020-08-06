@@ -157,12 +157,17 @@ function submit_challenge(){
 	let chal = CHALLENGES[sn]
 	content['name'] = chal.name;
 	content['category'] = chal.category;
-	content['points'] = chal.points
-	if(sn === 'affine' || sn === 'hill'){
+	let points = chal.points;
+
+	if(chal.variety){
 		content['variety'] = parseInt(document.getElementById('variety').value);
-		//Points are adjusted based upon the variety value. Where the point bonus is basically 1+(0.25*(variety-1))
-		content['points'] =chal.points * ( (content['variety'] - 1) /4 );
+		document.getElementById('hint_modal_title').innerText = `${resp.hints.challenge_name} : Hints`
+		//Points are adjusted based upon the variety value. Where the point bonus is basically 1+(0.33*(variety)). Also
+		//I make sure that it's a nice even round number by making sure it ends in either a 5 or a zero.
+		points = Math.ceil(chal.points *(1+(content['variety']/3)))
+		points = points + (5 - (points % 5));
 	}
+	content['points'] = points;
 	if(sn === 'fizzbuzz'){
 		let min = parseInt(document.getElementById('min').value);
 		let max = parseInt(document.getElementById('max').value);
