@@ -16,7 +16,6 @@
 			});
 			document.querySelectorAll('.manage_hints').forEach(el=>{
 				el.addEventListener("click",event=>{
-					//event.preventDefault();
 					fetch_challenge_hints(el.dataset.sn);
 				})
 			});
@@ -37,6 +36,11 @@
 
 			});
 
+			/*
+			 * Randomly it'll not work when closing the modal and a backdrop will _still_ exist.
+			 * Will have to see about someway of maybe forcing the modal backdrop to be removed before the number is removed
+			 * By selecting all of them with a Z-Index of 1052+modal_lv.
+			 */
 			$('.modal').on('shown.bs.modal', function (e) {
 				 $('.modal-backdrop:last').css('zIndex',1051+modal_lv);
 				 $(e.currentTarget).css('zIndex',1052+modal_lv);
@@ -63,9 +67,7 @@
 	<div class="container-lg container mt-3">
 		<div class="row">
 		{% for challenge in challenges %}
-{#			{% if not challenge.variety %}#}
 			<div class="col-md-4">
-{#				<div class="card text-white bg-dark mb-3">#}
 				<div class="card">
 					<div class="card-header">
 						<span>{{ challenge.name }}</span>
@@ -87,7 +89,6 @@
 					</div>
 				</div>
 			</div>
-{#			{% endif %}#}
 		{% endfor %}
 		</div>
 	</div>

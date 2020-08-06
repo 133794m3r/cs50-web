@@ -112,15 +112,12 @@ function modal_hint(element,edit=true){
 	document.getElementById('submit_hint').disabled = (hint_id == 0)
 	if(edit) {
 		const hint_desc = document.getElementById(`${hint_id}-desc`).innerHTML;
-		console.log(element);
-		if (hint_desc) {
-			document.getElementById("hint_description").value = hint_desc;
-		}
-		else {
-			document.getElementById("hint_description").value = '';
-		}
+		document.getElementById("hint_description").value = hint_desc;
 		document.getElementById('hint_id').value = hint_id;
 		document.getElementById('hint_level').value = element.dataset.lvl;
+	}
+	else{
+		document.getElementById("hint_description").value = "";
 	}
 	$('#add_hint_modal').modal("toggle");
 
@@ -179,14 +176,14 @@ function submit_challenge(){
 		}
 	}
 	content['edit'] = document.getElementById('editing').checked;
-	console.log(content)
+
 	submit('/admin/challenge',content,response=>{
 		//Eventually I'll actually use this data to update the local challenge data but that's not for now.
 		// It's for a later thing. For now I just log the response. In the end I'll actually use the response to edit the
 		// cached values.
 		let variety = content['variety'] || -1;
 		set_challenge_info(response,sn,variety);
-		console.log(response)
+
 	})
 }
 
@@ -221,7 +218,7 @@ function set_challenge_info(new_info,challenge_type,variety = -1){
 	for(let challenge in FULL_CHALLENGES){
 		chal = FULL_CHALLENGES[challenge];
 		if(chal.sn === challenge_type){
-			console.log('in category');
+
 			chal.full_description = new_info.description;
 			chal.flag = new_info.flag;
 			if(variety === -1){
@@ -246,13 +243,13 @@ function set_challenge_info(new_info,challenge_type,variety = -1){
 function fetch_challenge_hints(name,full=false){
 	let challenge_name = name
 	if(full === false) {
-		if (name === 'hill' || name === 'affine') {
+		if (CHALLENGES[name].variety) {
 			challenge_name = `${CHALLENGES[name].name} - 0`
 		}
 	}
 	challenge_name = encodeURI(challenge_name);
 	get(`/admin/challenge/hints/${challenge_name}/`,resp=>{
-		console.log(resp);
+
 		document.getElementById('hint_modal_title').innerText = `${resp.hints.challenge_name} : Hints`;
 		const len = resp.len;
 		let content = ''
