@@ -1,16 +1,46 @@
 function fetch_chal(challenge_id){
 	get(`/challenge/${challenge_id}`,resp=>{
-		document.getElementById('challenge_modal_title').innerText = resp.name;
-		document.getElementById('description').innerHTML = resp.description;
-		document.getElementById('points').innerText = `Points: ${resp.points}`;
-		document.getElementById('challenge_id').value = resp.id;
+		console.log(resp);
+		const challenge = resp.challenge;
+		const num_hints = resp.num_hints;
+		const hints = resp.hints;
+		document.getElementById('challenge_modal_title').innerText = challenge.name;
+		document.getElementById('description').innerHTML = challenge.description;
+		document.getElementById('points').innerText = `Points: ${challenge.points}`;
+		document.getElementById('challenge_id').value = challenge.id;
+		let hint_html = ''
+		if(num_hints === 1) {
+			hint_html += `<div class="col-12 text-center mb-2">
+								<button class="btn btn-info hints" data-id="${hints.id}">
+								<span>View Hint ${hints.level}</span></button>
+							</div>`
+		}
+		else if(num_hints > 1){
+			for (let i = 0; i < num_hints; i++) {
+				hint_html += `<div class="col-12 text-center mb-2">
+								<button class="btn btn-info hints" data-id="${hints[i].id}">
+								<span>View Hint ${hints[i].level}</span></button>
+							</div>`
+			}
+		}
+		document.getElementById('hints_container').innerHTML = hint_html;
+
+		document.querySelectorAll('.hints').forEach(el=>{
+			console.log(el);
+			el.addEventListener('click',event=>{
+				fetch_hint(el.dataset.id);
+			});
+		});
 		$('#challenge_modal').modal('toggle');
 	})
 }
 
 
 function fetch_hint(hint_id){
-
+	get(`/hint/${hint_id}`,resp=>{
+		document.getElementById('hint_body').innerHTML = resp.description;
+		$('#hint_modal').modal('toggle');
+	});
 }
 function solve(event){
 	event.preventDefault();

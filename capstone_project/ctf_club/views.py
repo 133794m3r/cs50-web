@@ -10,7 +10,7 @@ from json import dumps as json_encode
 
 from django.contrib.auth.forms import PasswordChangeForm
 
-from .models import User,Challenges,Solves,Hints,Files,Categories
+from .models import *
 from .util import *
 
 
@@ -55,7 +55,14 @@ def logout_view(request):
 @require_http_methods(["GET"])
 def challenge_view(request,challenge_id):
 	chal = Challenges.objects.get(pk=challenge_id)
-	return JsonResponse(chal.to_dict())
+	hints = Hints.objects.filter(challenge_id=chal.id).values('id','level')
+	num_hints = hints.count()
+
+	print(hints)
+	chal = jsonify_queryset(chal)
+	hints = jsonify_queryset(hints)
+	resp = {'challenge': chal, 'hints': hints,'num_hints':num_hints}
+	return JsonResponse(resp)
 
 def register(request):
 	if request.user.is_authenticated:
@@ -141,7 +148,20 @@ def challenge_hint(request,challenge_id):
 @login_required()
 @require_http_methods(["GET","POST"])
 def hint(request,hint_id):
-	pass
+	unlocked = HintsUnlocked.objects.filter(hint_id=hint_id,user_id=request.user.id)
+
+	if unlocked.count() == 0:
+		hint_unlock = HintsUnlocked.objects.create(hint_id=hint_id,user_id=request.user.id)
+#		hint_unlock.save()
+		print(unlocked)
+	else:
+		pass
+	print(unlocked)
+	#give them just the hint itself as part of the result.
+	revealed_hint = jsonify_queryset(Hints.objects.filter(id=hint_id).values('description'))
+	print(revealed_hint)
+	return JsonResponse(revealed_hint)
+
 
 @login_required(login_url='login')
 @require_http_methods(["GET","POST"])
@@ -153,6 +173,7 @@ def control_panel(request,username):
 			old_password=content['old_password']
 			new_password=content['new_password']
 			confirm_password=content['confirm_password']
+			print(content)
 			if old_password == '' or new_password == '':
 				msg = "Passwords can't be blank."
 			elif old_password != new_password and new_password == confirm_password:

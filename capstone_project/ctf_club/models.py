@@ -111,19 +111,19 @@ class Files(models.Model):
 # Relationship but I'll leave it be for now.
 class HintsUnlocked(models.Model):
 	user = models.ForeignKey('User',on_delete=models.CASCADE)
-	challenge = models.ForeignKey('Challenges',on_delete=models.CASCADE)
+	hint = models.ForeignKey('Hints',on_delete=models.CASCADE)
 
 	def __len__(self):
 		return 1
 
 	def __repr__(self):
-		return "HintsUnlocked(user={!r},challenge={!r})".format(self.user,self.challenge)
+		return "HintsUnlocked(user={!r},Hint={!r})".format(self.user,self.hint)
 
 	def __str__(self):
 		return self.__repr__()
 
 	def to_dict(self):
-		return {'id':self.id,'username':self.user.username,'user_id':self.user_id,'challenge_id':self.challenge_id}
+		return {'id':self.id,'username':self.user.username,'user_id':self.user_id,'hint_id':self.hint_id}
 
 
 class Hints(models.Model):
