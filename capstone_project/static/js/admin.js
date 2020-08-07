@@ -10,7 +10,6 @@
  * @param challenge_type {string} The challenge's short name.
  * @param edit {boolean} Whether this challenge already exists and should be an edit version.
  */
-
 function modal_challenge(event,challenge_type,edit){
 	event.preventDefault();
 	let inner_content;
