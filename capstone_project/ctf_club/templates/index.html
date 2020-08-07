@@ -14,6 +14,7 @@
 			 document.getElementById('solve_chal').addEventListener('click',event=>{
 			 	solve(event)
 			 });
+			window.setTimeout(()=>{
 			/*
 			 * Randomly it'll not work when closing the modal and a backdrop will _still_ exist.
 			 * Will have to see about someway of maybe forcing the modal backdrop to be removed before the number is removed
@@ -27,7 +28,8 @@
 
 			$('.modal').on('hidden.bs.modal', function (e) {
 				 modal_lv--;
-			});
+				 
+			});},50);
 		})
 	</script>
 {% endblock %}

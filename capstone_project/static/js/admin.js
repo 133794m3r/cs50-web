@@ -259,7 +259,7 @@ function fetch_challenge_hints(name,full=false){
 			challenge_name = `${CHALLENGES[name].name} - 0`
 		}
 		else{
-		challenge_name = CHALLENGES[name].name;		
+			challenge_name = CHALLENGES[name].name;		
 		}
 	}
 	else{
@@ -273,7 +273,7 @@ function fetch_challenge_hints(name,full=false){
 		let content = ''
 		if(len == 0){
 			console.log(challenge_name);
-			name = CHALLENGES[challenge_name].name;
+			name = CHALLENGES[name].name;
 			console.log(name)
 			document.getElementById('hint_modal_title').innerText = `${name} : Hints`;
 
