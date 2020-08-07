@@ -382,7 +382,7 @@ CHALLENGES_TEMPLATES = [
 		"This challenge is all about the hill cipher. Select the easy version for one where the user is given the key. "
 		"The medium mode for when they shouldn't be given the key at the start.",
 	 "points":70, "variety":True},
-	{"name":"Really Simple Algorithm - Intro", "sn":"rsa", "category":"Classical Crypto",
+	{"name":"Really Simple Algorithm - Intro", "sn":"rsa", "category":"Modern Crypto",
 	 "description":"This challenge is just a simple RSA based challenge that requires the user to decrypt some message.",
 	 "points":150, "variety":False},
 	{"name":"Really Simple Algorithm - Fake it till you make it", "sn":"bsa", "category":"Modern Crypto",
