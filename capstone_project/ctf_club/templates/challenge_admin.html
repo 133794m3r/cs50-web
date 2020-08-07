@@ -82,8 +82,8 @@
 					</div>
 					<div class="card-footer">
 						{% if challenge.edit == True %}
-							<button class="btn btn-primary manage_hints" data-sn="{{ challenge.sn }}" data-edit="true">Manage Hints</button>
-							<button class="btn btn-primary make_challenge" data-sn="{{ challenge.sn }}" data-edit="true">Edit Challenge</button>
+							<button class="btn btn-primary manage_hints mr-1" data-sn="{{ challenge.sn }}" data-edit="true">Manage Hints</button>
+							<button class="btn btn-primary make_challenge ml-1" data-sn="{{ challenge.sn }}" data-edit="true">Edit Challenge</button>
 						{% else %}
 							<button class="btn btn-primary make_challenge" data-sn="{{ challenge.sn }}" data-edit="false">Create Challenge</button>
 						{% endif %}

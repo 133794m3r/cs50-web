@@ -105,11 +105,12 @@ def register(request):
 		try:
 			user = User.objects.create_user(username=username,email=email,password=password)
 			user.save()
+			login(request,user)			
 		except IntegrityError:
 			return render(request,"register.html",{
 				"message":"Username must be unique."
 			})
-		login(request,user)
+
 		return HttpResponseRedirect(reverse("index"))
 	else:
 		return render(request,"register.html")
