@@ -33,6 +33,7 @@ def make_hill(plaintext: str, variety: int) -> tuple:
 	plaintext = re.sub('[^A-Za-z]','',plaintext).upper()
 	#to make sure that it's not always an X that's padded at the end.
 	padding_char = chr(randint(80,90))
+	flag = plaintext
 	if len(plaintext) % 4 != 0:
 		plaintext += padding_char*(len(plaintext) % 4)
 	key = generate_random_key(26)
@@ -41,9 +42,10 @@ def make_hill(plaintext: str, variety: int) -> tuple:
 	#doing it raw here b/c it works.
 	#eventually I'll make the key be a 1d list.
 	key = f'{key[0][0]},{key[0][1]},{key[1][0]},{key[1][1]}'
-	flag = plaintext
+
 	crib = plaintext[0:4]
-	description = f"""<p>Given the following string of characters you have to decrypt them.<br /> "{ct}".</p><br /> Note that any repeated characters at the end should be discarded."""
+	description = f"""<p>Given the following string of characters you have to decrypt them.<br /> "{ct}".</p><br /> Note that any repeated characters at the end should be discarded. The message will always be made up of real words also. So if a letter seems to not belong(that's at the end) remove it."""
+
 	if variety == 0:
 		description+=f"""<p>From your "inside man", you were able to get the following string of numbers. What could they mean?</p><br /> {key}"""
 	else:

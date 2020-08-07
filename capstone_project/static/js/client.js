@@ -1,6 +1,7 @@
 function fetch_chal(challenge_id){
 	get(`/challenge/${challenge_id}`,resp=>{
 		console.log(resp);
+		const solved = resp.solved;
 		const challenge = resp.challenge;
 		const num_hints = resp.num_hints;
 		const hints = resp.hints;
@@ -23,7 +24,18 @@ function fetch_chal(challenge_id){
 							</div>`
 			}
 		}
+
 		document.getElementById('hints_container').innerHTML = hint_html;
+
+		const answer_el = document.getElementById('answer');
+		if(solved){
+			answer_el.value = challenge.flag;
+			answer_el.setAttribute('readonly','true');
+		}
+		else{
+			answer_el.removeAttribute('readonly');
+			answer_el.value = '';
+		}
 
 		document.querySelectorAll('.hints').forEach(el=>{
 			console.log(el);
@@ -42,12 +54,32 @@ function fetch_hint(hint_id){
 		$('#hint_modal').modal('toggle');
 	});
 }
+
+function dismiss_alert(){
+
+}
 function solve(event){
 	event.preventDefault();
 	const id = document.getElementById('challenge_id').value;
 	const answer = document.getElementById('answer').value;
 	submit(`/solve/${id}`,{'answer':answer},resp=>{
 		console.log(resp);
+		let msg = ''
+		let type = ''
+		if(resp.solved){
+			msg = "Solved!";
+			type = 'alert-success';
+		}
+		else{
+			msg = "Wrong Answer";
+			type = 'alert-danger';
+		}
+		let alert = `<div class="alert ${type} alert-dismissible fade show" role="alert"> ${msg}</div>`
+		document.getElementById('alert_msg').innerHTML = alert;
+		window.setTimeout(()=>{
+			console.log('hit');
+				$('.alert').alert('close');
+		},3000);
 	});
 }
 

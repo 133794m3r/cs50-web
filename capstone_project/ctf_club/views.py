@@ -54,14 +54,24 @@ def logout_view(request):
 
 @require_http_methods(["GET"])
 def challenge_view(request,challenge_id):
-	chal = Challenges.objects.get(pk=challenge_id)
-	hints = Hints.objects.filter(challenge_id=chal.id).values('id','level')
+
+	solved = False if Solves.objects.filter(user_id=request.user.id,challenge_id=challenge_id).count() == 0 else True
+
+	#If they've already solved it might as well show them the flag.
+	if solved:
+		chal = Challenges.objects.values('id','name','description','points','flag').get(id=challenge_id)
+	else:
+		chal = Challenges.objects.values('id', 'name', 'description', 'points').get(id=challenge_id)
+
+
+	hints = Hints.objects.filter(challenge_id=chal['id']).values('id','level')
 	num_hints = hints.count()
+
 
 	print(hints)
 	chal = jsonify_queryset(chal)
 	hints = jsonify_queryset(hints)
-	resp = {'challenge': chal, 'hints': hints,'num_hints':num_hints}
+	resp = {'challenge': chal, 'hints': hints,'num_hints':num_hints,'solved':solved}
 	return JsonResponse(resp)
 
 def register(request):
