@@ -272,7 +272,7 @@ function fetch_challenge_hints(name,full=false){
 			document.getElementById('hint_modal_title').innerText = `${resp.hints[0].challenge_name} : Hints`;
 			let hints = resp.hints;
 			for(let i=0;i<len;i++){
-				content+= `<tr><td id="${resp.hints.id}-desc">${hints[i].description}</td><td><a href="#" data-id="${hints[i].id}"
+				content+= `<tr><td id="${resp.hints[i].id}-desc">${hints[i].description}</td><td><a href="#" data-id="${hints[i].id}"
 					data-lvl="${resp.hints[i].level}" data-cn="${resp.hints[i].challenge_name}" class="edit_hint">Edit</a></td></tr>`;
 			}
 		}
