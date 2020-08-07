@@ -161,7 +161,7 @@ the default method represented in the original paper of PHI(p-1*q-1) which requi
 a crapton of cputime to count all of the primes in the set. This is much faster.
 
 '''
-def calc_lamda(p,q):
+def calc_lambda(p,q):
 	lamda_n=0;
 	lamda_n=fast_lcm(p-1,q-1)
 	return lamda_n

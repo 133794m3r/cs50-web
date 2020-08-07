@@ -126,9 +126,10 @@ def solve(request,challenge_id):
 	#Make sure that all matches are case-insensitve for simplicty's sake.
 	answer = data['answer'].upper()
 	correct_flag = challenge.flag.upper()
-
+	print(answer)
 	solved = Solves.objects.filter(user=request.user,challenge_id=challenge_id).first()
-
+	print(correct_flag == answer)
+	print(correct_flag)
 	#if they have solved something don't do anything else.
 	if solved:
 		was_solved = True
@@ -250,6 +251,8 @@ def challenge_admin(request):
 			else:
 				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext)
 		points = content.get('points') or 100
+		print(content)
+		
 		if content.get('edit'):
 			challenge = Challenges.objects.get(name=name)
 			challenge.description = description

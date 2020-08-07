@@ -69,7 +69,7 @@ def make_rsa(plaintext: str) -> tuple:
 	M = int(radford_ascii_encode(plaintext,pt_len))
 	prime_length = (pt_len * 15)+1
 	p,q,N = calc_n(prime_length)
-	l_n = calc_lamda(p,q)
+	l_n = calc_lambda(p,q)
 	e = calc_e(10,l_n)
 	C = rsa_encrypt(M,e,N)
 	C = hex(C).replace('L','')
@@ -154,7 +154,7 @@ def make_common_mod(plaintext: str) -> tuple:
 	M = int(radford_ascii_encode(plaintext,m_len))
 	n_len = (m_len*15)+1
 	p,q,n = calc_n(n_len)
-	l_n = calc_lamda(p,q)
+	l_n = calc_lambda(p,q)
 	e1=calc_e(12,l_n)
 	c1 = rsa_encrypt(M,e1,n)
 	e2=calc_e(12,l_n)
