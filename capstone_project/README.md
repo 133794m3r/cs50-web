@@ -39,4 +39,6 @@ This folder contains the Capstone project that I wrote. It has the features list
 Also requires Python 3.6 or later as it utilizes hashlib for Scrypt.
 
 pip3 install -r requirements.txt
+
+The sympy library is utilized for the RSA flags I could've wrote them myself but I decided against it.
 This includes all packages required.
