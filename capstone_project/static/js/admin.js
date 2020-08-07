@@ -105,9 +105,9 @@ function modal_challenge(event,challenge_type,edit){
 function modal_hint(element,edit=true){
 	const hint_id = element.dataset.id;
 	document.getElementById('add_hint_modal').dataset.backdrop = 'static';
-	document.getElementById('add_hint_modal_title').innerText = (hint_id) ? "Edit Hint" : "Add Hint";
+	document.getElementById('add_hint_modal_title').innerText = (hint_id != 0) ? "Edit Hint" : "Add Hint";
 	document.getElementById("hint_challenge_name").value = element.dataset.cn;
-	document.getElementById('submit_hint').innerText = (hint_id !== 0) ? "Edit Hint" : "Add Hint";
+	document.getElementById('submit_hint').innerText = (hint_id != 0) ? "Edit Hint" : "Add Hint";
 	document.getElementById('submit_hint').disabled = (hint_id == 0)
 	if(edit) {
 		const hint_desc = document.getElementById(`${hint_id}-desc`).innerHTML;
@@ -254,19 +254,22 @@ function fetch_challenge_hints(name,full=false){
 	challenge_name = encodeURI(challenge_name);
 	get(`/admin/challenge/hints/${challenge_name}/`,resp=>{
 
-		document.getElementById('hint_modal_title').innerText = `${resp.hints.challenge_name} : Hints`;
+
 		const len = resp.len;
 		let content = ''
 		if(len == 0){
 			console.log(challenge_name);
 			name = CHALLENGES[challenge_name].name;
-			document.getElementById('hint_modal_title').innerText = `${name} : Hints`;
+			document.getElementById('hint_modal_title').innerText = `${resp.hints.challenge_name} : Hints`;
+
 		}
 		else if(len === 1){
 			content= `<tr><td id="${resp.hints.id}-desc">${resp.hints.description}</td><td><a href="#" data-id="${resp.hints.id}" 
 				data-lvl="${resp.hints.level}" data-cn="${resp.hints.challenge_name}" class="edit_hint">Edit</a></td></tr>`;
 		}
 		else{
+
+			document.getElementById('hint_modal_title').innerText = `${resp.hints[0].challenge_name} : Hints`;
 			let hints = resp.hints;
 			for(let i=0;i<len;i++){
 				content+= `<tr><td id="${resp.hints.id}-desc">${hints[i].description}</td><td><a href="#" data-id="${hints[i].id}"
@@ -283,7 +286,7 @@ function fetch_challenge_hints(name,full=false){
 			});
 		})
 
-		document.getElementById('add_hint').dataset.cn = name;
+		document.getElementById('add_hint').dataset.cn = resp.hints.challenge_name;
 		$('#hint_modal').modal("toggle");
 
 	});

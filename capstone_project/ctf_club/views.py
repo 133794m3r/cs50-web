@@ -371,7 +371,7 @@ def hint_admin(request,challenge_name):
 			new_hint = Hints.objects.create(
 				description=content['description'],
 				level=content['level'],
-				challenge_id = Challenges.objects.get(name=challenge_name)
+				challenge_id = Challenges.objects.get(name=challenge_name).id
 			)
 		else:
 			edit_hint = Hints.objects.get(pk=content['id'])

@@ -13,14 +13,14 @@ function fetch_chal(challenge_id){
 		if(num_hints === 1) {
 			hint_html += `<div class="col-12 text-center mb-2">
 								<button class="btn btn-info hints" data-id="${hints.id}">
-								<span>View Hint ${hints.level}</span></button>
+								<span>View Hint Level ${hints.level}</span></button>
 							</div>`
 		}
 		else if(num_hints > 1){
 			for (let i = 0; i < num_hints; i++) {
 				hint_html += `<div class="col-12 text-center mb-2">
 								<button class="btn btn-info hints" data-id="${hints[i].id}">
-								<span>View Hint ${hints[i].level}</span></button>
+								<span>View Hint Level ${hints[i].level}</span></button>
 							</div>`
 			}
 		}
