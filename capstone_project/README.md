@@ -25,7 +25,14 @@ This folder contains the Capstone project that I wrote. It has the features list
     - only certain methods are allowed for each view.
 - Models are setup with many different relational types.
 - Challenges are shown via a modal-dialogue for the user upon clicking on one.
-- User control panel(simply lets them update their password right now)
+- User control panel(simply lets them update their password right now, and shows their solves)
+- Can modify the hints of any challenge and have the data reflected on the page as long as the response is OK.
+- Can add hints to a challenge after creation and it'll add them to their local view.
+- Admin can see the number of solves for any challenge.
+- Updating a challenge causes all solves to be nullified and removed from the solves for the user.
+- Uses ZXCVBN for the password strength, along with giving them feedback for their passwords.
+- Attempting a solve will result in an alert showing. If it's successful then they'll get the "solved" message. If they didn't then it'll show "wrong answer." Also the alert will dissappear after some period of time.
+- The modal dialogues for the admin view or the challenge view can all be stacked upon eachother while not causing the other views to be obscured.
 
 
 ### Requirements
