@@ -175,10 +175,9 @@ e2={e2}
 c1={c1}
 c2={c2}
 n={n}
-
+</pre>
 
 Also "The Elementalists" used naive ASCII encoding instead of the standard RSA encoding for the string.
-</pre>
 <p>
 The flag is the original plaintext message.
 </p>

@@ -3,54 +3,56 @@
 {% block head %}
 	<script type="application/javascript">
 		 let modal_lv = 0;
-		document.addEventListener('DOMContentLoaded',function(){
-			document.querySelectorAll('.make_challenge').forEach(el=>{
-				el.addEventListener("click",event=>{
-						const edit = (el.dataset.edit === 'true');
-						modal_challenge(event,el.dataset.sn,edit);
-				});
-			});
-			document.getElementById('submit_chal').addEventListener("click",event=>{
-				event.preventDefault();
-				submit_challenge();
-			});
-			document.querySelectorAll('.manage_hints').forEach(el=>{
-				el.addEventListener("click",event=>{
-					fetch_challenge_hints(el.dataset.sn);
-				})
-			});
-			let el = document.getElementById('add_hint');
-			el.addEventListener("click",event=>{
-					event.preventDefault();
-					modal_hint(el,false);
-			});
+		document.addEventListener('DOMContentLoaded',function() {
+		  document.querySelectorAll('.make_challenge').forEach(el => {
+			  el.addEventListener("click", event => {
+				  const edit = (el.dataset.edit === 'true');
+				  modal_challenge(event, el.dataset.sn, edit);
+			  });
+		  });
+		  document.getElementById('submit_chal').addEventListener("click", event => {
+			  event.preventDefault();
+			  submit_challenge();
+		  });
+		  document.querySelectorAll('.manage_hints').forEach(el => {
+			  el.addEventListener("click", event => {
+				  fetch_challenge_hints(el.dataset.sn);
+			  })
+		  });
+		  let el = document.getElementById('add_hint');
+		  el.addEventListener("click", event => {
+			  event.preventDefault();
+			  modal_hint(el, false);
+		  });
 
-			document.getElementById('submit_hint').addEventListener("click",event=>{
-				submit_hint();
-			 });
+		  document.getElementById('submit_hint').addEventListener("click", event => {
+			  submit_hint();
+		  });
 
-			document.getElementById('manage_challenge_hint').addEventListener("click",event=>{
-				//event.preventDefault();
-				const name = document.getElementById('challenge_modal_title').innerText;
-				fetch_challenge_hints(name,true);
+		  document.getElementById('manage_challenge_hint').addEventListener("click", event => {
+			  //event.preventDefault();
+			  const name = document.getElementById('challenge_modal_title').innerText;
+			  fetch_challenge_hints(name, true);
 
-			});
-
-			/*
+		  });
+		  //I have to delay the calling of this until jQuery is loaded. So I'm delaying it by ~30ms.
+		  window.setTimeout(() => {
+			  /*
 			 * Randomly it'll not work when closing the modal and a backdrop will _still_ exist.
 			 * Will have to see about someway of maybe forcing the modal backdrop to be removed before the number is removed
 			 * By selecting all of them with a Z-Index of 1052+modal_lv.
 			 */
-			$('.modal').on('shown.bs.modal', function (e) {
-				 $('.modal-backdrop:last').css('zIndex',1051+modal_lv);
-				 $(e.currentTarget).css('zIndex',1052+modal_lv);
-				 modal_lv++;
-			});
+			  $('.modal').on('shown.bs.modal', function (e) {
+				  $('.modal-backdrop:last').css('zIndex', 1051 + modal_lv);
+				  $(e.currentTarget).css('zIndex', 1052 + modal_lv);
+				  modal_lv++;
+			  });
 
-			$('.modal').on('hidden.bs.modal', function (e) {
-				 modal_lv--;
-			});
-		});
+			  $('.modal').on('hidden.bs.modal', function (e) {
+				  modal_lv--;
+			  });
+		  },50);
+	  });
 		//the standard challenges. Will be merged when it's really done.
 		let CHALLENGES = {};
 		{{ json | safe }}.forEach(chal=>{
@@ -167,7 +169,7 @@
 					<div class="row" id="input_row">
 
 					</div>
-					<input type="input" class="hidden" aria-hidden="true" id="hint_id" />
+{#					<input type="input" class="hidden" aria-hidden="true" id="hint_id" />#}
 				</div>
 
 			</div>

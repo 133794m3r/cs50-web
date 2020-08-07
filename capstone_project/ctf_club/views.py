@@ -275,15 +275,16 @@ def challenge_admin(request):
 		varieties_used = {}
 		variety = None
 		for challenge in challenges:
+
 			#Remove the - {VARIETY} part.
 			tmp_name = ''
-			if '-' in challenge.name:
+			#This is a hack until I modify the model to incldue the "variety" flag.
+			if '-' in challenge.name and challenge.name[-1].isdigit():
 				tmp_name = challenge.name[:-4]
 				variety = challenge.name[-1]
 			else:
 				tmp_name = challenge.name
 				variety = None
-			print(tmp_name)
 			if tmp_name in CHALLENGES_TEMPLATES_NAMES:
 				indexed = CHALLENGES_TEMPLATES_NAMES[tmp_name][1]
 				challenges_used.append(indexed)
@@ -298,6 +299,7 @@ def challenge_admin(request):
 						'description':challenge_template['description'], 'sn':challenge_template['sn'], 'variety':variety,
 						'edit':True, 'flag':challenge.flag})
 				else:
+					challenges_used.append(indexed)
 					all_challenges.append({
 						'name':tmp_name, 'category':challenge.category.name, 'full_description':challenge.description,
 						'description':challenge_template['description'], 'sn':challenge_template['sn'],
@@ -324,6 +326,7 @@ def challenge_admin(request):
 				base_challenges.append(challenge)
 				all_challenges.append(challenge)
 
+		print(all_challenges)
 		return render(request,"challenge_admin.html", {"challenges":base_challenges,
 		                                               'json':json_encode(all_challenges)})
 
@@ -382,10 +385,11 @@ def hint_admin(request,challenge_name):
 
 		return JsonResponse({'OK':True})
 	else:
+		print(challenge_name)
 		challenge_hints = Hints.objects.filter(challenge__name=challenge_name)
 		num_hints = challenge_hints.count()
 		challenge_hints = jsonify_queryset(challenge_hints)
-
+		print(challenge_hints)
 	return JsonResponse({'hints':challenge_hints,'len':num_hints})
 
 @login_required()
