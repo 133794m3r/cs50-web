@@ -2,19 +2,25 @@ from django.shortcuts import render
 from django.db import IntegrityError
 from django.http import JsonResponse, HttpResponseRedirect,HttpResponse,HttpResponseNotFound,Http404
 from django.urls import reverse
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate,login,logout,update_session_auth_hash
 from django.contrib.auth.decorators import  login_required
 from django.views.decorators.http import require_http_methods
 from json import loads as json_decode
 from json import dumps as json_encode
+
+from django.contrib.auth.forms import PasswordChangeForm
 
 from .models import User,Challenges,Solves,Hints,Files,Categories
 from .util import *
 
 
 # Create your views here.
+@require_http_methods(["GET","POST"])
 def profile(request,username):
-	pass
+
+
+
+	return render(request,'control_panel.html')
 
 def index(request):
 	challenges=Challenges.objects.all()
@@ -140,7 +146,31 @@ def hint(request,hint_id):
 @login_required(login_url='login')
 @require_http_methods(["GET","POST"])
 def control_panel(request,username):
-	pass
+	form = PasswordChangeForm(request.user)
+	if request.user.is_authenticated:
+		if request.method == "POST":
+			content = json_decode(request.body)
+			old_password=content['old_password']
+			new_password=content['new_password']
+			confirm_password=content['confirm_password']
+			if old_password == '' or new_password == '':
+				msg = "Passwords can't be blank."
+			elif old_password != new_password and new_password == confirm_password:
+				if request.user.check_password(old_password):
+					request.user.set_password(new_password)
+					request.user.save()
+					update_session_auth_hash(request,request.user)
+					msg = "Password updated successfully."
+				else:
+					msg = "Password does not match your old password."
+			elif old_password == new_password:
+				msg = "New password is the same as the old password."
+			elif new_password != confirm_password:
+				msg = "New passwords must match."
+
+			return JsonResponse({'ok':True,'msg':msg})
+
+	return render(request,'control_panel.html',{'form':form})
 
 
 @login_required(login_url='login')

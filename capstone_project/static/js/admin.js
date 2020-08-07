@@ -259,6 +259,7 @@ function fetch_challenge_hints(name,full=false){
 		const len = resp.len;
 		let content = ''
 		if(len == 0){
+			console.log(challenge_name);
 			name = CHALLENGES[challenge_name].name;
 			document.getElementById('hint_modal_title').innerText = `${name} : Hints`;
 		}
@@ -283,12 +284,6 @@ function fetch_challenge_hints(name,full=false){
 			});
 		})
 
-		if(full) {
-			document.getElementById('hint_modal').dataset.backdrop = 'static';
-		}
-		else{
-			document.getElementById('hint_modal').dataset.backdrop = '';
-		}
 		document.getElementById('add_hint').dataset.cn = name;
 		$('#hint_modal').modal("toggle");
 

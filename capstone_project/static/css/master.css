@@ -2,9 +2,10 @@
 	display:none;
 }
 
+
 @media only screen and (min-width:1500px){
 	.modal-dialog {
-		max-width: 800px;
+		max-width: 800px !important;
 	}
 	.container-lg{
 		max-width: 1300px !important;
@@ -22,7 +23,12 @@
 .f-150{
 	font-size:1.5rem !important;
 }
-
+.w-60 {
+	width: 60% !important;
+}
+.w-40{
+	width: 40% !important;
+}
 /*.modal:nth-of-type(even) {*/
 /*    z-index: 1052 !important;*/
 /*}*/
