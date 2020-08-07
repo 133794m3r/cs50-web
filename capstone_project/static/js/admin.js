@@ -107,7 +107,7 @@ function modal_hint(element,edit=true){
 	document.getElementById('add_hint_modal').dataset.backdrop = 'static';
 	document.getElementById('add_hint_modal_title').innerText = (hint_id) ? "Edit Hint" : "Add Hint";
 	document.getElementById("hint_challenge_name").value = element.dataset.cn;
-	document.getElementById('submit_hint').innerText = (hint_id) ? "Edit Hint" : "Add Hint";
+	document.getElementById('submit_hint').innerText = (hint_id !== 0) ? "Edit Hint" : "Add Hint";
 	document.getElementById('submit_hint').disabled = (hint_id == 0)
 	if(edit) {
 		const hint_desc = document.getElementById(`${hint_id}-desc`).innerHTML;
@@ -139,7 +139,7 @@ function submit_hint(){
 
 	let content = {};
 	content['id'] = hint_id;
-	// content['challenge_name'] = challenge_name;
+	content['challenge_name'] = challenge_name;
 	content['description'] = hint_description;
 	content['level'] = hint_level;
 

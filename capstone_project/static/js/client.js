@@ -163,6 +163,9 @@ function score_password(button_el,username,password,password_confirm_id){
 		feedback+=result.feedback.suggestions.join(' ');
 		document.getElementById('password_feedback').innerText=feedback;
 	}
+	else{
+		document.getElementById('password_feedback').innerText = '';
+	}
 
 	let but = document.getElementById(button_el)
 	if (score < 3) {
