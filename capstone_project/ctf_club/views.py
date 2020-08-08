@@ -22,10 +22,8 @@ from .util import *
 # Create your views here.
 @require_http_methods(["GET","POST"])
 def profile(request,username):
-
-
-
 	return render(request,'control_panel.html')
+
 
 def index(request):
 	challenges=Challenges.objects.all()
