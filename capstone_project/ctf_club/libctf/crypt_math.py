@@ -3,6 +3,7 @@
 # Macarthur Inbody 2019 - 2020
 # All Rights Reserved
 
+from random import random
 
 """
 gcd calculator using the Generalized Extended Euclidean Algorithm.
@@ -11,7 +12,6 @@ Python implementation of the extended euclidean algorithm for calculating the gc
 This code is the recursive variant as it is simpler.
 
 """
-from random import random
 
 
 def gcd_fast(a,b):

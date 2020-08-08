@@ -27,6 +27,7 @@ def make_hill(plaintext: str, variety: int) -> tuple:
 	1 is to give them a crib.
 	:return: A tuple containing the description for the flag, and the flag itself.
 	"""
+
 	#currently I just remove spaces to keep things simple.
 	plaintext = plaintext.replace(' ','')
 	#to make sure that it's only containing the letters of the alphabet.
@@ -65,6 +66,7 @@ def make_rsa(plaintext: str) -> tuple:
 	:return: The tuple containing the description,flag. Where flag is the answer.
 	:rtype: tuple
 	"""
+
 	pt_len = len(plaintext)
 	M = int(naive_ascii_encode(plaintext, pt_len))
 	prime_length = (pt_len * 15)+1
@@ -109,6 +111,7 @@ def make_hba(plaintext:str) -> tuple:
 	:return: the description and the flag.
 	:rtype: tuple
 	"""
+
 	m_len = len(plaintext)
 	M = rsa_ascii_encode(plaintext,m_len)
 	n_len =(m_len*9)+1
@@ -160,6 +163,7 @@ def make_common_mod(plaintext: str) -> tuple:
 	:return: A tuple containing the descriptiona nd the flag.
 	:rtype: tuple
 	"""
+
 	m_len = len(plaintext)
 	M = int(naive_ascii_encode(plaintext, m_len))
 	n_len = (m_len*15)+1
@@ -196,6 +200,15 @@ The flag is the original plaintext message.
 
 
 def make_bsa(plaintext: str) -> tuple:
+	"""
+	Creates a blind signature attack with the value of r already chosen for them.
+	This is due to simplicity's reasons. So that the person solving doesn't have
+	to actually caluclate the value of r themselves.
+
+	:param plaintext: The plaintext message we're going to be forging a signature on.
+	:return: description,flag Where description is the description of the program and
+	the flag is the fake signature we're asking them to provide to us.
+	"""
 	m_len = len(plaintext)
 	M=rsa_ascii_encode(plaintext,m_len)
 	n_len=(m_len*9)+1
@@ -241,6 +254,14 @@ S={S}
 
 
 def make_fermat(plaintext: str) -> tuple:
+	"""
+	Makes a challenge that requires the person to factor the public key via
+	Fermat's Near Prime Factorization method.
+
+	:param plaintext: The plaintext message they have to provide as the flag.
+	:return: description,plaintext The description of the flag and the plaintext itself.
+	"""
+
 	m_len = len(plaintext)
 	M = rsa_ascii_encode(plaintext,m_len)
 	n_len = (m_len * 9) + 1
@@ -264,6 +285,14 @@ Free hint. This plaintext was encoded with OS2IP.
 
 
 def make_affine(plaintext: str, variety: int) -> tuple:
+	"""
+	Makes a flag with the affine crypto system. Either one where they're given
+	the key or just a crib to utilize.
+	:param plaintext: The plaintext message aka the flag.
+	:param variety: Whether they're given the flag or key 0 = key, 1=crib.
+	:return: description,plaintext the flag's description and teh plaintext aka the flag.
+	"""
+
 	plaintext = plaintext.replace(' ','').upper()
 	plaintext = re.sub('[^A-Za-z]','',plaintext)
 	input_len = len(plaintext)
@@ -287,6 +316,7 @@ def make_affine(plaintext: str, variety: int) -> tuple:
 
 	return description,plaintext
 
+
 def make_fizzbuzz(start: int, end: int) -> tuple:
 	"""
 	make_fizzbuzz
@@ -297,6 +327,7 @@ def make_fizzbuzz(start: int, end: int) -> tuple:
 	:param end: The end number they're going to be counting to.
 	:return: A tuple containing the description and the flag.
 	"""
+
 	flag = ''
 	description = ''
 	start = start or randint(1,3)
@@ -418,11 +449,13 @@ CHALLENGES_TEMPLATES = [
 	 "points":300, "variety":False}
 ]
 
+
 def __func():
 	CHALLENGES_TEMPLATES_NAMES = {}
 	for i,chal in enumerate(CHALLENGES_TEMPLATES):
 		CHALLENGES_TEMPLATES_NAMES[chal['name']] = [chal['sn'],i]
 	return CHALLENGES_TEMPLATES_NAMES
+
 
 CHALLENGES_TEMPLATES_NAMES = __func()
 
