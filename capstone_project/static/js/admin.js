@@ -150,7 +150,8 @@ function check_len(input_id,button_id){
 
 
 /**
- *
+ * submit_hint
+ * Submits a hint to the API whether it's being edited or not.
  */
 function submit_hint(){
 	let hint_id = parseInt(document.getElementById("hint_id").value)
@@ -183,7 +184,8 @@ function submit_hint(){
 
 
 /**
- *
+ * submit_challenge
+ * Submits the challenge to the api by collecting all data and passing it to the server.
  */
 function submit_challenge(){
 	let content = {}
@@ -359,6 +361,7 @@ function fetch_challenge_hints(name,full=false){
 
 	});
 }
+
 
 /**
  *
