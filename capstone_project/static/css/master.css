@@ -34,3 +34,18 @@
 .w-40{
 	width: 40% !important;
 }
+.modal-body{
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+	/* For some reason the content becomes _too_ large when the overflow-y is set.
+	 * Thus causing a scrollbar for the x position for reasons.
+	*/
+	width:99%;
+}
+/*
+ * to avoid having double padding causing a scrollbar in the x position.
+ */
+.modal-body > .row{
+	margin-left: 0px !important;
+	margin-right: 0px !important;
+}
