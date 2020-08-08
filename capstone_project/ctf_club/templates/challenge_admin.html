@@ -1,0 +1,219 @@
+{% extends 'admin_layout.html' %}
+{% load static %}
+{% comment %}
+CTFClub Project
+By Macarthur Inbody <admin-contact@transcendental.us>
+Licensed AGPLv3 Or later (2020)
+{% endcomment %}
+{% block head %}
+	<script type="application/javascript">
+		 let modal_lv = 0;
+		document.addEventListener('DOMContentLoaded',function() {
+		  document.querySelectorAll('.make_challenge').forEach(el => {
+			  el.addEventListener("click", event => {
+				  const edit = (el.dataset.edit === 'true');
+				  modal_challenge(event, el.dataset.sn, edit);
+			  });
+		  });
+		  document.getElementById('submit_chal').addEventListener("click", event => {
+			  event.preventDefault();
+			  submit_challenge();
+		  });
+		  document.querySelectorAll('.manage_hints').forEach(el => {
+			  el.addEventListener("click", event => {
+				  fetch_challenge_hints(el.dataset.sn);
+			  })
+		  });
+		  let el = document.getElementById('add_hint');
+		  el.addEventListener("click", event => {
+			  event.preventDefault();
+			  modal_hint(el, false);
+		  });
+
+		  document.getElementById('submit_hint').addEventListener("click", event => {
+			  submit_hint();
+		  });
+
+		  document.getElementById('manage_challenge_hint').addEventListener("click", event => {
+			  const el = document.getElementById('manage_challenge_hint');
+			  fetch_challenge_hints(el.dataset.sn, true);
+		  });
+		  //I have to delay the calling of this until jQuery is loaded. So I'm delaying it by ~30ms.
+		  window.setTimeout(() => {
+			  /*
+			 * Randomly it'll not work when closing the modal and a backdrop will _still_ exist.
+			 * Will have to see about someway of maybe forcing the modal backdrop to be removed before the number is removed
+			 * By selecting all of them with a Z-Index of 1052+modal_lv.
+			 */
+			  $('.modal').on('shown.bs.modal', function (e) {
+				  $('.modal-backdrop:last').css('zIndex', 1051 + modal_lv);
+				  $(e.currentTarget).css('zIndex', 1052 + modal_lv);
+				  modal_lv++;
+			  });
+
+			  $('.modal').on('hidden.bs.modal', function (e) {
+				  modal_lv--;
+			  });
+		  },50);
+	  });
+		//the standard challenges. Will be merged when it's really done.
+		let CHALLENGES = {};
+		{{ json | safe }}.forEach(chal=>{
+			CHALLENGES[chal.sn] = chal;
+		});
+		//the full data itself.
+		FULL_CHALLENGES = {{ json | safe }};
+
+
+	</script>
+	<script src="{% static 'js/admin.js' %}" type="application/javascript"></script>
+{% endblock %}
+{% block body %}
+	<div class="container-lg container mt-3">
+		<div class="row">
+		{% for challenge in challenges %}
+			<div class="col-md-4">
+				<div class="card">
+					<div class="card-header">
+						<span>{{ challenge.name }}</span>
+					</div>
+					<div class="card-title ml-2">
+						{{ challenge.category }}
+					</div>
+					<div class="card-body">
+						{{ challenge.description }}
+					</div>
+					<div class="card-footer">
+						{% if challenge.edit == True %}
+							<button class="btn btn-primary manage_hints mr-1" data-sn="{{ challenge.sn }}" data-edit="true">Manage Hints</button>
+							<button class="btn btn-primary make_challenge ml-1" data-sn="{{ challenge.sn }}" data-edit="true">Edit Challenge</button>
+						{% else %}
+							<button class="btn btn-primary make_challenge" data-sn="{{ challenge.sn }}" data-edit="false">Create Challenge</button>
+						{% endif %}
+
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+		</div>
+	</div>
+
+	<div class="modal fade" id="challenge_modal" tabindex="-1" role="dialog" aria-labelledby="challenge_modal_title" aria-hidden="true" >
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 class="modal-title text-center w-100" id="challenge_modal_title"></h2>
+			 	 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					 <span aria-hidden="true">&times;</span>
+			 	 </button>
+				</div>
+				<div class="modal-body">
+					<div class="row mt-1 mb-2">
+						<div class="col-11">
+							<span id="input_description"></span>
+							<div id="full_description"></div>
+						</div>
+					</div>
+					<div class="row" id="input_row">
+
+					</div>
+					<input type="text" class="hidden" aria-hidden="true" name="sn" id="sn" />
+					<input type="checkbox" class="hidden" aria-hidden="true" name="editing" id="editing" />
+				</div>
+				<div class="modal-footer">
+					<div class="row w-80 d-flex flex-row">
+					<div class="p-2 mr-auto">
+					<buton id="manage_challenge_hint" type="button" class="btn btn-primary align-left" aria-hidden="true">Manage Hints</buton>
+					</div>
+					<div class="p-2">
+					<button id="submit_chal" type="button" class="btn btn-primary" data-dismiss="modal" >Submit Challenge</button>
+					</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="hint_modal" tabindex="-1" role="dialog" aria-labelledby="hint_modal_title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header text-center">
+					<h2 class="modal-title text-center w-100" id="hint_modal_title"></h2>
+			 	 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					 <span aria-hidden="true">&times;</span>
+			 	 </button>
+				</div>
+				<div class="modal-body">
+
+					<div class="container">
+						<div class="row pb-3">
+							<div class="col-12 text-center">
+								<button class="btn btn-primary f-110" id="add_hint" data-id="0" data-cn="">Add hint</button>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-12">
+								<table class="table table-striped">
+									<thead>
+									<tr>
+										<td class="text-center font-weight-bold w-75">
+											Hint Description
+										</td>
+										<td class="text-center font-weight-bold w-25">
+											Hint Level
+										</td>
+									</tr>
+									</thead>
+									<tbody id="hints_body">
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<div class="row" id="input_row">
+
+					</div>
+{#					<input type="input" class="hidden" aria-hidden="true" id="hint_id" />#}
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="add_hint_modal" tabindex="-1" role="dialog" aria-labelledby="add_hint_modal_title" aria-hidden="true" >
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 class="modal-title text-center w-100" id="add_hint_modal_title"></h2>
+			 	 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					 <span aria-hidden="true">&times;</span>
+			 	 </button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-12">
+							Formatting help: HTML is the only way to format the text beyond new lines.
+						</div>
+					</div>
+					<div class="row" id="hint_information">
+						<div class="col-12">
+							<textarea class="text form-control" rows="7" id="hint_description" placeholder="Hint Text" onkeyup="check_len('hint_description','submit_hint')"></textarea>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<input type="number" class="form-control" id="hint_level" min="0" max="10" placeholder="Hint Level"/>
+						</div>
+					</div>
+					<input type="text" class="hidden" aria-hidden="true" id="hint_challenge_name" />
+					<input type="text" class="hidden" aria-hidden="true" name="sn" id="hint_id"/>
+				</div>
+				<div class="modal-footer">
+					<div class="row w-80 d-flex flex-row">
+						<div class="p-2">
+							<button id="submit_hint" type="button" class="btn btn-primary" data-dismiss="modal" >Submit Hint</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% load static %}
+{% comment %}
+CTFClub Project
+By Macarthur Inbody <admin-contact@transcendental.us>
+Licensed AGPLv3 Or later (2020)
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="shortcut icon" href="{% static 'favicon.ico' %}">
+{#	<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" />#}
+	<link href="{% static 'css/master.css' %}" rel="stylesheet" />
+	<link rel="stylesheet" href="{% static 'css/bs-darkly.css' %}" rel="stylesheet" />
+	<script src="{% static '/js/jquery.min.js' %}" async></script>
+	<script src="{% static '/js/master.js'  %}" async></script>
+	<script src="{% static '/js/client.js' %}" async></script>
+
+	<script type="text/javascript">
+(function() {
+
+	const bs_src = "{% static 'js/bootstrap.min.js' %}";
+
+	const async_load = function () {
+		let first, s;
+		s = document.createElement('script');
+		s.src = bs_src;
+		s.type = 'text/javascript';
+		s.async = true;
+		first = document.getElementsByTagName('script')[0];
+		return first.parentNode.insertBefore(s, first);
+	};
+
+	if (window.attachEvent != null) {
+    window.attachEvent('onload', async_load);
+  } else {
+    window.addEventListener('load', async_load, false);
+  }
+
+}).call(this);
+	</script>
+	<title>{% block title %}{% endblock %}</title>
+	{% block head %}
+	{% endblock %}
+</head>
+<body>
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+	<span class="navbar-brand">CTF Club</span>
+	<div>
+		<ul class="navbar-nav mr-auto">
+			{% if user.is_authenticated %}
+				<li class="nav-item">
+					<a class="nav-link" href="{% url 'control_panel' user.username %}"> Control Panel</a>
+				</li>
+			{% endif %}
+
+			{% if user.is_staff %}
+				<li class="nav-item">
+					<a class="nav-link" href="{% url 'challenge_admin' %}">Admin</a>
+				</li>
+			{% endif %}
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'index' %}">Index</a>
+			</li>
+			{% if not user.is_authenticated %}
+				<li class="nav-link">
+					<a class="nav-item" href="{% url 'login' %}">Login</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="{% url 'register' %}">Register</a>
+				</li>
+			{% else %}
+				<li class="nav-item">
+					<a class="nav-link" href="{% url 'logout' %}">Logout</a>
+				</li>
+			{% endif %}
+
+			{% block nav %}
+			{% endblock %}
+		</ul>
+	</div>
+</nav>
+{% block body %}
+{% endblock %}
+{#<script src="{% static 'js/bootstrap.min.js' %}" async="false" defer="true"></script>#}
+</body>
+</html>

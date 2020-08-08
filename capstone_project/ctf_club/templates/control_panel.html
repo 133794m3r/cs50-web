@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+{% load static %}
+{% comment %}
+CTFClub Project
+By Macarthur Inbody <admin-contact@transcendental.us>
+Licensed AGPLv3 Or later (2020)
+{% endcomment %}
+{% block head %}
+	<script type="text/javascript">
+		document.addEventListener('DOMContentLoaded',function(){
+			 document.getElementById('change_password').addEventListener('click',event=>{
+			 	event.preventDefault();
+			 	let content = {};
+
+			 	let old_password = document.getElementById('old_password').value;
+			 	let new_password = document.getElementById('new_password').value;
+			 	let confirm_password = document.getElementById('confirm_password').value;
+			 	//if the new password or the old, or the confirm is blank just exit and tell them what the server would.
+			 	if(old_password === '' || new_password === '' || confirm_password === ''){
+			 		document.getElementById('error').className = 'alert alert-danger';
+			 		document.getElementById('error').innerText = "Inputs can't be blank";
+			 		return;
+				}
+			 	//if the password's score is <3 then it's worthless and can't be used.
+			 	else if(score_password('change_password', '', 'new_password', 'confirm_password') < 3){
+				  return
+			 	}
+			  content['old_password'] = old_password;
+			 	content['new_password'] = new_password;
+			 	content['confirm_password'] = confirm_password;
+
+			 	submit(window.location.pathname,content,resp=>{
+			 		if(resp.ok){
+			 			document.getElementById('error').className = 'alert alert-success';
+			 			document.getElementById('old_password').value = '';
+			 			document.getElementById('new_password').value = '';
+			 			document.getElementById('confirm_password').value = '';
+			 			window.setTimeout(()=>{
+			 				document.getElementById('error').className = 'alert';
+			 				document.getElementById('error').setAttribute('aria-hidden','true');
+						},2000)
+					}
+			 		else{
+			 			document.getElementById('error').className = 'alert alert-danger';
+					}
+			 		document.getElementById('error').innerText = resp.msg;
+				});
+			 });
+			 document.querySelectorAll('.passwords').forEach(el=>{
+			 	el.addEventListener('keyup',event=>{
+				 	let old_password = document.getElementById('old_password').value;
+				 	let new_password = document.getElementById('new_password').value;
+				 	let confirm_password = document.getElementById('confirm_password').value;
+					if(old_password == '' || new_password == '' || confirm_password == ''){
+						return;
+					}
+			 		score_password('change_password','username',el.id,'confirm_password');
+				});
+			 })
+	  });
+	 </script>
+	<script type="text/javascript" defer async src="{% static '/js/zxcvbn.js' %}"></script>
+{% endblock %}
+{% block body %}
+<div class="container container-lg mt-2">
+
+	<div class="row">
+		<div class="col-12 text-center w-100">
+			<h1 class="font-weight-bold">{{ request.user }}'s Page</h1>
+		</div>
+	</div>
+
+	<div id="" class="row w-100">
+		<div class="pr-5">
+			<h3>
+			<a href="{% url 'solved_challenges' %}">See your solves</a>
+			</h3>
+		</div>
+		<div class="w-40 p-1">
+			<h3>Change Your Password</h3>
+			<div class="row">
+				<div class="col">
+			  {% csrf_token %}
+				<div class="alert alert-primary hidden" id="error" role="alert">
+				</div>
+				<div class="input-group mb-3">
+					<input type="password" name="old_password" id="old_password" placeholder="Old Password" class=""/>
+				</div>
+				<div class="input-group mb-3">
+					<input type="password" class="passwords" name="new_password" id="new_password" placeholder="New Password" class=""/>
+				</div>
+				<div class="input-group mb-3">
+					<input type="password" class="passwords" name="confirm_password" id="confirm_password" placeholder="Confirm Password" class=""/>
+				</div>
+					<input type="text" class="hidden" id="username" value="{{ request.user.username }}" />
+					<button class="btn btn-primary" type="submit"id="change_password">Change Password</button>
+			</div>
+
+			<div class="col">
+				Password Rating:
+				<div id="score">
+
+				</div>
+				<span id="password_feedback"></span>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

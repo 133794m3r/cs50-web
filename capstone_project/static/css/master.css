@@ -1,0 +1,36 @@
+/*
+ * CTFClub Project
+ * By Macarthur Inbody <admin-contact@transcendental.us>
+ * Licensed AGPLv3 Or later (2020)
+ */
+
+.hidden{
+	display:none;
+}
+
+@media only screen and (min-width:1500px){
+	.modal-dialog {
+		max-width: 800px !important;
+	}
+	.container-lg{
+		max-width: 1300px !important;
+	}
+}
+.f-110{
+	font-size:1.10rem !important;
+}
+.f-100{
+	font-size:1.0rem !important;
+}
+.f-125{
+	font-size:1.25rem !important;
+}
+.f-150{
+	font-size:1.5rem !important;
+}
+.w-60 {
+	width: 60% !important;
+}
+.w-40{
+	width: 40% !important;
+}

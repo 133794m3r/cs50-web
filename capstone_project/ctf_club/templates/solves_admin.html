@@ -1,0 +1,27 @@
+{% extends "admin_layout.html" %}
+{% load static %}
+{% comment %}
+CTFClub Project
+By Macarthur Inbody <admin-contact@transcendental.us>
+Licensed AGPLv3 Or later (2020)
+{% endcomment %}
+{% block body %}
+<div class="container container-md mt-3">
+	<p>
+		Solves by challenge.
+	</p>
+	<ul class="list-group">
+		<li class="list-group-item d-flex justify-content-between align-items-center">
+			<a class="btn" href="#">Challenge Name</a>
+			<span class="badge badge-primary">NumSolves</span>
+		</li>
+
+		{% for challenge in challenges %}
+		<li class="list-group-item d-flex justify-content-between align-items-center">
+			<a class="btn" href="#" data-id="{{ challenge.id }}">{{ challenge.name }} </a>
+			<span class="badge badge-primary">{{ challenge.num_solves }}</span>
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endblock %}

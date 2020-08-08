@@ -1,0 +1,74 @@
+{% load static %}
+{% comment %}
+CTFClub Project
+By Macarthur Inbody <admin-contact@transcendental.us>
+Licensed AGPLv3 Or later (2020)
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="shortcut icon" href="{% static 'favicon.ico' %}">
+{#	<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />#}
+{#	<link href="{% static 'css/bs-cyborg.min.css' %}" rel="stylesheet" />#}
+{#	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.0/cyborg/bootstrap.min.css" integrity="sha384-GKugkVcT8wqoh3M8z1lqHbU+g6j498/ZT/zuXbepz7Dc09/otQZxTimkEMTkRWHP" crossorigin="anonymous">#}
+	<link rel="stylesheet" href="{% static 'css/bs-darkly.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'css/master.css' %}" rel="stylesheet" />
+	<script src="{% static '/js/jquery.min.js' %}" async></script>
+	<script src="{% static '/js/master.js'  %}" async></script>
+	<script>
+(function() {
+
+	const bs_src = "{% static 'js/bootstrap.min.js' %}";
+
+	const async_load = function () {
+		let first, s;
+		s = document.createElement('script');
+		s.src = bs_src;
+		s.type = 'text/javascript';
+		s.async = true;
+		first = document.getElementsByTagName('script')[0];
+		return first.parentNode.insertBefore(s, first);
+	};
+
+	if (window.attachEvent != null) {
+    window.attachEvent('onload', async_load);
+  } else {
+    window.addEventListener('load', async_load, false);
+  }
+
+}).call(this);
+	</script>
+	<title>{% block title %}{% endblock %}</title>
+	{% block head %}
+	{% endblock %}
+</head>
+<body>
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+	<span class="navbar-brand" href="#">CTF Club Admin</span>
+	<div>
+		<ul class="navbar-nav mr-auto">
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'index' %}">Index</a>
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'challenge_admin' %}">Challenge Page</a>
+			</li>
+			<li class="navi-item">
+				<a class="nav-link" href="{% url 'solves_admin' %}">All Solves</a>
+			</li>
+			{% if user.is_superuser %}
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'admin:index'  %}">Django Admin Page</a>
+			</li>
+			{% endif %}
+			{% block nav %}
+			{% endblock %}
+		</ul>
+	</div>
+</nav>
+{% block body %}
+{% endblock %}
+{#<script src="{% static 'js/bootstrap.min.js' %}" async="false" defer="true"></script>#}
+</body>
+</html>
