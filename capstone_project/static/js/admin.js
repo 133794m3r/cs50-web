@@ -1,7 +1,14 @@
 /**
+ * CTFClub Project
+ * Macarthur Inbody <admin-contact@transcendental.us>
+ * Licensed under AGPLv3 Or Later (2020)
+ */
+
+/**
  * When I created the code below only I and God knew what I was thinking.
  * Now only God knows. Be forewarned.
  */
+
 
 /**
  * modal_challenge

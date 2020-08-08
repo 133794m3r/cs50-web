@@ -1,7 +1,7 @@
 #!/bin/python
 # Crypto Lab Library - Hill Module
 # Macarthur Inbody 2019 - 2020
-# All Rights Reserved
+# Licensed LGPLv3 or Later
 
 import random
 import re

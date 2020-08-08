@@ -1,9 +1,10 @@
 #!/bin/python
+
 # Crypto Lab Library - RSA Library
 # This contains all of the functions to deal with the most common RSA attacks
 # and also the utilities required to do that.
 # Macarthur Inbody 2019 - 2020
-# All Rights Reserved
+# LGPLv3 or Later
 
 
 #This does the hard work of actually getting you the plaintext back via the

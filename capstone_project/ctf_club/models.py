@@ -2,6 +2,12 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 
+"""
+CTFClub Project
+By Macarthur Inbody <admin-contact@transcendental.us>
+Licensed AGPLv3 Or later (2020)
+"""
+
 # User model is just here so I can reference it, I use the default model.
 class User(AbstractUser):
 	def to_dict(self):

@@ -1,4 +1,10 @@
 /**
+ * CTFClub Project
+ * Macarthur Inbody <admin-contact@transcendental.us>
+ * Licensed under AGPLv3 Or Later (2020)
+ */
+
+/**
  *
  * The function below is a wrapper around fetch to make it work with POST requests when using Django.
  *

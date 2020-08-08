@@ -1,7 +1,11 @@
 from .libctf import *
 from random import randint
 import re
-
+"""
+CTFClub Project
+By Macarthur Inbody <admin-contact@transcendental.us>
+Licensed AGPLv3 Or later (2020)
+"""
 def make_index(objects):
 	output = {}
 	maximum = 0

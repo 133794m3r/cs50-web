@@ -7,8 +7,13 @@ from django.contrib.auth.decorators import  login_required
 from django.views.decorators.http import require_http_methods
 from json import loads as json_decode
 from json import dumps as json_encode
-
 from django.contrib.auth.forms import PasswordChangeForm
+
+"""
+CTFClub Project
+By Macarthur Inbody <admin-contact@transcendental.us>
+Licensed AGPLv3 Or later (2020)
+"""
 
 from .models import *
 from .util import *

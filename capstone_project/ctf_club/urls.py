@@ -1,5 +1,10 @@
 from django.urls import path,re_path
 from . import views
+"""
+CTFClub Project
+By Macarthur Inbody <admin-contact@transcendental.us>
+Licensed AGPLv3 Or later (2020)
+"""
 urlpatterns = [
 	path("profile/<str:username>",views.profile,name="profile"),
 	path("register",views.register,name="register"),
