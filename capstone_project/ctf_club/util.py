@@ -66,7 +66,7 @@ def make_rsa(plaintext: str) -> tuple:
 	:rtype: tuple
 	"""
 	pt_len = len(plaintext)
-	M = int(radford_ascii_encode(plaintext,pt_len))
+	M = int(naive_ascii_encode(plaintext, pt_len))
 	prime_length = (pt_len * 15)+1
 	p,q,N = calc_n(prime_length)
 	l_n = calc_lambda(p,q)
@@ -161,7 +161,7 @@ def make_common_mod(plaintext: str) -> tuple:
 	:rtype: tuple
 	"""
 	m_len = len(plaintext)
-	M = int(radford_ascii_encode(plaintext,m_len))
+	M = int(naive_ascii_encode(plaintext, m_len))
 	n_len = (m_len*15)+1
 	p,q,n = calc_n(n_len)
 	l_n = calc_lambda(p,q)
@@ -203,12 +203,9 @@ def make_bsa(plaintext: str) -> tuple:
 	l_n = calc_lambda(p,q)
 	e = calc_e(16,l_n)
 	d = mod_inv(e,l_n)
-	print(d)
 	r = calc_r(n)
-	print('r')
 	M_fake = (M*pow(r,e)) % n
 	S = pow(M_fake,d,n)
-	print('S')
 	S_fake = (S*mod_inv(r,n)) %n
 	M_fake = hex(M_fake).replace('L','')
 	S_fake = hex(S_fake).replace('L','')
@@ -240,8 +237,6 @@ S={S}
 </pre>
 =============================================================================================="""
 	flag = S_fake
-	print(flag)
-	print(description)
 	return description,flag
 
 

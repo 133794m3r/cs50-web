@@ -250,11 +250,8 @@ def challenge_admin(request):
 				name +=f' - {variety}'
 				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext,variety)
 			else:
-				print(CHALLENGE_FUNCS[content['sn']])
 				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext)
 		points = content.get('points') or 100
-		print(content)
-		print('here')
 		if content.get('edit'):
 			challenge = Challenges.objects.get(name=name)
 			challenge.description = description
@@ -335,7 +332,6 @@ def challenge_admin(request):
 				base_challenges.append(challenge)
 				all_challenges.append(challenge)
 
-		print(all_challenges)
 		return render(request,"challenge_admin.html", {"challenges":base_challenges,
 		                                               'json':json_encode(all_challenges)})
 
