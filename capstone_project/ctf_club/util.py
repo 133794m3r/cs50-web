@@ -105,8 +105,8 @@ def make_hba(plaintext:str) -> tuple:
 	is the standard OS2IP to keep it simple for users. That want to attempt to
 	complete the challenge.
 
-	:param plaintext:
-	:return:
+	:param plaintext: The flag the users are going to be trying to get.
+	:return: the description and the flag.
 	:rtype: tuple
 	"""
 	m_len = len(plaintext)
@@ -150,6 +150,16 @@ n3:{n3}
 
 
 def make_common_mod(plaintext: str) -> tuple:
+	"""
+	make_common_mod
+	
+	Creates a challenge based upon the RSA Common Modulus Attack. The message is
+	encoded with naive ascii encoding. The flag and answer are both included.
+	
+	:param plaintext: The string that we're going to use for the flag.
+	:return: A tuple containing the descriptiona nd the flag.
+	:rtype: tuple
+	"""
 	m_len = len(plaintext)
 	M = int(radford_ascii_encode(plaintext,m_len))
 	n_len = (m_len*15)+1
@@ -279,6 +289,15 @@ def make_affine(plaintext: str, variety: int) -> tuple:
 	return description,flag
 
 def make_fizzbuzz(start: int, end: int) -> tuple:
+	"""
+	make_fizzbuzz
+	
+	Makes a challenge based upon a basic fizzbuzz challenge for the users to try to solve.
+	
+	:param start: The starting value we're going to count from.
+	:param end: The end number they're going to be counting to.
+	:return: A tuple containing the description and the flag.
+	"""
 	flag = ''
 	description = ''
 	start = start or randint(1,3)
