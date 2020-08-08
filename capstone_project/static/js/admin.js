@@ -230,9 +230,7 @@ function submit_challenge(){
 		//Eventually I'll actually use this data to update the local challenge data but that's not for now.
 		// It's for a later thing. For now I just log the response. In the end I'll actually use the response to edit the
 		// cached values.
-		console.log(response)
 		let variety = content['variety'] || -1;
-		console.log(variety)
 		if(variety === -1){
 			CHALLENGES[sn].flag = response.flag;
 			CHALLENGES[sn].description = response.description;
