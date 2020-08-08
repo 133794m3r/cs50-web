@@ -1,5 +1,8 @@
-#CTF Club/Capstone Project
+# CTF Club/Capstone Project
 This folder contains the Capstone project that I wrote. It has the features listed below and checks all of the boxes required.
+
+If you want to start from a fresh/clean slate. Delete the db.sqlite3 file and then run  ``python mage.py migrate``. I have the migrations already in the DB so that it's in the same state as when I recorded the video.
+
 
 ## Required Features
 - [x] Utilizes Django
