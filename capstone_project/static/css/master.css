@@ -49,3 +49,10 @@
 	margin-left: 0px !important;
 	margin-right: 0px !important;
 }
+
+/**
+ * This is here to make it more mobile-responsive for the long string of characters.
+ */
+.text-monospace{
+	overflow-wrap:break-word;
+}

@@ -92,9 +92,9 @@ Recalling your prior training you know that e is the exponent, n is the modulus,
 The message seems important, the only hint you're given is that the message is encoded with a naive form.
 </p><br />
 <p class="text-monospace">
-e={e}
-C={C}
-n={N}
+e={e}<br />
+C={C}<br />
+n={N}<br />
 </p>
 """
 
@@ -140,13 +140,13 @@ def make_hba(plaintext:str) -> tuple:
 	description =f"""<p>You were enjoying your leftover Chinese food minding your own business watching reruns of Broadcast tv when your buddy sent you a message. He managed to intercept some secret communications. The messages were encrypted with RSA he's managed to get your the ciphertexts and also the public key components below.</p>
 <p>He heard it's from the secretive group calling themselves "The Transcendentalists"</p>
 <p class="text-monospace">
-e:{e}
-c1:{c1}
-n1:{n1}
-c2:{c2}
-n2:{n2}
-c3:{c3}
-n3:{n3}
+e:{e}<br />
+c1:{c1}<br />
+n1:{n1}<br />
+c2:{c2}<br />
+n2:{n2}<br />
+c3:{c3}<br />
+n3:{n3}<br />
 </p>
 <br />
 <p>You need to provide the decrypted message not the numerical representation of the message. The message is encoded with the proper encoding.</p>
@@ -175,9 +175,11 @@ def make_common_mod(plaintext: str) -> tuple:
 	l_n = calc_lambda(p,q)
 	e1=calc_e(12,l_n)
 	c1 = rsa_encrypt(M,e1,n)
+	c1 = hex(c1).replace('L','')
 	e2=calc_e(12,l_n)
 	c2 = rsa_encrypt(M,e2,n)
-
+	c2 = hex(c2).replace('L','');
+	n = hex(n).replace('L','')
 	description =f"""<p>The Transcendentalists have given you another challenge. This time they want you to give them the secret phrase. Once again they say this is Elementary for you to solve.</p>
 <br />
 <br />
@@ -187,12 +189,12 @@ def make_common_mod(plaintext: str) -> tuple:
 Challenge is below.
 <br />
 <p class="text-monospace">
-You were given the following information.
-e1={e1}
-e2={e2}
-c1={c1}
-c2={c2}
-n={n}
+You were given the following information.<br />
+e1={e1}<br />
+e2={e2}<br />
+c1={c1}<br />
+c2={c2}<br />
+n={n}<br />
 </p>
 
 Also "The Elementalists" used naive ASCII encoding instead of the standard RSA encoding for the string.
@@ -227,6 +229,9 @@ def make_bsa(plaintext: str) -> tuple:
 	M_fake = hex(M_fake).replace('L','')
 	S_fake = hex(S_fake).replace('L','')
 	n = hex(n).replace('L','')
+	M = hex(M).replace('L','')
+	e = hex(e).replace('L','')
+	S = hex(S).replace('L','')
 	description = f"""
 <p>The Transcendentalists want you to forge a signature on the message "Use hashes to mitigate Blind Signing Attacks". They have thankfully let you send your message to their signing server to have it signed.</p>
 <p>You and your friend already setup a blinded signature now it's up to you to get the signature on the original message.</p>
@@ -236,9 +241,9 @@ def make_bsa(plaintext: str) -> tuple:
 <br />
 <p>Here's the information you already had.</p>
 <p class="text-monospace">
-M={M}
-N={n}
-e={e}
+M={M}<br />
+N={n}<br />
+e={e}<br />
 r={r}
 </p>
 <p>
@@ -249,7 +254,7 @@ You sent the server your blinded message M'.
 Your message M has been signed and the response S has been given along with your message.<br />
 <p class="text-monospace">
 M={M_fake}
-
+<br /><br />
 S={S}
 </p>
 ==============="""
@@ -278,9 +283,9 @@ def make_fermat_chal(plaintext: str) -> tuple:
 <p>When you see that the key is {n_len}bits in length they still tell you "It's Elementary my dear Watson." and refuse to say anything more.</p>
 
 <p class="text-monospace">
-C = {C}
-e = {e}
-n = {n}
+C = {C}<br />
+e = {e}<br />
+n = {n}<br />
 </p>
 <br />
 Free hint. This plaintext was encoded with OS2IP.
