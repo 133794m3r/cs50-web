@@ -91,11 +91,11 @@ As you open up the file you see the message below come across your screen.
 Recalling your prior training you know that e is the exponent, n is the modulus, and that C is the ciphertext. 
 The message seems important, the only hint you're given is that the message is encoded with a naive form.
 </p><br />
-<pre>
+<p class="text-monospace">
 e={e}
 C={C}
 n={N}
-</pre>
+</p>
 """
 
 	flag = plaintext
@@ -139,7 +139,7 @@ def make_hba(plaintext:str) -> tuple:
 
 	description =f"""<p>You were enjoying your leftover Chinese food minding your own business watching reruns of Broadcast tv when your buddy sent you a message. He managed to intercept some secret communications. The messages were encrypted with RSA he's managed to get your the ciphertexts and also the public key components below.</p>
 <p>He heard it's from the secretive group calling themselves "The Transcendentalists"</p>
-<pre>
+<p class="text-monospace">
 e:{e}
 c1:{c1}
 n1:{n1}
@@ -147,7 +147,7 @@ c2:{c2}
 n2:{n2}
 c3:{c3}
 n3:{n3}
-</pre>
+</p>
 <br />
 <p>You need to provide the decrypted message not the numerical representation of the message. The message is encoded with the proper encoding.</p>
 <br />
@@ -186,14 +186,14 @@ def make_common_mod(plaintext: str) -> tuple:
 <br />
 Challenge is below.
 <br />
-<pre>
+<p class="text-monospace">
 You were given the following information.
 e1={e1}
 e2={e2}
 c1={c1}
 c2={c2}
 n={n}
-</pre>
+</p>
 
 Also "The Elementalists" used naive ASCII encoding instead of the standard RSA encoding for the string.
 <p>
@@ -235,24 +235,24 @@ def make_bsa(plaintext: str) -> tuple:
 <p>They want you to give to them a signature on the original message encoded in hex. Just the hex digits without any extra information.</p>
 <br />
 <p>Here's the information you already had.</p>
-<pre>
+<p class="text-monospace">
 M={M}
 N={n}
 e={e}
 r={r}
-</pre>
+</p>
 <p>
 You sent the server your blinded message M'.
 </p>
 <p>The server replied with the following message.</p>
-==============================================================================================<br />
+===============<br />
 Your message M has been signed and the response S has been given along with your message.<br />
-<pre>
+<p class="text-monospace">
 M={M_fake}
 
 S={S}
-</pre>
-=============================================================================================="""
+</p>
+==============="""
 	flag = S_fake
 	return description,flag
 
@@ -277,11 +277,11 @@ def make_fermat_chal(plaintext: str) -> tuple:
 	description =f"""<p>our friend told you about a group called the Transcendentalists. They gave you a challenge to get into their group. They say the answer is simply "Elementary". They want you to decrypt the message they gave you. </p>
 <p>When you see that the key is {n_len}bits in length they still tell you "It's Elementary my dear Watson." and refuse to say anything more.</p>
 
-<pre>
+<p class="text-monospace">
 C = {C}
 e = {e}
 n = {n}
-</pre>
+</p>
 <br />
 Free hint. This plaintext was encoded with OS2IP.
 """
@@ -308,9 +308,9 @@ def make_affine(plaintext: str, variety: int) -> tuple:
 	ct = affine_encrypt(plaintext,a,b)
 	crib = plaintext[0:4]
 	description = f"""<p>You happen upon a message scrawled on some old parchment.<br />The message is recreated below. It seems a man of culture has written it.</p>
-	<pre>
+	<p class="text-monospace">
 {ct}
-</pre>
+</p>
 	"""
 	if variety == 0:
 		description+=f"""You were able to find the 2 numbers scrawled on the back of the page. <pre>{a},{b}</pre>"""
