@@ -70,8 +70,6 @@ def challenge_view(request,challenge_id):
 	hints = Hints.objects.filter(challenge_id=chal['id']).values('id','level')
 	num_hints = hints.count()
 
-
-	print(hints)
 	chal = jsonify_queryset(chal)
 	hints = jsonify_queryset(hints)
 	resp = {'challenge': chal, 'hints': hints,'num_hints':num_hints,'solved':solved}
@@ -129,10 +127,7 @@ def solve(request,challenge_id):
 	#Make sure that all matches are case-insensitve for simplicty's sake.
 	answer = data['answer'].upper()
 	correct_flag = challenge.flag.upper()
-	print(answer)
 	solved = Solves.objects.filter(user=request.user,challenge_id=challenge_id).first()
-	print(correct_flag == answer)
-	print(correct_flag)
 	#if they have solved something don't do anything else.
 	if solved:
 		was_solved = True
@@ -171,7 +166,6 @@ def hint(request,hint_id):
 		print(unlocked)
 	else:
 		pass
-	print(unlocked)
 	#give them just the hint itself as part of the result.
 	revealed_hint = jsonify_queryset(Hints.objects.filter(id=hint_id).values('description'))
 	print(revealed_hint)
@@ -222,7 +216,6 @@ def solves(request):
 		all_solves = jsonify_queryset(user_solves.all())
 		num_solves = user_solves.count()
 
-	print(all_solves)
 	return render(request,"solves.html",{"objects":all_solves,'num_solves':num_solves})
 
 
@@ -235,7 +228,6 @@ def challenge_admin(request):
 		raise Http404()
 	print(request.method)
 	if request.method == "POST":
-		print('posted')
 		description = ''
 		flag = ''
 		content = json_decode(request.body)
@@ -264,10 +256,7 @@ def challenge_admin(request):
 			challenge.save()
 			#remove all solves for the challenge as it's been modified.
 			Solves.objects.filter(challenge_id=challenge.id).delete()
-			print('edited')
 		else:
-			print('else')
-			print(name,description,flag,points,category)
 			Challenges.objects.create(
 				name = name,
 				description = description,
@@ -378,7 +367,6 @@ def get_all_solves(request):
 def hint_admin(request,challenge_name):
 	if request.method == "POST":
 		content = json_decode(request.body)
-		print(content)
 		if content['id'] == 0:
 			new_hint = Hints.objects.create(
 				description=content['description'],
@@ -389,12 +377,10 @@ def hint_admin(request,challenge_name):
 			edit_hint = Hints.objects.get(pk=content['id'])
 			edit_hint.description = content['description']
 			edit_hint.level = content['level']
-			print(edit_hint)
 			edit_hint.save()
 
 		return JsonResponse({'OK':True})
 	else:
-		print(challenge_name)
 		challenge_hints = Hints.objects.filter(challenge__name=challenge_name)
 		num_hints = challenge_hints.count()
 		challenge_hints = jsonify_queryset(challenge_hints)
