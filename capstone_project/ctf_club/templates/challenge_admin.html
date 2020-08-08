@@ -21,7 +21,6 @@ Licensed AGPLv3 Or later (2020)
 		  });
 		  document.querySelectorAll('.manage_hints').forEach(el => {
 			  el.addEventListener("click", event => {
-				  console.log(el.dataset.sn);
 				  fetch_challenge_hints(el.dataset.sn);
 			  })
 		  });
@@ -36,13 +35,8 @@ Licensed AGPLv3 Or later (2020)
 		  });
 
 		  document.getElementById('manage_challenge_hint').addEventListener("click", event => {
-			  //event.preventDefault();
-			  const name = document.getElementById('challenge_modal_title').innerText;
 			  const el = document.getElementById('manage_challenge_hint');
-			  console.log('sn');
-			  console.log(el.dataset.sn);
 			  fetch_challenge_hints(el.dataset.sn, true);
-
 		  });
 		  //I have to delay the calling of this until jQuery is loaded. So I'm delaying it by ~30ms.
 		  window.setTimeout(() => {

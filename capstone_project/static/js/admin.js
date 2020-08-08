@@ -327,7 +327,6 @@ function fetch_challenge_hints(name,full=false){
 	challenge_name = encodeURI(challenge_name);
 	get(`/admin/challenge/hints/${challenge_name}/`,resp=>{
 		console.log(resp);
-
 		const len = resp.len;
 		let content = ''
 		if(len == 0){

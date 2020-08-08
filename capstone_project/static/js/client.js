@@ -44,7 +44,6 @@ function fetch_chal(challenge_id){
 		}
 
 		document.querySelectorAll('.hints').forEach(el=>{
-			console.log(el);
 			el.addEventListener('click',event=>{
 				fetch_hint(el.dataset.id);
 			});
@@ -83,7 +82,6 @@ function solve(event){
 		let alert = `<div class="alert ${type} alert-dismissible fade show" role="alert"> ${msg}</div>`
 		document.getElementById('alert_msg').innerHTML = alert;
 		window.setTimeout(()=>{
-			console.log('hit');
 				$('.alert').alert('close');
 		},3000);
 	});
@@ -109,8 +107,6 @@ function score_password(button_el,username,password,password_confirm_id){
 	let result=zxcvbn(password,inputs);
 	let guesses = result.guesses_log10;
 	let score;
-	console.log(guesses);
-	console.log(result.score);
 	if(guesses <= 5.6){
 		score = 0;
 	}
