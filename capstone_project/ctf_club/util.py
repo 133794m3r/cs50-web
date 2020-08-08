@@ -257,7 +257,7 @@ S={S}
 	return description,flag
 
 
-def make_fermat(plaintext: str) -> tuple:
+def make_fermat_chal(plaintext: str) -> tuple:
 	"""
 	Makes a challenge that requires the person to factor the public key via
 	Fermat's Near Prime Factorization method.
@@ -410,7 +410,7 @@ def make_fizzbuzz(start: int, end: int) -> tuple:
 CHALLENGE_FUNCS = {
 	"fizzbuzz":make_fizzbuzz,
 	"hba":make_hba,
-	"fermat":make_fermat,
+	"fermat":make_fermat_chal,
 	"hill":make_hill,
 	"bsa":make_bsa,
 	"rsa":make_rsa,

@@ -102,6 +102,7 @@ function modal_challenge(event,challenge_type,edit){
 		el2.setAttribute('aria-hidden',"true");
 
 	}
+	document.getElementById('manage_challenge_hint').dataset.sn = challenge_type
 	el.innerHTML = `<span>${chal.description}</span>`;
 	document.getElementById('challenge_modal_title').innerText = `${challenge_name}`; //-- Category:${chal.category}`;
 	document.getElementById('input_row').innerHTML = inner_content;
@@ -121,7 +122,6 @@ function modal_challenge(event,challenge_type,edit){
  */
 function modal_hint(element,edit=true){
 	const hint_id = element.dataset.id;
-	console.log(element)
 	document.getElementById('add_hint_modal').dataset.backdrop = 'static';
 	document.getElementById('add_hint_modal_title').innerText = (hint_id != 0) ? "Edit Hint" : "Add Hint";
 	document.getElementById("hint_challenge_name").value = element.dataset.cn;
@@ -331,13 +331,9 @@ function fetch_challenge_hints(name,full=false){
 		const len = resp.len;
 		let content = ''
 		if(len == 0){
-			console.log(challenge_name);
 			name = CHALLENGES[name].name;
-			console.log(name)
 			document.getElementById('hint_modal_title').innerText = `${name} : Hints`;
-
 			document.getElementById('add_hint').dataset.cn = name;
-			console.log(document.getElementById('add_hint'))
 		}
 		else if(len === 1){
 			document.getElementById('add_hint').dataset.cn = resp.hints.challenge_name;

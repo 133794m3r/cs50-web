@@ -188,7 +188,7 @@ def control_panel(request,username):
 			old_password=content['old_password']
 			new_password=content['new_password']
 			confirm_password=content['confirm_password']
-			print(content)
+
 			if old_password == '' or new_password == '':
 				msg = "Passwords can't be blank."
 			elif old_password != new_password and new_password == confirm_password:
@@ -199,6 +199,7 @@ def control_panel(request,username):
 					msg = "Password updated successfully."
 				else:
 					msg = "Password does not match your old password."
+
 			elif old_password == new_password:
 				msg = "New password is the same as the old password."
 			elif new_password != confirm_password:
