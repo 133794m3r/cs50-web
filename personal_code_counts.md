@@ -104,18 +104,20 @@ SUM:                            27            105             70            417
 ```
 
 ## Capstone Project
-CTF Club which is a WIP.
+CTF Club which is a WIP. All code counts are sans the libraries I have included
+for the JS and the CSS counts. Python is pretty much exact.
 ```
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                          20            296            362           1102
-Markdown                         2            115              0            592
-HTML                             7             30              0            531
-JavaScript                       6             20             56            207
-CSS                              2              1              6             12
+Python                          20            341            395           1293
+HTML                            10             59              0            959
+Markdown                         2            113              0            591
+JavaScript                       6             56             63            515
+CSS                              4              2             36             32
+JSON                             1              0              0              1
 -------------------------------------------------------------------------------
-SUM:                            37            462            424           2444
+SUM:                            43            571            494           3391
 -------------------------------------------------------------------------------
 ```
 

@@ -203,9 +203,12 @@ def make_bsa(plaintext: str) -> tuple:
 	l_n = calc_lambda(p,q)
 	e = calc_e(16,l_n)
 	d = mod_inv(e,l_n)
+	print(d)
 	r = calc_r(n)
+	print('r')
 	M_fake = (M*pow(r,e)) % n
 	S = pow(M_fake,d,n)
+	print('S')
 	S_fake = (S*mod_inv(r,n)) %n
 	M_fake = hex(M_fake).replace('L','')
 	S_fake = hex(S_fake).replace('L','')
@@ -237,7 +240,8 @@ S={S}
 </pre>
 =============================================================================================="""
 	flag = S_fake
-
+	print(flag)
+	print(description)
 	return description,flag
 
 
@@ -286,7 +290,7 @@ def make_affine(plaintext: str, variety: int) -> tuple:
 		description+=f"""You can make out the first few letters of the original message and they read "{crib}"
 """
 
-	return description,flag
+	return description,plaintext
 
 def make_fizzbuzz(start: int, end: int) -> tuple:
 	"""

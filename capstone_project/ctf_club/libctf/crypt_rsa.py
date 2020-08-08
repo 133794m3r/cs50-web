@@ -11,6 +11,15 @@
 # texts. Then the common Modulus.
 import secrets
 from .crypt_math import *
+from math import gcd
+
+def calc_r(n):
+	r=get_prime(8)
+	while gcd(r,n) != 1:
+		r=get_prime(8)
+	if gcd(r,n) != 1:
+		r=get_prime(8)
+	return r
 
 def common_modulus_attack(c1,c2,e1,e2,N):
 	a=0;
@@ -202,11 +211,11 @@ def rsa_decrypt(c,d,N):
 	return m
 def crt_e_maker(e,n_len=256):
 	p,q,N = calc_n(n_len)
-	lamda_n=calc_lamda(p,q)
+	lamda_n=calc_lambda(p,q)
 	gcd=0;
 	while gcd != 1:
 		p,q,N = calc_n(n_len)
-		lamda_n=calc_lamda(p,q)
+		lamda_n=calc_lambda(p,q)
 		gcd=gcd_fast(e,lamda_n)[0]
 	return p,q,N
 
@@ -222,9 +231,9 @@ def make_fermat_key(bit_width):
 	q=nextprime(q)
 	n=p*q
 	e_len=(n&1) + 15;
-	lamda_n=calc_lamda(p,q);
-	e=calc_e(e_len,lamda_n);
-	d=calc_d(e,lamda_n);
+	lambda_n=calc_lambda(p,q);
+	e=calc_e(e_len,lambda_n);
+	d=calc_d(e,lambda_n);
 	return p, q, n, e, d
 
 def make_fermat(bit_width):

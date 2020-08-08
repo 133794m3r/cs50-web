@@ -229,8 +229,9 @@ def challenge_admin(request):
 	if not request.user.is_staff or not request.user.is_superuser:
 		#return HttpResponseNotFound("<h1>Error 404</h1><h2> That route doesn't exist on this server.</h2>")
 		raise Http404()
-
+	print(request.method)
 	if request.method == "POST":
+		print('posted')
 		description = ''
 		flag = ''
 		content = json_decode(request.body)
@@ -249,10 +250,11 @@ def challenge_admin(request):
 				name +=f' - {variety}'
 				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext,variety)
 			else:
+				print(CHALLENGE_FUNCS[content['sn']])
 				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext)
 		points = content.get('points') or 100
 		print(content)
-		
+		print('here')
 		if content.get('edit'):
 			challenge = Challenges.objects.get(name=name)
 			challenge.description = description
@@ -261,7 +263,10 @@ def challenge_admin(request):
 			challenge.save()
 			#remove all solves for the challenge as it's been modified.
 			Solves.objects.filter(challenge_id=challenge.id).delete()
+			print('edited')
 		else:
+			print('else')
+			print(name,description,flag,points,category)
 			Challenges.objects.create(
 				name = name,
 				description = description,

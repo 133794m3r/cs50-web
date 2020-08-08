@@ -3,6 +3,7 @@
 # Macarthur Inbody 2019 - 2020
 # All Rights Reserved
 
+
 """
 gcd calculator using the Generalized Extended Euclidean Algorithm.
 
@@ -10,6 +11,9 @@ Python implementation of the extended euclidean algorithm for calculating the gc
 This code is the recursive variant as it is simpler.
 
 """
+from random import random
+
+
 def gcd_fast(a,b):
 	gcd=0;
 	x=0;
@@ -184,6 +188,12 @@ def make_list_string(input_str,input_str_len):
 		out[i]=chr(65+input_str[i]);
 
 	return ''.join(out);
+
+def affine_setup(string):
+	str_len=len(string)
+	numeric_str=make_numeric_list(string, str_len)
+
+	return (str_len,numeric_str)
 
 def affine_encrypt(input_str, a=None, b=None):
 	tmp=0
