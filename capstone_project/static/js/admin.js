@@ -18,6 +18,7 @@ function modal_challenge(event,challenge_type,edit){
 	let chal = CHALLENGES[challenge_type];
 	let challenge_name = chal.name;
 	switch(challenge_type) {
+		//only fizzbuzz is weird for right now. In the future it'll be more generalized.
 		case "fizzbuzz":
 		 //Code like the one below makes me thing I should've done it in react's JSX.
 		 inner_content = `<div class="col-6">
@@ -102,6 +103,15 @@ function modal_challenge(event,challenge_type,edit){
 	$('#challenge_modal').modal('toggle');
 }
 
+
+/**
+ * modal_hint
+ * this sets up the modal for the hint that you're editing at the time.
+ * 
+ * @param {element} The element that we're calling this from, as in what activated it.
+ * @param {edit} Whether we're editing a hint or adding a new one, defaults to true as that's the default case.
+ *
+ */
 function modal_hint(element,edit=true){
 	const hint_id = element.dataset.id;
 	console.log(element)
@@ -123,11 +133,25 @@ function modal_hint(element,edit=true){
 
 }
 
+
+/**
+ *
+ * check_len 
+ * This function checks the length of an input field(specified), and disables the button to submit
+ * it if the length is zero.
+ * 
+ * @param {input_id} the id of the input field we're checking.
+ * @param {button_id} The id of the button we're going to disable or enable.
+ */
 function check_len(input_id,button_id){
 	const len = document.getElementById(input_id).value.length;
 	document.getElementById(button_id).disabled = (len === 0 )
 }
 
+
+/**
+ *
+ */
 function submit_hint(){
 	let hint_id = parseInt(document.getElementById("hint_id").value)
 	const hint_level = parseInt(document.getElementById("hint_level").value);
@@ -157,6 +181,10 @@ function submit_hint(){
 	})
 }
 
+
+/**
+ *
+ */
 function submit_challenge(){
 	let content = {}
 	const sn = document.getElementById('sn').value;
@@ -225,6 +253,18 @@ function get_challenge_info(challenge_type,variety=0){
 	return tmp
 }
 
+
+/**
+ * set_challenge_info
+ * Sets the challenge info for a particular challenge after it's been updated
+ * from creating a new flag so that we have an up-to-date version of the data
+ * in the local caches.
+ * 
+ * @param {new_info} the object we're going to replace it with
+ * @param {challenge_type} the challenge's shortname
+ * @param {variety} The variety of the challenge. -1 means it has none. This is used for challenges that are part of a series.
+ * 
+ */
 function set_challenge_info(new_info,challenge_type,variety = -1){
 	let chal = {}
 	for(let challenge in FULL_CHALLENGES){
@@ -252,6 +292,16 @@ function set_challenge_info(new_info,challenge_type,variety = -1){
 	}
 }
 
+
+/**
+ *
+ * fetch_challenge_hints
+ * Fetches all hints for a particular challenge based upon it's name.
+ *
+ * @param {name} The challenge's shortname(or shorthand basically it's category)
+ * @param {full} Wether or not all varities have been utilized.
+ *
+ */
 function fetch_challenge_hints(name,full=false){
 	let challenge_name = name
 	if(full === false) {
@@ -310,6 +360,12 @@ function fetch_challenge_hints(name,full=false){
 	});
 }
 
+/**
+ *
+ * change_variety
+ * Changes the information for any challenge that has a variety. It'll load the new info upon the variety being changed.
+ *
+ */
 function change_variety(){
 	let sn = document.getElementById('sn').value;
 	let variety = document.getElementById('variety').value
