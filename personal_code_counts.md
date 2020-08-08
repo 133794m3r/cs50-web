@@ -104,7 +104,7 @@ SUM:                            27            105             70            417
 ```
 
 ## Capstone Project
-CTF Club which is a WIP. All code counts are sans the libraries I have included
+CTF Club which is now done I believe. All code counts are sans the libraries I have included
 for the JS and the CSS counts. Python is pretty much exact.
 ```
 -------------------------------------------------------------------------------

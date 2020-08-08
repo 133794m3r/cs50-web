@@ -48,14 +48,13 @@ Licensed AGPLv3 Or later (2020)
 			 });
 			 document.querySelectorAll('.passwords').forEach(el=>{
 			 	el.addEventListener('keyup',event=>{
-
 				 	let old_password = document.getElementById('old_password').value;
 				 	let new_password = document.getElementById('new_password').value;
 				 	let confirm_password = document.getElementById('confirm_password').value;
 					if(old_password == '' || new_password == '' || confirm_password == ''){
 						return;
 					}
-			 		score_password('change_password','',el.id,'confirm_password');
+			 		score_password('change_password','username',el.id,'confirm_password');
 				});
 			 })
 	  });
@@ -93,6 +92,7 @@ Licensed AGPLv3 Or later (2020)
 				<div class="input-group mb-3">
 					<input type="password" class="passwords" name="confirm_password" id="confirm_password" placeholder="Confirm Password" class=""/>
 				</div>
+					<input type="text" class="hidden" id="username" value="{{ request.user.username }}" />
 					<button class="btn btn-primary" type="submit"id="change_password">Change Password</button>
 			</div>
 
