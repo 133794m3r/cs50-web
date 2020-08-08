@@ -1,7 +1,8 @@
-#!/bin/python
-# Crypto Lab Library - Math Module
-# Macarthur Inbody 2019 - 2020
-# Licensed LGPLv3 or Later
+"""
+Crypto Lab Library - Hill Module
+Macarthur Inbody <admin-contact@transcendental.us>
+Licensed LGPLv3 or Later (2019 - 2020)
+"""
 
 from random import random
 

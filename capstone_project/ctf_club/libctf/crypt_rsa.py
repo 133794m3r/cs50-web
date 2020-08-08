@@ -1,11 +1,12 @@
-#!/bin/python
+"""
+Crypto Lab Library - RSA Library
 
-# Crypto Lab Library - RSA Library
-# This contains all of the functions to deal with the most common RSA attacks
-# and also the utilities required to do that.
-# Macarthur Inbody 2019 - 2020
-# LGPLv3 or Later
+This contains all of the functions to deal with the most common RSA attacks
+and also the utilities required to do that.
 
+Macarthur Inbody <admin-contact@transcendental.us>
+LGPLv3 or Later (2019 - 2020)
+"""
 
 #This does the hard work of actually getting you the plaintext back via the
 # common modulus attack. All you need to supply is both exponents, both cipher-

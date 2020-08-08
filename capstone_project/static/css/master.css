@@ -3,6 +3,7 @@
  * By Macarthur Inbody <admin-contact@transcendental.us>
  * Licensed AGPLv3 Or later (2020)
  */
+
 .hidden{
 	display:none;
 }
@@ -33,9 +34,3 @@
 .w-40{
 	width: 40% !important;
 }
-/*.modal:nth-of-type(even) {*/
-/*    z-index: 1052 !important;*/
-/*}*/
-/*.modal-backdrop.show:nth-of-type(even) {*/
-/*    z-index: 1051 !important;*/
-/*}*/

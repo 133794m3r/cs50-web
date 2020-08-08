@@ -40,5 +40,5 @@ Also requires Python 3.6 or later as it utilizes hashlib for Scrypt.
 
 pip3 install -r requirements.txt
 
-The sympy library is utilized for the RSA flags I could've wrote them myself but I decided against it.
+The sympy library is utilized for the RSA flags I could've wrote them myself but I decided against it. The pycryptodome package is only required if you want to generate public and private keys in PEM format.
 This includes all packages required.

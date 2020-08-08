@@ -1,12 +1,11 @@
-#!/bin/python
-# Crypto Lab Library - Hill Module
-# Macarthur Inbody 2019 - 2020
-# Licensed LGPLv3 or Later
-
 import random
 import re
 from .crypt_math import *
-
+"""
+Crypto Lab Library - Hill Module
+Macarthur Inbody <admin-contact@transcendental.us>
+Licensed LGPLv3 or Later (2019 - 2020)
+"""
 def make_matricies(num_matricies):
 	return list( list([[0,0],[0,0]]) for i in range(num_matricies))
 
