@@ -3,6 +3,8 @@ This folder contains the Capstone project that I wrote. It has the features list
 
 If you want to start from a fresh/clean slate. Delete the db.sqlite3 file and then run  ``python mage.py migrate``. I have the migrations already in the DB so that it's in the same state as when I recorded the video.
 
+## Youtube Link
+https://www.youtube.com/watch?v=mhvTJmAPKCM
 
 ## Major Features
 - [x] Utilizes Django
@@ -59,6 +61,22 @@ The paper goes into attacks suchas "e"th root attacks, Hastaad Broadcast with va
 #### Contents
 That paper goes over the linear algebra required to crack a message enciphered with a hill cipher(the crib is given to the person in the paper) but goes over basic matrix operations required to complete it. It's definitely not textbok quality by any stretch of the imagination.
 
+### UX Features
+- The modal dialogues all stack upon eachother in exact order.
+- Uses modal dialogues for modifying challenges/getting information
+- The frontend utilizes an API to get access to hints/challenges and the admin page uses the same api.
+- Fetch is used for getting all assets/api requests.
+- Local content is updated upon a submit if it's successful so that the local state is the same as the server.
+- Alerts are shown if the user gets a flag wrong and then it's removed.
+- Everything is labeled with "aria" attributes and when state is updated the attributes are also updated(to help screen readers).
+- The whole thing is mobile responsive via Bootstrap and also making sure that all elements scale accordingly
+
+### Security
+- Everything's done with Models
+- CSRF for all posts.
+- All user passwords are stored via ScryptPasswordHasher(a new hasher I wrote that utilizes scrypt)
+- All passwords have to meet a minimum strength requirement via ZXCVBN for the password to be submittable
+	- The minimum strength required where it would take 10**8 guesses to get their password.
 
 ## Full Feature List
 - Custom Password Authentication Hasher Class(Uses Scrypt from hashlib instead of default django hashers)
