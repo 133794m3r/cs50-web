@@ -162,13 +162,12 @@ def hint(request,hint_id):
 
 	if unlocked.count() == 0:
 		hint_unlock = HintsUnlocked.objects.create(hint_id=hint_id,user_id=request.user.id)
-#		hint_unlock.save()
-		print(unlocked)
+
 	else:
 		pass
 	#give them just the hint itself as part of the result.
 	revealed_hint = jsonify_queryset(Hints.objects.filter(id=hint_id).values('description'))
-	print(revealed_hint)
+
 	return JsonResponse(revealed_hint)
 
 
@@ -226,12 +225,11 @@ def challenge_admin(request):
 	if not request.user.is_staff or not request.user.is_superuser:
 		#return HttpResponseNotFound("<h1>Error 404</h1><h2> That route doesn't exist on this server.</h2>")
 		raise Http404()
-	print(request.method)
+
 	if request.method == "POST":
 		description = ''
 		flag = ''
 		content = json_decode(request.body)
-		print(content)
 		name = content['name']
 		category = content['category']
 		if content['sn'] == 'fizzbuzz':
@@ -242,12 +240,12 @@ def challenge_admin(request):
 			plaintext = content['plaintext']
 			if content['sn'] in ["affine","hill"]:
 				variety = content['variety']
-				#if content.get('edit'):
 				name +=f' - {variety}'
 				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext,variety)
 			else:
 				description,flag = CHALLENGE_FUNCS[content['sn']](plaintext)
 		points = content.get('points') or 100
+
 		if content.get('edit'):
 			challenge = Challenges.objects.get(name=name)
 			challenge.description = description
@@ -280,15 +278,16 @@ def challenge_admin(request):
 			#This is a hack until I modify the model to incldue the "variety" flag.
 			if '-' in challenge.name and challenge.name[-1].isdigit():
 				tmp_name = challenge.name[:-4]
-				variety = challenge.name[-1]
+				variety = int(challenge.name[-1])
 			else:
 				tmp_name = challenge.name
 				variety = None
+
 			if tmp_name in CHALLENGES_TEMPLATES_NAMES:
 				indexed = CHALLENGES_TEMPLATES_NAMES[tmp_name][1]
 				challenges_used.append(indexed)
 				challenge_template = CHALLENGES_TEMPLATES[indexed]
-				if variety:
+				if variety is not None:
 					if varieties_used.get(indexed):
 						varieties_used[indexed].append(variety)
 					else:
@@ -313,18 +312,18 @@ def challenge_admin(request):
 			if challenge['variety']:
 				if i in challenges_used:
 					if varieties_used.get(i):
-					#	print(varieties_used)
 						if len(varieties_used[i]) == 2:
 							challenge['edit'] = True
 					base_challenges.append(challenge)
 					all_challenges.append(challenge)
 				else:
 					challenge['edit'] = False
+					base_challenges.append(challenge)
 					all_challenges.append(challenge)
 			elif i not in challenges_used:
 				base_challenges.append(challenge)
 				all_challenges.append(challenge)
-
+				
 		return render(request,"challenge_admin.html", {"challenges":base_challenges,
 		                                               'json':json_encode(all_challenges)})
 
@@ -384,7 +383,6 @@ def hint_admin(request,challenge_name):
 		challenge_hints = Hints.objects.filter(challenge__name=challenge_name)
 		num_hints = challenge_hints.count()
 		challenge_hints = jsonify_queryset(challenge_hints)
-		print(challenge_hints)
 	return JsonResponse({'hints':challenge_hints,'len':num_hints})
 
 @login_required()

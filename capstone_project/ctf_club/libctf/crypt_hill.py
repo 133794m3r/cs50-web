@@ -1,4 +1,3 @@
-import random
 import re
 from .crypt_math import *
 """
@@ -58,10 +57,10 @@ def generate_random_key(modulus):
 	key=[[0,0],[0,0]]
 	maximum = modulus -1
 	while gcd != 1:
-		a=random.randint(0,maximum)
-		b=random.randint(0,maximum)
-		c=random.randint(0,maximum)
-		d=random.randint(0,maximum)
+		a=randint(0,maximum)
+		b=randint(0,maximum)
+		c=randint(0,maximum)
+		d=randint(0,maximum)
 		key[0][0]=a
 		key[0][1]=b
 		key[1][0]=c

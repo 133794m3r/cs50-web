@@ -4,7 +4,7 @@ Macarthur Inbody <admin-contact@transcendental.us>
 Licensed LGPLv3 or Later (2019 - 2020)
 """
 
-from random import random
+from random import randint
 
 """
 gcd calculator using the Generalized Extended Euclidean Algorithm.
@@ -56,21 +56,11 @@ def mod_inv(a,mod):
 	x=0;
 	y=0;
 	x=0;
-	# if a is less than 0 do this.
-#	if a < 0:
-		# while a is less than zero keep adding the abs value of the modulus to it.
-		#while a < 0:
-			#a+=x
-#		a %= mod
+
 	#use the extended euclidean algorithm to calculate the gcd and also bezout's coeffecients x and y.
 	gcd, x, y = gcd_fast(a,mod)
-	"""
-	if a < 0:
-		x*=-1
-	else:
-		x=1
-	"""
-#	print("gcd:{} x:{} y:{}",gcd,x,y);
+
+
 	#if the gcd is not 1 or -1 tell them that it's impossible to invert.
 	if gcd not in (-1,1):
 		raise ValueError('Inputs are invalid. No modular multiplicative inverse exists between {} and {} gcd:{}.\n'.format(a,mod,gcd))
@@ -201,10 +191,10 @@ def affine_encrypt(input_str, a=None, b=None):
 	str_len,numeric_str = affine_setup(input_str)
 	coprimes=[1,3,5,7,9,11,15,17,19,21,23,25]
 	if a is None:
-		tmp=random.randint(0,11)
+		tmp=randint(0,11)
 		a=coprimes[tmp]
 	if b is None:
-		b=random.randint(1,26)
+		b=randint(1,26)
 	for i in range(str_len):
 		numeric_str[i]=((numeric_str[i]*a)+b) % 26
 

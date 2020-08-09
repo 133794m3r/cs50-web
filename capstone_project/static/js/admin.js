@@ -205,7 +205,6 @@ function submit_challenge(){
 
 	if(chal.variety){
 		content['variety'] = parseInt(document.getElementById('variety').value);
-		document.getElementById('hint_modal_title').innerText = `${resp.hints.challenge_name} : Hints`
 		//Points are adjusted based upon the variety value. Where the point bonus is basically 1+(0.33*(variety)). Also
 		//I make sure that it's a nice even round number by making sure it ends in either a 5 or a zero.
 		points = Math.ceil(chal.points *(1+(content['variety']/3)))
@@ -240,7 +239,6 @@ function submit_challenge(){
 	})
 }
 
-
 /**
  *
  * @param challenge_type {string} The shortname for the challenge aka it's functional shorthand.
@@ -250,11 +248,12 @@ function submit_challenge(){
 function get_challenge_info(challenge_type,variety=0){
 	let tmp = {}
 	let chal = {}
+
 	for(let challenge in FULL_CHALLENGES){
 		chal = FULL_CHALLENGES[challenge];
-		if(chal.variety && chal.sn === challenge_type){
+		if(chal.variety !== false && chal.sn === challenge_type){
 			//only call this if a variety is set and the shortname is the same as the one we're trying to get.
-			if(chal.variety == variety) {
+			if(chal.variety === variety) {
 				tmp['full_description'] = chal.full_description;
 				tmp['flag'] = chal.flag;
 				tmp['variety'] = chal.variety;
@@ -263,6 +262,7 @@ function get_challenge_info(challenge_type,variety=0){
 			}
 		}
 	}
+	tmp['variety'] = undefined
 	return tmp
 }
 
@@ -377,13 +377,13 @@ function fetch_challenge_hints(name,full=false){
  */
 function change_variety(){
 	let sn = document.getElementById('sn').value;
-	let variety = document.getElementById('variety').value
+	let variety = parseInt(document.getElementById('variety').value)
 	let title = document.getElementById('challenge_modal_title').innerText
 	title = title.slice(0,-1);
 	title = title + variety;
 	document.getElementById('challenge_modal_title').innerText = title;
 	let tmp = get_challenge_info(sn,variety);
-	if(tmp.variety) {
+	if(tmp.variety !== undefined) {
 		document.getElementById('editing').checked = true
 		document.getElementById('full_description').innerHTML = `For reference, the old challenge is below here.<br /><br />${tmp.full_description}`;
 		document.getElementById('plain_text').value = tmp.flag;
