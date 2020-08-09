@@ -27,6 +27,9 @@ function like(event,element_id){
 			el.className = (result.liked?'like liked':'like');
 			document.getElementById(`likes-${id}`).innerText = result['likes'];
 		})
+		.catch(error=>{
+			console.log("Error:",error);
+		});		
 }
 //This will be called when they click the "edit post" link and will prevent it from redirecting if they have JS but if they don't
 //we'll take them to the "edit" view. Othewrise we'll simply get the post and replace the contents of new post with that data.
@@ -57,6 +60,9 @@ function follow_user(id){
 			document.getElementById('followers').innerText = result['followers'];
 			document.getElementById('following').innerText = result['following'];
 		})
+		.catch(error=>{
+			console.log("Error:",error);
+		});
 }
 
 function cookie_value(name){
@@ -99,4 +105,7 @@ function submit_edit(event){
 			document.getElementById('new_post').style.display = 'block';
 			document.getElementById('edit_post').style.display = 'none';
 		})
+		.catch(error=>{
+			console.log("Error:",error);
+		});
 }

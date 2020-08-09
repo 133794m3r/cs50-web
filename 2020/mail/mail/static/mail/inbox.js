@@ -113,6 +113,9 @@ function fetch_email(id,callback){
 		}).then(email=>{
 			return callback(email);
 		})
+		.catch(error=>{
+			console.log("Error:",error);
+		});		
 }
 
 function read_email(id,sent = false){
