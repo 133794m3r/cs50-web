@@ -29,6 +29,9 @@ function submit(route,content,callback){
 			if(callback){
 				callback(result)
 			}
+		})
+		.catch(error=>{
+			console.log("Error:",error);
 		});
 }
 
@@ -43,6 +46,9 @@ function get(route,callback){
 		.then(response =>response.json())
 		.then(result=>{
 			callback(result)
+		})
+		.catch(error=>{
+			console.log("Error:",error);
 		});
 }
 
