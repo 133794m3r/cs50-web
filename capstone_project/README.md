@@ -15,32 +15,32 @@ If you want to start from a fresh/clean slate. Delete the db.sqlite3 file and th
 
 ## Challenge Generators
 - RSA Attacks
- - Hastaad Broadcast Attack via Chinese Remainder Theorem (Just with e=3 to keep the challenge easy)
- - Fermat's Near Prime Factorization Attack
- - RSA Bling Signature Forgery
- - Common Modulus attack via Chinese Remainder Theorem
+	- Hastaad Broadcast Attack via Chinese Remainder Theorem (Just with e=3 to keep the challenge easy)
+	- Fermat's Near Prime Factorization Attack
+	- RSA Bling Signature Forgery
+	- Common Modulus attack via Chinese Remainder Theorem
 - FizzBuzz based challenge.
 - Affine Cipher
- - Both a keyed and a cribbed varient for students to solve.
+	- Both a keyed and a cribbed varient for students to solve.
 - Hill Cipher
- - Same as above a keyed and a cribbed variant. Just a 2x2 matrix for simplicity's sake.
+	- Same as above a keyed and a cribbed variant. Just a 2x2 matrix for simplicity's sake.
 
 ### Where to see the Generators
 The generators themselves are mostly in the util.py file.
 
 ## Math Involved
 - Discrete Math
- - Carmachael's Totient function
- - Extended Euclidean Algorithm for use in calculated GCD generalized to work for all integers of the set Z(both a and b).
- - RSA key generators(variable size based upon input so that the key is the minimal size required to keep information from being lost during encryption/decryption)
- - Hastaad's Broadcast Attack via the Chinese Remainder Theorem
- - Common Modulus Attack
- - RSA Blinded Signature Forgery
+	- Carmachael's Totient function
+	- Extended Euclidean Algorithm for use in calculated GCD generalized to work for all integers of the set Z(both a and b).
+	- RSA key generators(variable size based upon input so that the key is the minimal size required to keep information from being lost during encryption/decryption)
+	- Hastaad's Broadcast Attack via the Chinese Remainder Theorem
+	- Common Modulus Attack
+	- RSA Blinded Signature Forgery
 
 - Elementary Number Theory(or so I believe)
- - Fermat's factorization method
+	- Fermat's factorization method
 - Linear Algebra
- - Hill cipher's calculation of the decryption key.
+	- Hill cipher's calculation of the decryption key.
 
 All of the fields of math are best estimates as I have no formal math background and have learned what I know by doing CTF challenges and reading research papers.
 
@@ -72,7 +72,7 @@ That paper goes over the linear algebra required to crack a message enciphered w
 - Mobile Responsive
 - From the Admin page someone can modify/create a challenge by simply typing in some information into the modal dialogue and letting the server do the rest.
 - Views that should only be seen by logged in users are proteced via decorators,
-    - only certain methods are allowed for each view.
+	- only certain methods are allowed for each view.
 - Models are setup with many different relational types.
 - Challenges are shown via a modal-dialogue for the user upon clicking on one.
 - User control panel(simply lets them update their password right now, and shows their solves)
