@@ -23,7 +23,7 @@ function submit(route,content,callback){
 		},
 		credentials:"same-origin",
 		body:JSON.stringify(content)
-	})
+		})
 		.then(response=>response.json())
 		.then(result=>{
 			if(callback){
