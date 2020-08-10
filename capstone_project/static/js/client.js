@@ -81,8 +81,12 @@ function solve(event){
 		}
 		let alert = `<div class="alert ${type} alert-dismissible fade show" role="alert"> ${msg}</div>`
 		document.getElementById('alert_msg').innerHTML = alert;
-		window.setTimeout(()=>{
+
+		document.getElementById('challenge_body').scrollTop += 100
+		window.setTimeout((old_top)=>{
 				$('.alert').alert('close');
+				document.getElementById('challenge_body').scrollTop += 100
+				//window.scrollTop = old_top;
 		},3000);
 	});
 }

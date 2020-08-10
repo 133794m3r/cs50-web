@@ -69,9 +69,11 @@ Licensed AGPLv3 Or later (2020)
 			<h1 class="font-weight-bold">{{ request.user }}'s Page</h1>
 		</div>
 	</div>
-
 	<div id="" class="row w-100">
 		<div class="pr-5">
+			<h3>
+			Current Points: {{ points }} &nbsp;
+			</h3>
 			<h3>
 			<a href="{% url 'solved_challenges' %}">See your solves</a>
 			</h3>

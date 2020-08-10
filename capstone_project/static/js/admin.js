@@ -232,7 +232,7 @@ function submit_challenge(){
 		let variety = content['variety'] || -1;
 		if(variety === -1){
 			CHALLENGES[sn].flag = response.flag;
-			CHALLENGES[sn].description = response.description;
+			CHALLENGES[sn].full_description = response.description;
 		}
 		set_challenge_info(response,sn,variety);
 
@@ -245,7 +245,7 @@ function submit_challenge(){
  * @param variety {number} The variety.
  * @returns {object} Will return the object with the various fields I need to get.
  */
-function get_challenge_info(challenge_type,variety=0){
+function get_challenge_info(challenge_type,variety=-1){
 	let tmp = {}
 	let chal = {}
 

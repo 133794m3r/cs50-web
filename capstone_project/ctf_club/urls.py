@@ -20,4 +20,5 @@ urlpatterns = [
 	re_path(r"^admin/challenge/hints/(?P<challenge_name>.+?)/$",views.hint_admin,name="admin_hint"),
 	path("admin/solves", views.solves_admin, name="solves_admin"),
 	path("admin/",views.admin_view,name="admin"),
+	path("highscores/",views.high_scores,name="high_scores")
 ]

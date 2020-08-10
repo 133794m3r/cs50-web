@@ -82,15 +82,14 @@ def make_rsa(plaintext: str) -> tuple:
 	e = hex(e).replace('L','')
 	N = hex(N).replace('L','')
 	description = f"""<p>You see a strange message popup on neppit as you're scrolling through your feed it looks interesting
-so you click on it. It leads to you to two files one a text file and the other an encrypted disk image....</p><br />
+so you click on it. It leads to you to two files one a text file and the other an encrypted disk image....</p>
 <p>
 As you open up the file you see the message below come across your screen.
 </p>
-<br />
 <p>
 Recalling your prior training you know that e is the exponent, n is the modulus, and that C is the ciphertext. 
 The message seems important, the only hint you're given is that the message is encoded with a naive form.
-</p><br />
+</p>
 <p class="text-monospace">
 e={e}<br />
 C={C}<br />
@@ -236,9 +235,7 @@ def make_bsa(plaintext: str) -> tuple:
 <p>The Transcendentalists want you to forge a signature on the message "Use hashes to mitigate Blind Signing Attacks". They have thankfully let you send your message to their signing server to have it signed.</p>
 <p>You and your friend already setup a blinded signature now it's up to you to get the signature on the original message.</p>
 <p>You set your random integer r as {r}. The server sent you back the information attached.</p>
-<br />
 <p>They want you to give to them a signature on the original message encoded in hex. Just the hex digits without any extra information.</p>
-<br />
 <p>Here's the information you already had.</p>
 <p class="text-monospace">
 M={M}<br />
@@ -484,6 +481,7 @@ def jsonify_queryset(queryset: object) -> dict:
 		return queryset
 	elif len(queryset) > 1:
 		for result in queryset:
+			print(result)
 			if type(result) is dict:
 				out.append(result)
 			else:

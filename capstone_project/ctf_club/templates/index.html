@@ -83,7 +83,7 @@ Licensed AGPLv3 Or later (2020)
 					 <span aria-hidden="true">&times;</span>
 				 </button>
 				</div>
-				<div class="modal-body">
+				<div class="modal-body" id="challenge_body">
 					<div class="row m-2">
 						<div class="col-11 text-center">
 							<h3 id="points"></h3>
@@ -104,9 +104,11 @@ Licensed AGPLv3 Or later (2020)
 
 					<div class="row submit-row w-100">
 						<div class="col-md-9 form-group">
+
 							<input id="answer" type="text" placeholder="Flag" class="form-control" />
 							<input id="challenge_id" type="text" aria-hidden="true" class="hidden" />
 						</div>
+
 						{% csrf_token %}
 						<div class="col-md-3 form-group">
 							<button id="solve_chal" type="button" class="btn btn-secondary">Attempt Solve</button>

@@ -1,5 +1,5 @@
-from django.shortcuts import render
 from django.db import IntegrityError
+from django.shortcuts import  render
 from django.http import JsonResponse, HttpResponseRedirect,HttpResponse,HttpResponseNotFound,Http404
 from django.urls import reverse
 from django.contrib.auth import authenticate,login,logout,update_session_auth_hash
@@ -7,7 +7,6 @@ from django.contrib.auth.decorators import  login_required
 from django.views.decorators.http import require_http_methods
 from json import loads as json_decode
 from json import dumps as json_encode
-from django.contrib.auth.forms import PasswordChangeForm
 
 """
 CTFClub Project
@@ -127,6 +126,7 @@ def solve(request,challenge_id):
 	#Make sure that all matches are case-insensitve for simplicty's sake.
 	answer = data['answer'].upper()
 	correct_flag = challenge.flag.upper()
+	points = challenge.points
 	solved = Solves.objects.filter(user=request.user,challenge_id=challenge_id).first()
 	#if they have solved something don't do anything else.
 	if solved:
@@ -143,6 +143,13 @@ def solve(request,challenge_id):
 		challenge.num_solves +=1
 		challenge.save()
 		was_solved = True
+		#Really really stupid way to do an update statement here. But MVC is the future they say.
+		# would be so much simpler to simply do an sql query like.
+		# update ctf_club_user set points = points + challenge_points where id = user_id
+		#One clean line of SQL instead of 3 lines of nonsense.
+		user = User.objects.get(pk=request.user.id)
+		user.points+=points
+		user.save()
 	#otherwise no solve was had.
 	else:
 		was_solved = False
@@ -174,7 +181,7 @@ def hint(request,hint_id):
 @login_required(login_url='login')
 @require_http_methods(["GET","POST"])
 def control_panel(request,username):
-	form = PasswordChangeForm(request.user)
+
 	if request.user.is_authenticated:
 		if request.method == "POST":
 			content = json_decode(request.body)
@@ -199,8 +206,9 @@ def control_panel(request,username):
 				msg = "New passwords must match."
 
 			return JsonResponse({'ok':True,'msg':msg})
+	points = User.objects.get(username=username).points
 
-	return render(request,'control_panel.html',{'form':form})
+	return render(request,'control_panel.html',{'points':points})
 
 
 @login_required(login_url='login')
@@ -252,8 +260,13 @@ def challenge_admin(request):
 			challenge.flag = flag
 			challenge.num_solves = 0
 			challenge.save()
-			#remove all solves for the challenge as it's been modified.
-			Solves.objects.filter(challenge_id=challenge.id).delete()
+			#remove all solves for the challenge as it's been modified
+			old_solves = Solves.objects.filter(challenge_id=challenge.id)
+			for user_solve in old_solves:
+				User.objects.filter(pk=user_solve.user_id).update(points=0)
+			#delete the old solves finally.
+			old_solves.delete()
+
 		else:
 			Challenges.objects.create(
 				name = name,
@@ -388,3 +401,8 @@ def hint_admin(request,challenge_name):
 @login_required()
 def admin_view(request):
 	return render(request,"solves_admin.html",{'solves:solves'})
+
+
+def high_scores(request):
+	top_users = User.objects.values('points','username','id').order_by('-points','username')[:10]
+	return JsonResponse(jsonify_queryset(top_users),safe=False)
