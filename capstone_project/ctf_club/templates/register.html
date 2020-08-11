@@ -12,7 +12,7 @@ Licensed AGPLv3 Or later (2020)
 		document.getElementById("check_captcha").addEventListener("click",event=>{check_captcha()});
 	})
 	function check_captcha(){
-		const ans = parseInt(document.getElementById('captcha_ans').value);
+		const ans = parseInt(document.getElementById('year').value);
 		const content = {'captcha_ans':ans}
 		submit("/captcha/",content,resp=>{
 			const el = document.getElementById('alert_msg')
@@ -20,13 +20,13 @@ Licensed AGPLv3 Or later (2020)
 				//el.innerText = resp.msg;
 				//el.className = "alert alert-warning";
 				//document.getElementById('captcha_msg').innerText = resp.captcha_msg;
-				document.getElementById('captcha_container').hidden = false;
+				document.getElementById('year_container').hidden = false;
 				document.getElementById('solved_it').hidden = true;
 			}
 			else{
 				//el.innerText = resp.msg;
 				//el.className = "alert alert-success";
-				document.getElementById('captcha_container').hidden = true;
+				document.getElementById('year_container').hidden = true;
 				document.getElementById('solved_it').hidden = false;
 			}
 		})
@@ -55,10 +55,10 @@ Licensed AGPLv3 Or later (2020)
 			{% endif %}
 		</div>
 		<div class="row">
-			<div class="col">
+			<div class="col-12">
 				<form action="{% url 'register' %}" method="post">
 					{% csrf_token %}
-					<div class="input-group mb-3">
+					<div class="input-group mb-3 col-5">
 						<div class="input-group-prepend">
 							<label for="username" class="input-group-text">
 								Username
@@ -67,7 +67,7 @@ Licensed AGPLv3 Or later (2020)
 						<input type="text"
 								 class="form-control" name="username" id="username" placeholder="UserName">
 					</div>
-					<div class="input-group mb-3">
+					<div class="input-group mb-3 col-5">
 						<div class="input-group-prepend">
 							<label for="password" class="input-group-text">
 								Password
@@ -77,7 +77,7 @@ Licensed AGPLv3 Or later (2020)
 								 class="form-control" name="password" id="password" placeholder="Enter Password" onchange="score_password()">
 
 					</div>
-					<div class="input-group mb-3">
+					<div class="input-group mb-3 col-5">
 						<div class="input-group-prepend">
 							<label for="password_confirm" class="input-group-text">
 								Confirm
@@ -85,17 +85,20 @@ Licensed AGPLv3 Or later (2020)
 						</div>
 						<input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Password Confirmation" onkeyup="score_password('submission','username','password','password_confirm')">
 					</div>
-					<div class="input-group mb-3 row" id="solved_it" hidden="true" aria-hidden="true">
+					<div class="input-group mb-3 row col-12" id="solved_it" hidden="true" aria-hidden="true">
 						<div class="col-md-12">
 							<h2>Captcha Already Solved</h2>
 						</div>
 					</div>
-					<div class="input-group mb-3 row" id="captcha_container">
-						<div class="col-md-6">
-							<h3 id="captcha_msg">{{ captcha_msg }} = </h3>
+					<div class="input-group mb-3 row col-11" id="year_container">
+						<div class="col-md-auto">
+							<h3 id="content_msg">{{ captcha_msg }}</h3>
 						</div>
-						<div class="col-md-4">
-							<input type="number" name="captcha_ans" class="form-control" id="captcha_ans" placeholder="?" />
+						<div class="col-md-3 input-group mb-3">
+							<div class="input-group-prepend">
+								<label for="year" class="input-group-text" style="max-height:3rem">=</label>
+							</div>
+							<input type="number" name="year" class="form-control" id="year" placeholder="?" />
 						</div>
 						<div class="col-md-2">
 							<button type="button" class="btn btn-secondary" id="check_captcha" >Check Captcha</button>

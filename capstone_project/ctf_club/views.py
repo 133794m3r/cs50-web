@@ -38,21 +38,60 @@ def index(request):
 	return render(request,"index.html",{'objects':chals})
 
 @require_http_methods(["GET","POST"])
-@ratelimit(key='ip',rate='10/m',method=ratelimit.UNSAFE)
+@ratelimit(key='ip',rate='30/m',method=ratelimit.UNSAFE)
+@ratelimit(key='post:username',rate='5/m',method=ratelimit.UNSAFE)
 def login_view(request):
+	if is_ratelimited(request):
+		request.session['require_captcha'] = True
+		request.session['captcha_valid'] = False
+	else:
+		request.session['require_captcha'] = False
+
+	show_captcha = False
+	captcha_msg = ''
+
+	if request.session.get('require_captcha',False) and not request.session.get('captcha_valid',False):
+		captcha_msg,ans = simple_math()
+		show_captcha = True
+		old_ans = request.session.get('captcha_answer')
+		if old_ans is None:
+			old_ans = ans
+		request.session['captcha_answer'] = ans
+
 	if request.method == "POST":
 		username = request.POST["username"]
 		password = request.POST["password"]
+
+		#if they're rate-limited send this message.
+		if is_ratelimited(request):
+			print(show_captcha)
+			print(captcha_msg)
+			return render(request,"login.html",{
+				"message":"You're trying to fast please slow down.",
+				"show_captcha":show_captcha,
+				"captcha_msg":captcha_msg
+			})
+
+		#if the captcha is wrong then don't even bother trying to auth them.
+		if request.session.get('require_captcha',False):
+			if not request.session.get('captcha_valid',False):
+				if request.POST.get('captcha_ans') != old_ans:
+					return render(request,"login.html",{
+						"message":"Incorrect Captcha",
+						"show_captcha":show_captcha,
+						"captcha_msg":captcha_msg
+					})
+
 		user = authenticate(request,username=username,password=password)
-		print(getattr(request,'limited',False))
-		if getattr(request,'limited',False):
-			return render(request,"login.html",{"message":"You're trying to fast please slow down."})
+
 		if user is not None:
 			login(request,user)
 			return HttpResponseRedirect(reverse("index"))
 		else:
 			return render(request,"login.html",{
-				"message":"Invalid username and/or password."
+				"message":"Invalid username and/or password.",
+				"show_captcha":show_captcha,
+				"captcha_msg":captcha_msg
 			})
 	else:
 		return render(request,"login.html")
@@ -88,7 +127,7 @@ def challenge_view(request,challenge_id):
 	return JsonResponse(resp)
 	
 @require_http_methods(["GET","POST"])
-@ratelimit(key='ip',rate='10/m',method=ratelimit.UNSAFE)
+@ratelimit(key='ip',rate='60/m',method=ratelimit.UNSAFE)
 def register(request):
 	if request.user.is_authenticated:
 		return HttpResponseRedirect('index')
@@ -147,7 +186,7 @@ def register(request):
 				"message":"Username must be unique.",
 				"captcha_msg": captcha_msg
 			})
-
+		request.session['captcha_valid'] = False
 		return HttpResponseRedirect(reverse("index"))
 	else:
 		request.session['captcha_answer'] = ans
@@ -272,6 +311,8 @@ def solves(request):
 @require_http_methods(["GET","POST"])
 @ratelimit(key='user',rate='1/s')
 def challenge_admin(request):
+	#for the sorting of the challenges later.
+	from operator import itemgetter
 	#If the user is not an admin or in the staff pretend like this route doesn't exist.
 	if not request.user.is_staff or not request.user.is_superuser:
 		#return HttpResponseNotFound("<h1>Error 404</h1><h2> That route doesn't exist on this server.</h2>")
@@ -379,8 +420,9 @@ def challenge_admin(request):
 			elif i not in challenges_used:
 				base_challenges.append(challenge)
 				all_challenges.append(challenge)
-				
-		return render(request,"challenge_admin.html", {"challenges":base_challenges,
+
+		new_chals = sorted(base_challenges,key=itemgetter('category','sn','name'))
+		return render(request,"challenge_admin.html", {"challenges":new_chals,
 		                                               'json':json_encode(all_challenges)})
 
 

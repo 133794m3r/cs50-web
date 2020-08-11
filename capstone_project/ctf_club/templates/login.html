@@ -24,6 +24,29 @@ Licensed AGPLv3 Or later (2020)
 				  <input class="form-control" type="password" name="password" placeholder="Password">
 			  </label>
 		  </div>
+			<div class="input-group mb-3 row" id="solved_it" hidden="true" aria-hidden="true">
+				<div class="col-md-12">
+					<h3>Captcha Already Solved</h3>
+				</div>
+			</div>
+	 		{% if show_captcha %}
+				<div class="input-group mb-3 row" id="year_container">
+			{% else %}
+				<div class="input-group mb-3 row" id="year_container" hidden="true">
+			{% endif %}
+				<div class="col-md-auto">
+					<h4 id="content_msg">{{ captcha_msg }}</h4>
+				</div>
+				<div class="col-md-2 input-group mb-3">
+					<div class="input-group-prepend">
+						<label for="year" class="input-group-text">=</label>
+					</div>
+					<input type="number" name="year" class="form-control" id="year" placeholder="?" />
+				</div>
+				<div class="col-md-2">
+					<button type="button" class="btn btn-secondary" id="check_captcha" >Check Captcha</button>
+				</div>
+			</div>
         <input class="btn btn-primary" type="submit" value="Login">
     </form>
 
