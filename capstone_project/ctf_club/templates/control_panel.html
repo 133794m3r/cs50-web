@@ -66,7 +66,7 @@ Licensed AGPLv3 Or later (2020)
 
 	<div class="row">
 		<div class="col-12 text-center w-100">
-			<h1 class="font-weight-bold">{{ request.user }}'s Page</h1>
+			<h1 class="font-weight-bold">{{ username }}'s Page</h1>
 		</div>
 	</div>
 	<div id="" class="row w-100">
@@ -75,6 +75,7 @@ Licensed AGPLv3 Or later (2020)
 			Current Points: {{ points }} &nbsp;
 			</h3>
 			<h3>
+			{% if request.user.username == username %}
 			<a href="{% url 'solved_challenges' %}">See your solves</a>
 			</h3>
 		</div>
@@ -105,6 +106,7 @@ Licensed AGPLv3 Or later (2020)
 				</div>
 				<span id="password_feedback"></span>
 			</div>
+			{% endif %}
 		</div>
 		</div>
 	</div>

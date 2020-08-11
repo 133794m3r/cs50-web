@@ -481,7 +481,6 @@ def jsonify_queryset(queryset: object) -> dict:
 		return queryset
 	elif len(queryset) > 1:
 		for result in queryset:
-			print(result)
 			if type(result) is dict:
 				out.append(result)
 			else:
