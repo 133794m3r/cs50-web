@@ -7,7 +7,31 @@ Licensed AGPLv3 Or later (2020)
 {% endcomment %}
 {% block head %}
 	<script type="text/javascript" defer async src="{% static '/js/zxcvbn.js' %}"></script>
-
+	<script type="text/javascript">
+	document.addEventListener("DOMContentLoaded",()=>{
+		document.getElementById("check_captcha").addEventListener("click",event=>{check_captcha()});
+	})
+	function check_captcha(){
+		const ans = parseInt(document.getElementById('captcha_ans').value);
+		const content = {'captcha_ans':ans}
+		submit("/captcha/",content,resp=>{
+			const el = document.getElementById('alert_msg')
+			if(resp.error){
+				//el.innerText = resp.msg;
+				//el.className = "alert alert-warning";
+				//document.getElementById('captcha_msg').innerText = resp.captcha_msg;
+				document.getElementById('captcha_container').hidden = false;
+				document.getElementById('solved_it').hidden = true;
+			}
+			else{
+				//el.innerText = resp.msg;
+				//el.className = "alert alert-success";
+				document.getElementById('captcha_container').hidden = true;
+				document.getElementById('solved_it').hidden = false;
+			}
+		})
+	}
+	</script>
 	<style>
 	#score{
 		font-size:1.1em;
@@ -25,12 +49,11 @@ Licensed AGPLv3 Or later (2020)
 	<main role="main" class="container">
 	<div class="">
 	<h1>Register</h1>
-
-		{% if message %}
-			<div class="alert alert-warning" role="alert">
+		<div class="alert hidden" role="alert" id="alert_msg">
+			{% if message %}
 				{{ message }}
-			</div>
-		{% endif %}
+			{% endif %}
+		</div>
 		<div class="row">
 			<div class="col">
 				<form action="{% url 'register' %}" method="post">
@@ -62,13 +85,23 @@ Licensed AGPLv3 Or later (2020)
 						</div>
 						<input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Password Confirmation" onkeyup="score_password('submission','username','password','password_confirm')">
 					</div>
-					<div class="align-center row">
-						<div class="col-lg-auto">
-							<input class="" type="checkbox" value="" id="agree" required>
-							<label class="form-check-label" for="agree">
-							I Agree to All Terms and Conditions
-							</label>
+					<div class="input-group mb-3 row" id="solved_it" hidden="true" aria-hidden="true">
+						<div class="col-md-12">
+							<h2>Captcha Already Solved</h2>
 						</div>
+					</div>
+					<div class="input-group mb-3 row" id="captcha_container">
+						<div class="col-md-6">
+							<h3 id="captcha_msg">{{ captcha_msg }} = </h3>
+						</div>
+						<div class="col-md-4">
+							<input type="number" name="captcha_ans" class="form-control" id="captcha_ans" placeholder="?" />
+						</div>
+						<div class="col-md-2">
+							<button type="button" class="btn btn-secondary" id="check_captcha" >Check Captcha</button>
+						</div>
+					</div>
+					<div class="align-center row">
 						<div class="col-lg-auto">
 						<button type="submit" class="btn btn-lg btn-primary" id="submission" disabled>Submit</button>
 						</div>

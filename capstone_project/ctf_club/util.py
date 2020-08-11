@@ -87,7 +87,7 @@ so you click on it. It leads to you to two files one a text file and the other a
 As you open up the file you see the message below come across your screen.
 </p>
 <p>
-Recalling your prior training you know that e is the exponent, n is the modulus, and that C is the ciphertext. 
+Recalling your prior training you know that e is the exponent, n is the modulus, and that C is the ciphertext.
 The message seems important, the only hint you're given is that the message is encoded with a naive form.
 </p>
 <p class="text-monospace">
@@ -426,7 +426,7 @@ CATEGORIES = ["Classical Crypto","Modern Crypto","Programming"]
 
 CHALLENGES_TEMPLATES = [
 	{"name":"Cola and the Bee", "sn":"fizzbuzz", "category":"Programming", "description":
-		"""This is a basic fizzbuzz challenge where you have to  provide a min an maximum number. 
+		"""This is a basic fizzbuzz challenge where you have to  provide a min an maximum number.
 		The maximum minus 1 is the number that is counted to.""",
 	 "points":75, "variety":False},
 	{"name":"Really Simple Algorithm - Frenchman's Revenge", "sn":"fermat", "category":"Modern Crypto", "description":
@@ -497,3 +497,107 @@ def jsonify_queryset(queryset: object) -> dict:
 			return queryset.to_dict()
 
 	return out
+
+def rot_encode(msg):
+	shift = randint(1,25)
+	out = ''
+	for c in msg:
+		x = ord(c)
+		if 65 <= x <= 90:
+			#add the shift.
+			x+=shift;
+			#if it's greater than 'Z'.
+			if x>=90:
+				#handle overflows.
+				x=(x-90)+64;
+		
+		#else if it's lowercase ascii.
+		elif 97 <= x <= 122:
+			#same thing again.
+			x+=shift;
+			#same if it's greater than 'z'.
+			if x>=122:
+				#handle overflow.
+				x=(x-122)+96;
+		
+		out += chr(x)
+	return out
+
+#since this is a ctf site I'll have them solve a simple ceaser cipher message along with a basic math question.
+def make_rot_captcha():
+	translation = {'A':['Alpha','Afirm','Able'],
+	'B':['Bravo','Baker','Buy'],
+	'C':['Charlie','Charlie','Cast'],
+	'D':['Delta','Dog','Dock'],
+	'E':['Echo','Easy','Easy'],
+	'F':['Foxtrot','Fox','France'],
+	'G':['Golf','George','Greece'],
+	'H':['Hotel','How','Have'],
+	'I':['India','Italy','Item'],
+	'J':['Juliet','Jig','John'],
+	'K':['Kilo','Kimberly','King'],
+	'L':['Lima','Love','Lima'],
+	'M':['Mama','Mary','Mike'],
+	'N':['November','Nan','Nap'],
+	'O':['Oscar','Oboe','Opal'],
+	'P':['Papa','Peter','Pup'],
+	'Q':['Quebec','Queen','Quack'],
+	'R':['Romeo','Roger','Rush'],
+	'S':['Sierra','Sugar','Sail'],
+	'T':['Tango','Tare','Tape'],
+	'U':['Uniform','Uncle','Unit'],
+	'V':['Victor','Victor','Vice'],
+	'W':['Whiskey','William','Watch'],
+	'X':['Xray','X-ray','X-Ray'],
+	'Y':['Yankee','York','Yoke'],
+	'Z':['Zulu','Zebra','Zed']}
+
+	words = ['COME', 'DEAD', 'DIED', 'FOUR', 'FROM', 'FULL', 'GAVE', 'HAVE', 'HERE', 'LAST', 'LIVE', 'LONG', 'NOTE', 'POOR', 'TAKE', 'TASK', 'THAT', 'THEY', 'THIS', 'THUS', 'VAIN', 'WHAT', 'WILL', 'WORK', 'ABOVE', 'BIRTH', 'BRAVE', 'CAUSE', 'CIVIL', 'EARTH', 'EQUAL', 'FIELD', 'FINAL', 'FORTH', 'GREAT', 'LIVES', 'MIGHT', 'NEVER', 'NOBLY', 'PLACE', 'POWER', 'SCORE', 'SENSE', 'SEVEN', 'SHALL', 'THEIR', 'THESE', 'THOSE', 'UNDER', 'WHICH', 'WORLD', 'YEARS', 'BEFORE', 'ENDURE', 'FORGET', 'FOUGHT', 'GROUND', 'HALLOW', 'HIGHLY', 'LARGER', 'LITTLE', 'LIVING', 'NATION', 'PEOPLE', 'PERISH', 'PROPER', 'RATHER', 'SHOULD', 'BROUGHT', 'CREATED', 'DETRACT']
+	word_len = 70
+	word = words[randint(0,70)]
+	msg = ''
+	for c in word:
+		msg += translation[c][randint(0,2)] + ' '
+	captcha_msg = rot_encode(msg)
+
+	return captcha_msg,msg
+
+
+def simple_math():
+	a = randint(0,12)
+	b = randint(0,12)
+	ans = 0
+	captcha_str = ''
+	method = randint(0,3)
+
+	if method == 0:
+		b = randint(0,12)
+		ans = a+b
+		op = "plus" if randint(1,3) == 1 else "+"
+
+	elif method == 1:
+		a = randint(b,12)
+		ans = a - b
+		op = "minus" if randint(1,3) == 1 else "-"
+	elif method == 2:
+		ans = a * b
+		op = "times" if randint(1,3) == 1 else "*"
+	elif method == 3:
+		c = a * b
+		if b > a:
+			ans = a
+			a = c
+		else:
+			ans = b
+			b = a
+			a = c
+		op = "divided by" if randint(0,1) == 1 else "/"
+
+	num_str = {0: 'Zero', 1: 'One', 2: 'Two', 3: 'Three',
+	           4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven',
+	           8: 'Eight', 9: 'Nine', 10: 'Ten', 11: 'Eleven',
+	           12:'Twelve'}
+	b = num_str[b] if randint(1,5) == 1 else b
+
+	return f"{a} {op} {b}",ans
+

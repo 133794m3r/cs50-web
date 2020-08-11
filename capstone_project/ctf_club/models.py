@@ -13,10 +13,10 @@ class User(AbstractUser):
 	points = models.IntegerField(default=0)
 	def to_dict(self):
 		return {'id':self.id, 'username':self.username, 'email':self.email,
-		        'is_staff':self.is_staff, 'is_superuser':self.is_superuser,
-		        'first_name':self.first_name, 'last_name':self.last_name,
-		        'date_joined':self.date_joined, 'is_active':self.is_active,
-		        'last_login':self.last_login
+				'is_staff':self.is_staff, 'is_superuser':self.is_superuser,
+				'first_name':self.first_name, 'last_name':self.last_name,
+				'date_joined':self.date_joined, 'is_active':self.is_active,
+				'last_login':self.last_login
 		}
 
 
@@ -151,3 +151,17 @@ class Hints(models.Model):
 
 	def to_dict(self):
 		return {'id':self.id,'challenge_name':self.challenge.name,'description':self.description,'level':self.level}
+
+from ratelimitbackend.backends import RateLimitModelBackend
+
+class MyBackend(RateLimitModelBackend):
+	minutes = 5
+	requests = 10
+
+	def key(self, request, dt):
+		return '%s%s-%s-%s' % (
+			self.cache_prefix,
+			self.get_ip(request),
+			request.POST['username'],
+			dt.strftime('%Y%m%d%H%M'),
+		)

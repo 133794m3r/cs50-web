@@ -22,6 +22,8 @@ Licensed AGPLv3 Or later (2020)
 from .models import *
 from .util import *
 
+def is_ratelimited(request):
+	return getattr(request,'limited',False)
 
 # Create your views here.
 @require_http_methods(["GET","POST"])
@@ -36,13 +38,15 @@ def index(request):
 	return render(request,"index.html",{'objects':chals})
 
 @require_http_methods(["GET","POST"])
-@ratelimit(key='ip',rate='20/m',method=ratelimit.UNSAFE)
+@ratelimit(key='ip',rate='10/m',method=ratelimit.UNSAFE)
 def login_view(request):
 	if request.method == "POST":
 		username = request.POST["username"]
 		password = request.POST["password"]
 		user = authenticate(request,username=username,password=password)
-
+		print(getattr(request,'limited',False))
+		if getattr(request,'limited',False):
+			return render(request,"login.html",{"message":"You're trying to fast please slow down."})
 		if user is not None:
 			login(request,user)
 			return HttpResponseRedirect(reverse("index"))
@@ -84,33 +88,54 @@ def challenge_view(request,challenge_id):
 	return JsonResponse(resp)
 	
 @require_http_methods(["GET","POST"])
-@ratelimit(key='ip',rate='20/m',method=ratelimit.UNSAFE)
+@ratelimit(key='ip',rate='10/m',method=ratelimit.UNSAFE)
 def register(request):
 	if request.user.is_authenticated:
 		return HttpResponseRedirect('index')
+	captcha_msg,ans = simple_math()
 
 	if request.method == "POST":
+		msg = ''
+		if getattr(request,'limited',False):
+			return render(request,"register.html",{"message":"You're going too fast. Slow down.","captcha_msg":captcha_msg})
+
 		username = request.POST.get("username")
 		email = request.POST.get("email")
 
 		password=request.POST.get("password")
 		confirmation=request.POST.get("password_confirm")
+		given_ans = request.POST.get("captcha_ans")
+		old_ans = request.session['captcha_answer']
+		request.session['captcha_answer'] = ans
+		if not request.session['captcha_valid']:
+			if given_ans != request.session['answer']:
+				return render(request,"register.html",{
+					"message":"Invalid Captcha Answer.",
+					"captcha_msg":captcha_msg
+				})
+		else:
+			request.session['captcha_valid'] = False
+
 
 		if password != confirmation:
 			return render(request,"register.html",{
-				"message":"Passwords must match."
+				"message":"Passwords must match.",
+				"captcha_msg":captcha_msg
 			})
 		elif password is None:
 			return render(request,"register.html",{
-				"message":"Password cannot be blank."
+				"message":msg + "Password cannot be blank.",
+				          "captcha_msg":captcha_msg
 			})
 		elif username is None:
 			return render(request,"register.html",{
-				"message":"Username can't be blank."
+				"message":"Username can't be blank.",
+				"captcha_msg": captcha_msg
 			})
 		elif len(password) < 5:
 			return render(request,"register.html",{
-				"message":"Password must be the minimum strength."
+				"message":"Password must be the minimum strength.",
+				"captcha_msg": captcha_msg
 			})
 
 		try:
@@ -119,12 +144,14 @@ def register(request):
 			login(request,user)			
 		except IntegrityError:
 			return render(request,"register.html",{
-				"message":"Username must be unique."
+				"message":"Username must be unique.",
+				"captcha_msg": captcha_msg
 			})
 
 		return HttpResponseRedirect(reverse("index"))
 	else:
-		return render(request,"register.html")
+		request.session['captcha_answer'] = ans
+		return render(request,"register.html",{"captcha_msg":captcha_msg})
 
 
 @login_required(login_url='login')
@@ -193,7 +220,7 @@ def hint(request,hint_id):
 
 @login_required(login_url='login')
 @require_http_methods(["GET","POST"])
-@ratelimit(key='user',rate='20/m')
+@ratelimit(key='user',rate='20/m',method=ratelimit.UNSAFE)
 def control_panel(request,username):
 
 	if request.user.is_authenticated:
@@ -202,8 +229,9 @@ def control_panel(request,username):
 			old_password=content['old_password']
 			new_password=content['new_password']
 			confirm_password=content['confirm_password']
-
-			if old_password == '' or new_password == '':
+			if is_ratelimited(request):
+				msg = "You're submitting too fast."
+			elif old_password == '' or new_password == '':
 				msg = "Passwords can't be blank."
 			elif old_password != new_password and new_password == confirm_password:
 				if request.user.check_password(old_password):
@@ -416,7 +444,7 @@ def hint_admin(request,challenge_name):
 	return JsonResponse({'hints':challenge_hints,'len':num_hints})
 
 @login_required(login_url='login')
-@ratelimit(key='ip',rate='1/m')
+@ratelimit(key='ip',rate='30/m')
 def admin_view(request):
 	if request.user.is_staff != True or request.user.is_superuser != True:
 		raise Http404()
@@ -424,10 +452,32 @@ def admin_view(request):
 	was_limited = getattr(request, 'limited', False)
 	return render(request,"solves_admin.html",{'solves:solves'})
 
-@ratelimit(key='ip',rate='1/m')
+@ratelimit(key='ip',rate='30/m')
 @require_http_methods(["GET"])
 def high_scores(request):
 	top_users = User.objects.values('points','username','id').order_by('-points','username')[:10]
 	was_limited = getattr(request, 'limited', False)
-	print(was_limited)
 	return JsonResponse(jsonify_queryset(top_users),safe=False)
+
+@ratelimit(key='ip',rate='1/s',method=ratelimit.UNSAFE)
+@require_http_methods(["GET","POST"])
+def captcha(request):
+	if request.method == "POST":
+		if request.is_ajax():
+			usr_ans = json_decode(request.body)['captcha_ans']
+		else:
+			usr_ans = request.POST.get('captcha_ans')
+
+		if usr_ans == request.session['captcha_answer']:
+			request.session['captcha_valid'] = True
+			msg = "Captcha Solved";
+			error = False
+		else:
+			request.session['captcha_valid'] = False
+			msg = "Invalid Captcha Answer."
+			error = True
+	else:
+		request.session['captcha_valid'] = False
+	captcha_msg,ans = simple_math()
+	request.session['captcha_answer'] = ans
+	return JsonResponse({"msg":msg,"error":error,"captcha_msg":captcha_msg})
