@@ -94,8 +94,6 @@ DATABASES = {
 psql_user = os.getenv("PSQL_USER")
 psql_pass = os.getenv("PSQL_PASS")
 
-print(psql_pass)
-print(psql_user)
 DATABASES = {
 	'default': {
 	    'ENGINE': 'django.db.backends.postgresql',

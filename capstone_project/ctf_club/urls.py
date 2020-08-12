@@ -22,5 +22,7 @@ urlpatterns = [
 	path("admin/",views.admin_view,name="admin"),
 	path("highscores/",views.high_scores,name="high_scores"),
 	path("captcha/",views.captcha,name="captcha"),
-	re_path(r"^files/(?P<filename>[A-Za-z\-_0-9.]+)$",views.files,name="files")
+	re_path(r"^files/(?P<filename>[A-Za-z\-_0-9.]+)$",views.files,name="files"),
+	path("tfa_qrcode.png",views.tfa_qr_code,name="tfa_qrcode"),
+	path("two_factor",views.tfa_enable,name="tfa_enable")
 ]

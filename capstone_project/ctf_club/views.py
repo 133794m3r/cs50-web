@@ -1,4 +1,6 @@
 #all of the django specific stuff.
+from urllib.parse import urlparse
+
 from django.db import IntegrityError
 from django.shortcuts import  render
 from django.http import JsonResponse, HttpResponseRedirect,HttpResponse,HttpResponseNotFound,Http404,FileResponse
@@ -13,6 +15,9 @@ from json import dumps as json_encode
 
 #ratelimiter
 from ratelimit.decorators import ratelimit
+
+from .totp import TotpAuthorize
+
 """
 CTFClub Project
 By Macarthur Inbody <admin-contact@transcendental.us>
@@ -97,7 +102,7 @@ def login_view(request):
 		return render(request,"login.html")
 
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 @require_http_methods(["GET"])
 def logout_view(request):
 	logout(request)
@@ -105,7 +110,7 @@ def logout_view(request):
 
 
 @require_http_methods(["GET"])
-@login_required(login_url='login')
+@login_required(login_url="login")
 @ratelimit(key='user',rate='45/m')
 def challenge_view(request,challenge_id):
 
@@ -193,7 +198,7 @@ def register(request):
 		return render(request,"register.html",{"captcha_msg":captcha_msg})
 
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 @require_http_methods(["POST"])
 @ratelimit(key='user',rate='20/m')
 def solve(request,challenge_id):
@@ -235,12 +240,12 @@ def solve(request,challenge_id):
 	return JsonResponse({'solved':was_solved})
 
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 @require_http_methods(["GET","POST"])
 def challenge_hint(request,challenge_id):
 	pass
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 @ratelimit(key='user',rate='20/m')
 @require_http_methods(["GET","POST"])
 def hint(request,hint_id):
@@ -257,7 +262,7 @@ def hint(request,hint_id):
 	return JsonResponse(revealed_hint)
 
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 @require_http_methods(["GET","POST"])
 @ratelimit(key='user',rate='20/m',method=ratelimit.UNSAFE)
 def control_panel(request,username):
@@ -292,7 +297,7 @@ def control_panel(request,username):
 	return render(request,'control_panel.html',{'points':points,'username':username})
 
 @ratelimit(key='user',rate='30/m')
-@login_required(login_url='login')
+@login_required(login_url="login")
 def solves(request):
 	all_solves = {}
 	num_solves = 0
@@ -307,7 +312,7 @@ def solves(request):
 	return render(request,"solves.html",{"objects":all_solves,'num_solves':num_solves})
 
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 @require_http_methods(["GET","POST"])
 @ratelimit(key='user',rate='10/s')
 def challenge_admin(request):
@@ -436,7 +441,7 @@ def challenge_admin(request):
 		                                               'json':json_encode(all_challenges)})
 
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 @ratelimit(key='user',rate='45/m')
 def solves_admin(request):
 	if not request.user.is_staff or not request.user.is_superuser:
@@ -447,7 +452,7 @@ def solves_admin(request):
 	return render(request,"solves_admin.html",{"challenges":all_challenges})
 
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 @ratelimit(key='user',rate='30/m')
 def get_all_solves(request):
 	if not request.user.is_staff or not request.user.is_superuser:
@@ -470,7 +475,7 @@ def get_all_solves(request):
 
 	return JsonResponse({'error':solve_dict})
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 @ratelimit(key='user',rate='1/s')
 @require_http_methods(["POST","GET"])
 def hint_admin(request,challenge_name):
@@ -495,7 +500,7 @@ def hint_admin(request,challenge_name):
 		challenge_hints = jsonify_queryset(challenge_hints)
 	return JsonResponse({'hints':challenge_hints,'len':num_hints})
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 @ratelimit(key='ip',rate='30/m')
 def admin_view(request):
 	if request.user.is_staff != True or request.user.is_superuser != True:
@@ -534,6 +539,29 @@ def captcha(request):
 	request.session['captcha_answer'] = ans
 	return JsonResponse({"msg":msg,"error":error,"captcha_msg":captcha_msg})
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 def files(request,filename):
 	return FileResponse(open(f'files/{filename}','rb'))
+
+
+
+# TFA related views.
+@login_required(login_url='login')
+@require_http_methods(["GET","POST"])
+def tfa_qr_code(request):
+	domain = request.get_host()
+	if not domain:
+		domain = 'example.com'
+	username = f"{request.user.id}@{domain}"
+	new_totp = TotpAuthorize(request.user.tfa_secret)
+	print(new_totp.secret)
+
+	qrcode = new_totp.qrcode(username)
+	response = HttpResponse(content_type="image/png")
+	qrcode.save(response,"PNG")
+	return response
+
+@login_required(login_url='login')
+@require_http_methods(["GET","POST"])
+def tfa_enable(request):
+	pass

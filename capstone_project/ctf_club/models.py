@@ -13,6 +13,8 @@ Licensed AGPLv3 Or later (2020)
 # User model is just here so I can reference it, I use the default model.
 class User(AbstractUser):
 	points = models.IntegerField(default=0)
+	tfa_enabled = models.BooleanField(default=False)
+	tfa_secret = models.CharField(max_length=32,default=None)
 	def to_dict(self):
 		return {'id':self.id, 'username':self.username, 'email':self.email,
 				'is_staff':self.is_staff, 'is_superuser':self.is_superuser,
