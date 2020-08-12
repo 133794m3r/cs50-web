@@ -23,7 +23,7 @@ The book covers is also pulled from the internet archive. The user can edit thei
 For full details read the README.md in the books folder.
 Uses PostgresSQL+SQLAlchemy+Flask
 
-(Youtube Demo)[https://www.youtube.com/watch?v=jfqE9EjYJ-g]
+[Youtube Demo](https://www.youtube.com/watch?v=jfqE9EjYJ-g)
 
 All code beyond the external libraries I used and the CSV file for the books were hand-written for these assignments thus all code is licensed under the MIT license.
 
@@ -33,7 +33,7 @@ A project to recreate something much simpler but similar to Slack/Discord/other 
 It's all done in Flask+SocketIO with styling by bootstrap.
 
 For a full rundown go to the flack folder and read the readme there.
-(Youtube Demo)[https://www.youtube.com/watch?v=PtXNmDIl2lQ]
+[Youtube Demo](https://www.youtube.com/watch?v=PtXNmDIl2lQ)
 
 #The 2020 folder
 In the 2020 folder is all of the projects that are for the current version of the course. Don't utilize them for your own work as they are not open-sourced and thus I don't know what license they would be under. Further don't cheat by utilizing my work in your own project.
@@ -44,21 +44,21 @@ These are all Django applications that use sqlite mostly.
 ### Mail
 A basic email app(think gmail but paired down).
 
-(Youtube Demo)[https://www.youtube.com/watch?v=fI2cAQI1fG8]
+[Youtube Demo](https://www.youtube.com/watch?v=fI2cAQI1fG8)
 
 ### Network
 A Twitter-like social network.
-(Youtube Demo)[https://www.youtube.com/watch?v=LKbzbDpdctc]
+[Youtube Demo](https://www.youtube.com/watch?v=LKbzbDpdctc)
 
 ### Wiki
 A wikipedia like site where the user utilizes markdown for formatting the pages.
 No version control is done for pages though.
-(Youtube Demo)[https://www.youtube.com/watch?v=5D5pMcwMZUs]
+[Youtube Demo](https://www.youtube.com/watch?v=5D5pMcwMZUs)
 
 # Capstone
 This folder contains my capstone project. As it is all my own code it is fully open source and licensed under the LGPLv3.
 
-The capstone implements a basic shell of a CTF platform. No highscores right now, nor point tracking in it's current form. But it is mainly there because the challenges can be generated programmatically and updated accordingly. The whole site can(mostly) be done w/o requiring a refresh. 
+The capstone implements a basic shell of a CTF platform. No highscores right now, nor point tracking in it's current form. But it is mainly there because the challenges can be generated programmatically and updated accordingly. The whole site can(mostly) be done w/o requiring a refresh.
 
 ### Libraries/technologies
 Django, Scrypt, SQLite*, Modern JavaScript(fetch,let,const, foreach, in etc), jQuery, Bootstrap5(CSS/JS), Python, Sympy.
@@ -91,4 +91,4 @@ Affine Cipher
 	- The minimum strength required where it would take 10**8 guesses to get their password.
 	
 For more details go to the capstone_project folder and read the readme there.
-(Youtube Demo)[https://www.youtube.com/watch?v=mhvTJmAPKCM]
+[Youtube Demo](https://www.youtube.com/watch?v=mhvTJmAPKCM)
