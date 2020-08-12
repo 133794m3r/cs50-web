@@ -2,3 +2,4 @@
 *flask_session/*
 *.pyc
 *.pyo
+*.sqlite3
