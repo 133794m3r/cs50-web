@@ -49,7 +49,7 @@ function modal_challenge(event,challenge_type,edit){
 		break;
 
 		 default:
-			flag = CHALLENGES[challenge_type].flag;
+			flag = chal.flag;
 			let variety = 0;
 			if ((challenge_type === 'hill' || challenge_type === 'affine')){
 				challenge_name+=' - 0';
@@ -61,7 +61,7 @@ function modal_challenge(event,challenge_type,edit){
 			}
 			document.getElementById('submit_chal').disabled = true;
 
-			flag = flag ? flag : ''
+			flag = flag ? flag : '';
 			inner_content = `<div class="col-lg-7 col-md-8 col-sm-9 form-group">
 				<textarea id='plain_text' name='plain_text' class="input_items form-text w-100" rows="2" cols="40" onkeyup="check_len('plain_text','submit_chal')">${flag}</textarea>
 			</div>`;
@@ -76,31 +76,47 @@ function modal_challenge(event,challenge_type,edit){
 	const el = document.getElementById('input_description');
 	if (edit === true) {
 		const fd = document.getElementById('full_description');
-		if(full_description == ''){
+		if (full_description == '') {
 			full_description = chal.full_description;
 		}
-		 fd.innerHTML = `<p>For reference, the old challenge is below here.</p>`+full_description;
-		 //+`<pre>Flag: ${flag}</pre>`;
-
-		let el2 = document.getElementById('submit_chal');
+		fd.innerHTML = `<p>For reference, the old challenge is below here.</p>` + full_description;
+		//+`<pre>Flag: ${flag}</pre>`;
+		let el2;
+		el2 = document.getElementById('submit_chal');
 		el2.disabled = false;
-		el2.setAttribute('aria-disabled',"false");
-		el2=document.getElementById('manage_challenge_hint');
+		el2.setAttribute('aria-disabled', "false");
+		el2 = document.getElementById('manage_challenge_hint');
 		el2.hidden = false;
 		el2.disabled = false;
-		el2.setAttribute('aria-hidden',"false");
+		el2.setAttribute('aria-hidden', "false");
+
+		if (chal.can_have_files) {
+			console.log(chal);
+			let cols = '<div class="row mb-2"><div class="col-12 text-center mt-3"><h2>Files</h2></div>'
+
+			for (let i = 0; i < chal.files.length; i++) {
+				cols += `<div class='col-12 text-center mt-3'><a href="/files/${chal.files[i].filename}" class="btn btn-primary" target="_blank">${chal.files[i].filename}</a></div>`
+			}
+			cols += '</div>'
+			document.getElementById('full_description').insertAdjacentHTML('beforeend', cols);
+		}
+
+
+		if (chal.type === 'Programming') {
+			document.getElementById('submit_chal').disabled = false;
+			document.getElementById('plain_text').innerText = "This Programming Challenge takes no input."
+			document.getElementById('plain_text').setAttribute('readonly', 'true');
+		}
 	}
 	else{
-		document.getElementById('full_description').innerHTML = ''
-
-		let el2 = document.getElementById('submit_chal');
-		el2.disabled = (challenge_type !== 'fizzbuzz');
+		let el2;
+		el2 = document.getElementById('submit_chal');
+		el2.disabled = (chal.category !== 'Programming');
 		el2.setAttribute('aria-disabled',"true");
 		el2=document.getElementById('manage_challenge_hint');
 		el2.hidden = true;
 		el2.disabled = true;
 		el2.setAttribute('aria-hidden',"true");
-
 	}
 	document.getElementById('manage_challenge_hint').dataset.sn = challenge_type
 	el.innerHTML = `<span>${chal.description}</span>`;
@@ -217,7 +233,7 @@ function submit_challenge(){
 		content['min'] = (min < 2 || min > 1200)?undefined:min
 		content['max'] = (max < 1201 || max > 3000)?undefined:max
 	}
-	else{
+	else if(chal.category !== "Programming"){
 		content['plaintext'] = document.getElementById('plain_text').value;
 		if(content['plaintext'].length === 0 ){
 			return;
@@ -229,10 +245,14 @@ function submit_challenge(){
 		//Eventually I'll actually use this data to update the local challenge data but that's not for now.
 		// It's for a later thing. For now I just log the response. In the end I'll actually use the response to edit the
 		// cached values.
+
 		let variety = content['variety'] || -1;
 		if(variety === -1){
 			CHALLENGES[sn].flag = response.flag;
 			CHALLENGES[sn].full_description = response.description;
+		}
+		if(response.file !== undefined){
+			CHALLENGES[sn].file = [response.file];
 		}
 		set_challenge_info(response,sn,variety);
 

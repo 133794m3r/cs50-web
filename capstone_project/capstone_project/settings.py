@@ -81,12 +81,30 @@ WSGI_APPLICATION = 'capstone_project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    },
+
+}"""
+#Uncomment the line below to have it run from postgres(as I am on the server.)
+#and set the username and password to whatever you want it to be.
+psql_user = os.getenv("PSQL_USER")
+psql_pass = os.getenv("PSQL_PASS")
+
+print(psql_pass)
+print(psql_user)
+DATABASES = {
+	'default': {
+	    'ENGINE': 'django.db.backends.postgresql',
+	    'NAME': 'ctf_club',
+	    'USER': psql_user,
+	    'PASSWORD': psql_pass,
+	    'HOST': 'localhost',
+	    'PORT': '5432',
+	}
 }
 
 AUTH_USER_MODEL = "ctf_club.User"
@@ -141,3 +159,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+FIXTURE_DIRS = (
+   'ctf_club/fixtures/',
+)

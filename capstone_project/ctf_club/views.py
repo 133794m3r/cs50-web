@@ -1,7 +1,7 @@
 #all of the django specific stuff.
 from django.db import IntegrityError
 from django.shortcuts import  render
-from django.http import JsonResponse, HttpResponseRedirect,HttpResponse,HttpResponseNotFound,Http404
+from django.http import JsonResponse, HttpResponseRedirect,HttpResponse,HttpResponseNotFound,Http404,FileResponse
 from django.urls import reverse
 from django.contrib.auth import authenticate,login,logout,update_session_auth_hash
 from django.contrib.auth.decorators import  login_required
@@ -289,7 +289,7 @@ def control_panel(request,username):
 			return JsonResponse({'ok':True,'msg':msg})
 	points = User.objects.get(username=username).points
 
-	return render(request,'control_panel.html',{'points':points})
+	return render(request,'control_panel.html',{'points':points,'username':username})
 
 @ratelimit(key='user',rate='30/m')
 @login_required(login_url='login')
@@ -309,7 +309,7 @@ def solves(request):
 
 @login_required(login_url='login')
 @require_http_methods(["GET","POST"])
-@ratelimit(key='user',rate='1/s')
+@ratelimit(key='user',rate='10/s')
 def challenge_admin(request):
 	#for the sorting of the challenges later.
 	from operator import itemgetter
@@ -319,15 +319,19 @@ def challenge_admin(request):
 		raise Http404()
 
 	if request.method == "POST":
+		file = None
 		description = ''
 		flag = ''
 		content = json_decode(request.body)
+		print(content);
 		name = content['name']
 		category = content['category']
 		if content['sn'] == 'fizzbuzz':
 			min = content['min']
 			max = content['max']
 			description,flag = CHALLENGE_FUNCS[content['sn']](min,max)
+		elif content['sn'] == 'master_hacker':
+			description,flag, file = CHALLENGE_FUNCS[content['sn']]()
 		else:
 			plaintext = content['plaintext']
 			if content['sn'] in ["affine","hill"]:
@@ -352,15 +356,21 @@ def challenge_admin(request):
 			old_solves.delete()
 
 		else:
-			Challenges.objects.create(
+			print(category)
+			challenge = Challenges.objects.create(
 				name = name,
 				description = description,
 				flag = flag,
 				points = points,
 				category = Categories.objects.get(name=category)
 			)
-
-		return JsonResponse({'description':description,'flag':flag})
+			if file is not None:
+				file_obj = Files.objects.create(
+					filename=file
+				)
+				challenge.files.add(file_obj)
+		print({'description':description,'flag':flag,'file':file})
+		return JsonResponse({'description':description,'flag':flag,'file':file})
 	else:
 		challenges = Challenges.objects.all()
 		all_challenges = []
@@ -384,25 +394,26 @@ def challenge_admin(request):
 				indexed = CHALLENGES_TEMPLATES_NAMES[tmp_name][1]
 				challenges_used.append(indexed)
 				challenge_template = CHALLENGES_TEMPLATES[indexed]
+				chal_obj = {
+					'name': tmp_name, 'category': challenge.category.name, 'full_description': challenge.description,
+					'description': challenge_template['description'], 'sn': challenge_template['sn'],
+					'edit': True, 'flag': challenge.flag, 'can_have_files':challenge_template['files']}
 				if variety is not None:
 					if varieties_used.get(indexed):
 						varieties_used[indexed].append(variety)
 					else:
 						varieties_used[indexed]=[variety]
-					all_challenges.append({
-						'name':challenge.name, 'category':challenge.category.name, 'full_description':challenge.description,
-						'description':challenge_template['description'], 'sn':challenge_template['sn'], 'variety':variety,
-						'edit':True, 'flag':challenge.flag})
+					chal_obj['variety'] = variety
+					all_challenges.append(chal_obj)
 				else:
 					challenges_used.append(indexed)
-					all_challenges.append({
-						'name':tmp_name, 'category':challenge.category.name, 'full_description':challenge.description,
-						'description':challenge_template['description'], 'sn':challenge_template['sn'],
-						'edit':True, 'flag':challenge.flag})
-					base_challenges.append({
-						'name':tmp_name, 'category':challenge.category.name, 'full_description':challenge.description,
-						'description':challenge_template['description'], 'sn':challenge_template['sn'],
-						'edit':True, 'flag':challenge.flag})
+					base_challenges.append(chal_obj)
+					if challenge_template['files']:
+						print(challenge.files.all())
+						files = challenge.files.all()
+						chal_obj['files'] = [jsonify_queryset(files)] if files.count() == 1 else jsonify_queryset(files)
+					all_challenges.append(chal_obj)
+				challenges_used.append(indexed)
 
 
 		for i,challenge in enumerate(CHALLENGES_TEMPLATES):
@@ -420,7 +431,6 @@ def challenge_admin(request):
 			elif i not in challenges_used:
 				base_challenges.append(challenge)
 				all_challenges.append(challenge)
-
 		new_chals = sorted(base_challenges,key=itemgetter('category','sn','name'))
 		return render(request,"challenge_admin.html", {"challenges":new_chals,
 		                                               'json':json_encode(all_challenges)})
@@ -523,3 +533,7 @@ def captcha(request):
 	captcha_msg,ans = simple_math()
 	request.session['captcha_answer'] = ans
 	return JsonResponse({"msg":msg,"error":error,"captcha_msg":captcha_msg})
+
+@login_required(login_url='login')
+def files(request,filename):
+	return FileResponse(open(f'files/{filename}','rb'))
