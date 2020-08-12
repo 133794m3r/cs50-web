@@ -14,6 +14,12 @@ https://www.youtube.com/watch?v=mhvTJmAPKCM
 - [x] Completely distinct from other projects from the courses.
 - [x] Has multiple different views and templates.
 - [x] Mobile Responsive(via BootStrap handling the majority of the theming.)
+- [x] Uses PostgreSQL for the database backend.
+- [x] Challenges can create files which are then sent to the users.
+- [x] Programming challenges give users a test case to try to do.
+- [x] AdminView is modified to be ratelimited to avoid having bruteforcing of teh view.
+- [x] Login/Registration are rate-limited.
+- [x] A basic CAPTCHA for registration is shown and for logins if they were rate-limited is required to be solved. 
 
 ## Challenge Generators
 - RSA Attacks
@@ -26,7 +32,9 @@ https://www.youtube.com/watch?v=mhvTJmAPKCM
 	- Both a keyed and a cribbed varient for students to solve.
 - Hill Cipher
 	- Same as above a keyed and a cribbed variant. Just a 2x2 matrix for simplicity's sake.
-
+- Unbound Knapsack Algorithm
+    - Aka the "master hacker" challenge.
+    
 ### Where to see the Generators
 The generators themselves are mostly in the util.py file.
 
@@ -38,7 +46,8 @@ The generators themselves are mostly in the util.py file.
 	- Hastaad's Broadcast Attack via the Chinese Remainder Theorem
 	- Common Modulus Attack
 	- RSA Blinded Signature Forgery
-
+- Algorithms
+    - There's a challenge that is involves the Unbound Knapsack problem.
 - Elementary Number Theory(or so I believe)
 	- Fermat's factorization method
 - Linear Algebra
@@ -77,6 +86,10 @@ That paper goes over the linear algebra required to crack a message enciphered w
 - All user passwords are stored via ScryptPasswordHasher(a new hasher I wrote that utilizes scrypt)
 - All passwords have to meet a minimum strength requirement via ZXCVBN for the password to be submittable
 	- The minimum strength required where it would take 10**8 guesses to get their password.
+- Everything is ratelimited.
+    - The admin view is also wrapped behind a double ratelimit.
+    - One for the username and also a second.
+    - One for the ip address trying to attack the system.
 
 ## Full Feature List
 - Custom Password Authentication Hasher Class(Uses Scrypt from hashlib instead of default django hashers)
