@@ -13,15 +13,22 @@ Licensed AGPLv3 Or later (2020)
 	})
 	function check_captcha(){
 		const ans = parseInt(document.getElementById('year').value);
-		const content = {'captcha_ans':ans}
+		const letters = document.getElementById('letters').value;
+		const content = {'captcha_ans':ans,"letters":letters}
 		submit("/captcha/",content,resp=>{
 			const el = document.getElementById('alert_msg')
 			if(resp.error){
 				//el.innerText = resp.msg;
 				//el.className = "alert alert-warning";
-				//document.getElementById('captcha_msg').innerText = resp.captcha_msg;
+				document.getElementById('content_msg').innerText = resp.captcha_msg;
 				document.getElementById('year_container').hidden = false;
 				document.getElementById('solved_it').hidden = true;
+				const el = document.getElementById('chosen_color');
+				el.innerText = resp.color_name;
+				el.setAttribute('style', `background:white;font-family:monospace;font-weight:bold; color:${resp.color_name}`);
+				//el.style.color = resp.color_name;
+
+				document.getElementById('text_img').setAttribute("src","data:imgae/png;base64,"+resp.img_str)
 			}
 			else{
 				//el.innerText = resp.msg;
@@ -46,7 +53,7 @@ Licensed AGPLv3 Or later (2020)
 {% endblock %}
 
 {% block body %}
-	<main role="main" class="container">
+	<main role="main" class="container-lg">
 	<div class="">
 	<h1>Register</h1>
 		<div class="alert hidden" role="alert" id="alert_msg">
@@ -67,57 +74,83 @@ Licensed AGPLv3 Or later (2020)
 						<input type="text"
 								 class="form-control" name="username" id="username" placeholder="UserName">
 					</div>
-					<div class="input-group mb-3 col-5">
-						<div class="input-group-prepend">
-							<label for="password" class="input-group-text">
-								Password
-							</label>
-						</div>
-						<input type="password"
-								 class="form-control" name="password" id="password" placeholder="Enter Password" onchange="score_password()">
+					<div class="row col p-0">
+						<div class="col-md-5 pr-0">
+							<div class="input-group mb-3 col-md-12 pr-0">
+								<div class="input-group-prepend">
+									<label for="password" class="input-group-text">
+										Password
+									</label>
+								</div>
+								<input type="password"
+										 class="form-control" name="password" id="password" placeholder="Enter Password" onchange="score_password()">
 
-					</div>
-					<div class="input-group mb-3 col-5">
-						<div class="input-group-prepend">
-							<label for="password_confirm" class="input-group-text">
-								Confirm
-							</label>
+							</div>
+							<div class="input-group mb-3 col-md-12 pr-0">
+								<div class="input-group-prepend">
+									<label for="password_confirm" class="input-group-text">
+										Confirm
+									</label>
+								</div>
+								<input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Password Confirmation" onkeyup="score_password('submission','username','password','password_confirm')">
+							</div>
+
 						</div>
-						<input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Password Confirmation" onkeyup="score_password('submission','username','password','password_confirm')">
+						<div class="col">
+							Password Rating:
+							<div id="score">
+
+							</div>
+							<span id="password_feedback"></span>
+						</div>
 					</div>
 					<div class="input-group mb-3 row col-12" id="solved_it" hidden="true" aria-hidden="true">
 						<div class="col-md-12">
 							<h2>Captcha Already Solved</h2>
 						</div>
 					</div>
-					<div class="input-group mb-3 row col-11" id="year_container">
-						<div class="col-md-auto">
-							<h3 id="content_msg">{{ captcha_msg }}</h3>
-						</div>
-						<div class="col-md-3 input-group mb-3">
-							<div class="input-group-prepend">
-								<label for="year" class="input-group-text" style="max-height:3rem">=</label>
+					<div class="input-group mb-3 row col-md-12" id="year_container">
+						<div class="row col-md-8 col-lg-6 pr-0">
+							<div class="col-md-auto">
+								<h3 id="content_msg">{{ captcha_msg }}</h3>
 							</div>
-							<input type="number" name="year" class="form-control" id="year" placeholder="?" />
+							<div class="col-md-4 col-lg-3 input-group mb-3">
+								<div class="input-group-prepend">
+									<label for="year" class="input-group-text" style="max-height:3rem">=</label>
+								</div>
+								<input type="number" name="year" class="form-control" id="year" placeholder="?" />
+							</div>
+
+
 						</div>
 						<div class="col-md-2">
 							<button type="button" class="btn btn-secondary" id="check_captcha" >Check Captcha</button>
 						</div>
+						<div class="row col-md-11 col-lg-10 p-3">
+{#							<div class="input-group mb-3 pr-0 pl-0" style="width:110px;height:43px;">#}
+
+{#							</div>#}
+							<div class="col-md-12 input-group pr-0 pl-0">
+								<img id="text_img" src=""  width="auto" height="auto" class="pr-lg-4 pr-md-4 pr-sm-3"/>
+								<h3>Enter all <span id="chosen_color">{{ color }}</span> Characters:</h3>
+{#							</div>#}
+{#							<div class="col-md-5 input-group mb-3 p-0">#}
+{#								<div class="input-group-prepend">#}
+{#									<label for="letters" class="input-group-text" style="max-height:3rem">Characters</label>#}
+{#								</div>#}
+								<input type="text" id="letters" class="form-control col-lg-2 col-md-3" placeholder="?????" />
+{#							</div>#}
+						</div>
+
 					</div>
-					<div class="align-center row">
+					<div class="align-center row pt-3">
 						<div class="col-lg-auto">
 						<button type="submit" class="btn btn-lg btn-primary" id="submission" disabled>Submit</button>
 						</div>
 					</div>
 				</form>
 			</div>
-			<div class="col">
-				Password Rating:
-				<div id="score">
 
-				</div>
-				<span id="password_feedback"></span>
-			</div>
 		</div>
 	</div>
 	</main>

@@ -1,6 +1,6 @@
 #all of the django specific stuff.
-from urllib.parse import urlparse
-
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError
 from django.shortcuts import  render
 from django.http import JsonResponse, HttpResponseRedirect,HttpResponse,HttpResponseNotFound,Http404,FileResponse
@@ -16,6 +16,7 @@ from json import dumps as json_encode
 #ratelimiter
 from ratelimit.decorators import ratelimit
 
+from .captcha import simple_math, img_captcha, check_captchas
 from .totp import TotpAuthorize
 
 """
@@ -519,25 +520,59 @@ def high_scores(request):
 @ratelimit(key='ip',rate='1/s',method=ratelimit.UNSAFE)
 @require_http_methods(["GET","POST"])
 def captcha(request):
+	captcha_msg = ''
+	color_name = ''
+	img_str = ''
+	letters_ans = None
+	usr_ans = None
 	if request.method == "POST":
-		if request.is_ajax():
-			usr_ans = json_decode(request.body)['captcha_ans']
-		else:
-			usr_ans = request.POST.get('captcha_ans')
+		captcha_expires = request.session.get('captcha_expires', False)
+		if captcha_expires:
+			captcha_expires = timezone.datetime.fromtimestamp(captcha_expires)
+			print(captcha_expires)
+			if captcha_expires > timezone.datetime.now():
+				msg = "Captcha expired."
+				error = True
+			else:
 
-		if usr_ans == request.session['captcha_answer']:
-			request.session['captcha_valid'] = True
-			msg = "Captcha Solved";
-			error = False
-		else:
-			request.session['captcha_valid'] = False
-			msg = "Invalid Captcha Answer."
-			error = True
+				if request.is_ajax():
+					body = json_decode(request.body)
+					print(body)
+					usr_ans = body['captcha_ans']
+					letters_ans = body['letters']
+				else:
+					usr_ans = request.POST.get('captcha_ans')
+					letters_ans = request.POST.get('letters')
+
+			# if usr_ans == request.session['captcha_answer'] and letters_ans == request.session['correct_letters']:
+			# 	request.session['captcha_valid'] = True
+			# 	msg = "Captcha Solved";
+			# 	error = False
+			# else:
+			# 	request.session['captcha_valid'] = False
+			#
+			# 	msg = "Invalid Math Captcha Answer."
+			# 	error = True
+
+
 	else:
 		request.session['captcha_valid'] = False
-	captcha_msg,ans = simple_math()
-	request.session['captcha_answer'] = ans
-	return JsonResponse({"msg":msg,"error":error,"captcha_msg":captcha_msg})
+	color_name = ''
+	img_str = ''
+	if not request.session['captcha_valid']:
+		# captcha_msg,ans = simple_math()
+		# correct_letters,color_name,img_str = img_captcha()
+		# request.session['captcha_expires'] = timezone.now() + timezone.timedelta(seconds=30)
+		# request.session['correct_letters'] = correct_letters
+		# request.session['captcha_answer'] = ans
+		msg = "Invalid Captcha"
+		captcha_msg, color_name, img_str = check_captchas(request, letters_ans, usr_ans)
+		error = True
+	else:
+		msg = "Captcha Solved"
+		error = False
+
+	return JsonResponse({"msg":msg,"error":error,"captcha_msg":captcha_msg,"color_name":color_name,"img_str":img_str})
 
 @login_required(login_url="login")
 def files(request,filename):

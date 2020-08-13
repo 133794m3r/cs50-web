@@ -78,7 +78,7 @@ STATICFILES_DIRS = [
 ]
 WSGI_APPLICATION = 'capstone_project.wsgi.application'
 
-
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 """
