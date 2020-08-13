@@ -4,6 +4,45 @@ CTFClub Project
 By Macarthur Inbody <admin-contact@transcendental.us>
 Licensed AGPLv3 Or later (2020)
 {% endcomment %}
+{% block head %}
+	<script type="text/javascript">
+	document.addEventListener("DOMContentLoaded",()=>{
+		document.getElementById("check_captcha").addEventListener("click",event=>{check_captcha()});
+	})
+	function check_captcha(){
+		const ans_el = document.getElementById('year');
+		const letters_el = document.getElementById('letters');
+		const ans = parseInt(ans_el.value);
+		const letters = letters_el.value;
+		const content = {'captcha_ans':ans,"letters":letters}
+		letters_el.value = '';
+		ans_el.value = '';
+		submit("/captcha/",content,resp=>{
+			const el = document.getElementById('alert_msg')
+			if(resp.error){
+				//el.innerText = resp.msg;
+				//el.className = "alert alert-warning";
+				document.getElementById('content_msg').innerText = resp.captcha_msg;
+				document.getElementById('year_container').hidden = false;
+				document.getElementById('solved_it').hidden = true;
+				const el = document.getElementById('chosen_color');
+				el.innerHTML = resp.color_name;
+				el.setAttribute('style', `background:white;font-family:monospace;font-weight:bold; color:${resp.color_name}`);
+				//el.style.color = resp.color_name;
+
+				document.getElementById('text_img').setAttribute("src","data:imgae/png;base64,"+resp.img_str)
+			}
+			else{
+				console.log('test')
+				//el.innerText = resp.msg;
+				//el.className = "alert alert-success";
+				document.getElementById('year_container').hidden = true;
+				document.getElementById('solved_it').hidden = false;
+			}
+		})
+	}
+	</script>
+{% endblock %}
 {% block body %}
 	<div class="container-lg container">
     <h2>Login</h2>
@@ -30,23 +69,39 @@ Licensed AGPLv3 Or later (2020)
 				</div>
 			</div>
 	 		{% if show_captcha %}
-				<div class="input-group mb-3 row" id="year_container">
+				<div class="input-group mb-3 row col-md-12" id="year_container">
 			{% else %}
-				<div class="input-group mb-3 row" id="year_container" hidden="true">
-			{% endif %}
-				<div class="col-md-auto">
-					<h4 id="content_msg">{{ captcha_msg }}</h4>
-				</div>
-				<div class="col-md-2 input-group mb-3">
-					<div class="input-group-prepend">
-						<label for="year" class="input-group-text">=</label>
+				<div class="input-group mb-3 row col-md-12" id="year_container" hidden="true" aria-hidden="true">
+			{%  endif %}
+
+					<div class="row col-md-8 col-lg-6 pr-0">
+						<div class="col-md-auto">
+							<h3 id="content_msg">{{ captcha_msg }}</h3>
+						</div>
+						<div class="col-md-4 col-lg-3 input-group mb-3">
+							<div class="input-group-prepend">
+								<label for="year" class="input-group-text" style="max-height:3rem">=</label>
+							</div>
+							<input type="number" name="year" class="form-control" id="year" placeholder="?" />
+						</div>
+
 					</div>
-					<input type="number" name="year" class="form-control" id="year" placeholder="?" />
+
+					<div class="col-md-2">
+						<button type="button" class="btn btn-secondary" id="check_captcha" >Check Captcha</button>
+					</div>
+
+					<div class="row col-md-11 col-lg-10 p-3">
+						<div class="col-md-12 input-group pr-0 pl-0">
+							<img id="text_img" src="data:imgae/png;base64,{{ img_str }}"  width="auto" height="auto" class="pr-lg-4 pr-md-4 pr-sm-3"/>
+							<h3>Enter all <span id="chosen_color" class="background:white;font-family:monospace;font-weight:bold; color:{{ color_name }}">{{ color_name }}</span> Characters:</h3>
+
+							<input type="text" name="letters" id="letters" class="form-control col-lg-2 col-md-3" placeholder="?????" />
+
+						</div>
+					</div>
+
 				</div>
-				<div class="col-md-2">
-					<button type="button" class="btn btn-secondary" id="check_captcha" >Check Captcha</button>
-				</div>
-			</div>
         <input class="btn btn-primary" type="submit" value="Login">
     </form>
 

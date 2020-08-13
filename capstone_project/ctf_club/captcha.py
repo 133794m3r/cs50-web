@@ -65,47 +65,58 @@ def img_captcha():
 	size = (int(size[0] + (width * 2)), int(font_size * 1.5))
 	img = Image.new('RGB', size, color=(255, 255, 255))
 	d = ImageDraw.Draw(img)
-	colors = [(0, 0, 0), (255, 0, 0), (0, 127, 0), (0, 0, 255)]
-	color_names = ['black', 'red', 'green', 'blue']
-	correct_index = randint(0, 3)
+	colors = [(0, 0, 0), (255, 0, 0),  (0, 0, 255)]
+	color_names = ['black', 'red', 'blue']
+	correct_index = randint(0, 2)
 	correct_letters = ''
-	start = width - 8
+	start = width - 4
 	for i, x in enumerate(text):
-		index = randint(0, 3)
+		index = randint(0, 2)
 		if index == correct_index:
 			correct_letters+=x
 		color = colors[index]
-		d.text((start + (i * width) + 3, 0), x, font=fnt, fill=color)
+		d.text((start + (i * width) + 4, 0), x, font=fnt, fill=color)
 
 	if len(correct_letters) == 0:
 		i = randint(0, 4)
 		x = text[i]
-		d.text((start + (i * width) + 3, 0), x, font=fnt, fill=colors[correct_index])
+		d.text((start + (i * width) + 1, 0), x, font=fnt, fill=colors[correct_index])
 		correct_letters+=x
+
 	buffered = BytesIO()
 	img.save(buffered,format="PNG")
 	buffered.seek(0)
 	img_bytes = buffered.getvalue()
 	img_str = base64.b64encode(img_bytes).decode()
 	color_name = color_names[correct_index]
-	print(size)
+
 	return correct_letters, color_name, img_str
+
+def generate_captchas(request):
+	time = datetime.utcnow() + timedelta(seconds=29)
+	print(time.timestamp())
+	request.session['captcha_expires'] = time.timestamp()
+	correct_letters, color_name, img_str = img_captcha()
+	math_msg, correct_ans = simple_math()
+	request.session['correct_letters'] = correct_letters
+	request.session['captcha_answer'] = correct_ans
+	request.session['captcha_valid'] = False
+
+	return math_msg,color_name,img_str
 
 def check_captchas(request,user_letters,user_math_ans):
 	math_msg = ''
 	color_name = ''
 	img_str = ''
-	print(request.session['captcha_answer'], user_math_ans, request.session['correct_letters'], user_letters)
+	#print(request.session['captcha_answer'], user_math_ans, request.session['correct_letters'], user_letters)
 	if request.session['captcha_answer'] == user_math_ans and request.session['correct_letters'] == user_letters:
 		request.session['captcha_valid'] = True
+		#If they solve it then they don't have to try to do another one for a good while. 1m feels like long enough.
+		request.session['captcha_expires'] = (datetime.utcnow() + timedelta(minutes=1)).timestamp()
 		print('valid')
-
+		return True
 	else:
-		time = datetime.now() + timedelta(seconds=29)
-		request.session['captcha_expires'] = time.timestamp()
-		correct_letters,color_name, img_str = img_captcha()
-		math_msg,correct_ans = simple_math()
-		request.session['correct_letters'] = correct_letters
-		request.session['captcha_answer'] = correct_ans
-		request.session['captcha_valid'] = False
-	return math_msg,color_name,img_str
+		return False
+	#else:
+
+	#return math_msg,color_name,img_str

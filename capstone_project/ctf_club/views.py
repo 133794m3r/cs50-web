@@ -16,7 +16,7 @@ from json import dumps as json_encode
 #ratelimiter
 from ratelimit.decorators import ratelimit
 
-from .captcha import simple_math, img_captcha, check_captchas
+from .captcha import simple_math, img_captcha, check_captchas, generate_captchas
 from .totp import TotpAuthorize
 
 """
@@ -48,59 +48,69 @@ def index(request):
 @ratelimit(key='post:username',rate='5/m',method=ratelimit.UNSAFE)
 def login_view(request):
 	if is_ratelimited(request):
-		request.session['require_captcha'] = True
-		request.session['captcha_valid'] = False
+		if request.session.get('require_captcha',False):
+			captcha_expires = timezone.datetime.utcfromtimestamp(request.session.get('captcha_expires'))
+			if request.session.get('captcha_valid', False) and captcha_expires < timezone.datetime.utcnow():
+				request.session['captcha_valid'] = False
+		else:
+			request.session['captcha_valid'] = False
+			request.session['require_captcha'] = True
 	else:
-		request.session['require_captcha'] = False
+		if request.session.get('require_captcha'):
+			captcha_expires = timezone.datetime.utcfromtimestamp(request.session.get('captcha_expires'))
+			if request.session.get('captcha_valid',False) and captcha_expires > timezone.datetime.utcnow():
+				request.session['require_captcha'] = False
 
 	show_captcha = False
+	valid = True
+	img_str = ''
 	captcha_msg = ''
-
-	if request.session.get('require_captcha',False) and not request.session.get('captcha_valid',False):
-		captcha_msg,ans = simple_math()
+	color_name = ''
+	message = ''
+	# if they're rate-limited send this message.
+	if is_ratelimited(request):
+		message = "You're trying to fast please slow down."
+		request.session['require_captcha'] = True
+		valid = False
 		show_captcha = True
-		old_ans = request.session.get('captcha_answer')
-		if old_ans is None:
-			old_ans = ans
-		request.session['captcha_answer'] = ans
 
 	if request.method == "POST":
 		username = request.POST["username"]
 		password = request.POST["password"]
 
-		#if they're rate-limited send this message.
-		if is_ratelimited(request):
-			print(show_captcha)
-			print(captcha_msg)
-			return render(request,"login.html",{
-				"message":"You're trying to fast please slow down.",
-				"show_captcha":show_captcha,
-				"captcha_msg":captcha_msg
-			})
-
 		#if the captcha is wrong then don't even bother trying to auth them.
-		if request.session.get('require_captcha',False):
-			if not request.session.get('captcha_valid',False):
-				if request.POST.get('captcha_ans') != old_ans:
-					return render(request,"login.html",{
-						"message":"Incorrect Captcha",
-						"show_captcha":show_captcha,
-						"captcha_msg":captcha_msg
-					})
+		if request.session.get('require_captcha',False) and not request.session.get('captcha_valid',False):
+			captcha_expires = timezone.datetime.utcfromtimestamp(request.session.get('captcha_expires'))
+			if captcha_expires < timezone.datetime.utcnow():
+				message += "Captcha expired."
+				valid = False
+			else:
+				user_math_ans = request.POST.get('year','')
+				user_letters_ans = request.POST.get('letters','')
+				if not check_captchas(request,user_letters_ans,user_math_ans):
 
-		user = authenticate(request,username=username,password=password)
+					valid = False
 
-		if user is not None:
-			login(request,user)
-			return HttpResponseRedirect(reverse("index"))
-		else:
-			return render(request,"login.html",{
-				"message":"Invalid username and/or password.",
-				"show_captcha":show_captcha,
-				"captcha_msg":captcha_msg
-			})
+		if valid:
+			user = authenticate(request,username=username,password=password)
+
+			if user is not None:
+				login(request,user)
+				request.session['require_captcha'] = False
+				request.session['captcha_valid'] = False
+				return HttpResponseRedirect(reverse("index"))
+			else:
+				valid = False
+				message += "Invalid username and/or password."
+
+		if not valid:
+			captcha_msg, color_name, img_str = generate_captchas(request)
+			return render(request,"login.html",{"message":message,"captcha_msg":captcha_msg,"color_name":color_name,"img_str":img_str,"show_captcha":show_captcha})
 	else:
-		return render(request,"login.html")
+		if request.session.get('require_captcha',False):
+			captcha_msg,color_name,img_str = generate_captchas(request)
+		return render(request,"login.html",{"message":message,"captcha_msg":captcha_msg,"color_name":color_name,"img_str":img_str,"show_captcha":show_captcha})
+
 
 
 @login_required(login_url="login")
@@ -135,68 +145,73 @@ def challenge_view(request,challenge_id):
 @require_http_methods(["GET","POST"])
 @ratelimit(key='ip',rate='60/m',method=ratelimit.UNSAFE)
 def register(request):
+	signup_valid = True
 	if request.user.is_authenticated:
 		return HttpResponseRedirect('index')
-	captcha_msg,ans = simple_math()
+
 
 	if request.method == "POST":
 		msg = ''
 		if getattr(request,'limited',False):
-			return render(request,"register.html",{"message":"You're going too fast. Slow down.","captcha_msg":captcha_msg})
+			captcha_msg,color_name,img_str = generate_captchas(request)
+			return render(request, "register.html",
+			              {"message":"You're going too fast. Slow down.",
+			               "captcha_msg":captcha_msg, "color_name":color_name,
+			               "img_str":img_str})
 
 		username = request.POST.get("username")
 		email = request.POST.get("email")
 
 		password=request.POST.get("password")
 		confirmation=request.POST.get("password_confirm")
-		given_ans = request.POST.get("captcha_ans")
-		old_ans = request.session['captcha_answer']
-		request.session['captcha_answer'] = ans
-		if not request.session['captcha_valid']:
-			if given_ans != request.session['answer']:
-				return render(request,"register.html",{
-					"message":"Invalid Captcha Answer.",
-					"captcha_msg":captcha_msg
-				})
+		user_math_ans = request.POST.get("year")
+		user_letters = request.POST.get("letters")
+		password_score = request.POST.get("password_score",0)
+		check_captchas(request,user_letters,user_math_ans)
+
+
+		if request.session.get('captcha_valid',True):
+			if password != confirmation:
+				signup_valid = False
+				message = "Passwords must match."
+			elif password is None:
+				signup_valid = False
+				message = msg + "Passwords can't be blank."
+			elif username is None:
+				signup_valid = False
+				message = msg + "Username can't be blank."
+
+			elif len(password) < 6 or password_score < 3:
+				signup_valid = False
+				message = msg + "Password must meet minimum requirements."
+
+			if signup_valid:
+				try:
+					user = User.objects.create_user(username=username,email=email,password=password)
+					user.save()
+					login(request,user)
+					request.session.pop('captcha_valid')
+					request.session.pop('letters')
+					request.session.pop('math_ans')
+				except IntegrityError:
+					signup_valid = False
+					message = message+"Username must be unique."
+
+
+				return HttpResponseRedirect(reverse("index"))
 		else:
-			request.session['captcha_valid'] = False
+			signup_valid = False
+			message = "Invalid captcha."
+
+		if signup_valid is False:
+			captcha_msg, color_name, img_str = generate_captchas(request)
+			return render(request,"register.html",{"message":message,
+			                                       "captcha_msg":captcha_msg,"color_name":color_name,"img_str":img_str})
 
 
-		if password != confirmation:
-			return render(request,"register.html",{
-				"message":"Passwords must match.",
-				"captcha_msg":captcha_msg
-			})
-		elif password is None:
-			return render(request,"register.html",{
-				"message":msg + "Password cannot be blank.",
-				          "captcha_msg":captcha_msg
-			})
-		elif username is None:
-			return render(request,"register.html",{
-				"message":"Username can't be blank.",
-				"captcha_msg": captcha_msg
-			})
-		elif len(password) < 5:
-			return render(request,"register.html",{
-				"message":"Password must be the minimum strength.",
-				"captcha_msg": captcha_msg
-			})
-
-		try:
-			user = User.objects.create_user(username=username,email=email,password=password)
-			user.save()
-			login(request,user)			
-		except IntegrityError:
-			return render(request,"register.html",{
-				"message":"Username must be unique.",
-				"captcha_msg": captcha_msg
-			})
-		request.session['captcha_valid'] = False
-		return HttpResponseRedirect(reverse("index"))
 	else:
-		request.session['captcha_answer'] = ans
-		return render(request,"register.html",{"captcha_msg":captcha_msg})
+		captcha_msg, color_name, img_str = generate_captchas(request)
+		return render(request, "register.html", {"captcha_msg": captcha_msg, "color_name": color_name, "img_str": img_str})
 
 
 @login_required(login_url="login")
@@ -525,25 +540,34 @@ def captcha(request):
 	img_str = ''
 	letters_ans = None
 	usr_ans = None
+	error = False
+	#request.session['captcha_valid'] = False
+	#request.session['captcha_expires'] = timezone.datetime.utcnow().timestamp()
+	print(request.session.get('captcha_expires'))
 	if request.method == "POST":
+
 		captcha_expires = request.session.get('captcha_expires', False)
 		if captcha_expires:
-			captcha_expires = timezone.datetime.fromtimestamp(captcha_expires)
-			print(captcha_expires)
-			if captcha_expires > timezone.datetime.now():
+			captcha_expires = timezone.datetime.utcfromtimestamp(captcha_expires)
+			# print(captcha_expires)
+			# print(timezone.datetime.utcnow().timestamp())
+			# print(timezone.datetime.utcnow())
+			if captcha_expires < timezone.datetime.utcnow():
 				msg = "Captcha expired."
 				error = True
+				if request.session['captcha_valid']:
+					request.session['captcha_valid'] = False
 			else:
 
 				if request.is_ajax():
 					body = json_decode(request.body)
-					print(body)
 					usr_ans = body['captcha_ans']
 					letters_ans = body['letters']
 				else:
 					usr_ans = request.POST.get('captcha_ans')
 					letters_ans = request.POST.get('letters')
 
+				check_captchas(request,letters_ans,usr_ans)
 			# if usr_ans == request.session['captcha_answer'] and letters_ans == request.session['correct_letters']:
 			# 	request.session['captcha_valid'] = True
 			# 	msg = "Captcha Solved";
@@ -557,20 +581,23 @@ def captcha(request):
 
 	else:
 		request.session['captcha_valid'] = False
+
 	color_name = ''
 	img_str = ''
-	if not request.session['captcha_valid']:
+	if not request.session['captcha_valid'] and not error:
 		# captcha_msg,ans = simple_math()
 		# correct_letters,color_name,img_str = img_captcha()
 		# request.session['captcha_expires'] = timezone.now() + timezone.timedelta(seconds=30)
 		# request.session['correct_letters'] = correct_letters
 		# request.session['captcha_answer'] = ans
 		msg = "Invalid Captcha"
-		captcha_msg, color_name, img_str = check_captchas(request, letters_ans, usr_ans)
 		error = True
-	else:
+	elif not error:
 		msg = "Captcha Solved"
 		error = False
+
+	if error:
+		captcha_msg, color_name, img_str = generate_captchas(request)
 
 	return JsonResponse({"msg":msg,"error":error,"captcha_msg":captcha_msg,"color_name":color_name,"img_str":img_str})
 
