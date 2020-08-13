@@ -52,8 +52,6 @@ def img_captcha():
 	from PIL import Image, ImageDraw, ImageFont, ImagePalette
 	from random import randint
 	import base64
-	#pallete = [(0, 0, 0), (255, 0, 0,), (0, 127, 0), (0, 0, 255), (255, 255, 255)]
-	#ImagePalette.ImagePalette('P', pallete, size=5)
 	charset = 'ybndrfg8ejkmcpqxot1uwisza345h769'
 	chars = 31
 	text = ''
