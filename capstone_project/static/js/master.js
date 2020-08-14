@@ -35,6 +35,7 @@ function submit(route,content,callback){
 		});
 }
 
+
 /**
  * This is just a wrapper around fetch for my get reqeusts to give me the json result.
  *
@@ -51,6 +52,7 @@ function get(route,callback){
 			console.log("Error:",error);
 		});
 }
+
 
 /**
  *

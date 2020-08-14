@@ -4,6 +4,13 @@
  * Licensed under AGPLv3 Or Later (2020)
  */
 
+/**
+ * Fetch Challenge Function
+ *
+ * Will fetch a challenge for you based upon it's id.
+ *
+ * @param {int} challenge_id
+ */
 function fetch_chal(challenge_id){
 	get(`/challenge/${challenge_id}`,resp=>{
 		console.log(resp);
@@ -53,6 +60,11 @@ function fetch_chal(challenge_id){
 }
 
 
+/**
+ * Gets the hint from the server.
+ *
+ * @param hint_id {int} The id of the hint.
+ */
 function fetch_hint(hint_id){
 	get(`/hint/${hint_id}`,resp=>{
 		document.getElementById('hint_body').innerHTML = resp.description;
@@ -60,9 +72,18 @@ function fetch_hint(hint_id){
 	});
 }
 
+
 function dismiss_alert(){
 
 }
+
+/**
+ *  The solver function.
+ *  This function will attempt your solve by submitting it to the server via
+ *  the fetch command. It will then give the response based upon the parsed JSON respone.
+ *
+ * @param event {object}
+ */
 function solve(event){
 	event.preventDefault();
 	const id = document.getElementById('challenge_id').value;
@@ -95,6 +116,17 @@ function solve(event){
 	});
 }
 
+/**
+ * This function will socre a user's password using ZXCVBN and will also include
+ * their username as part of it's inputs so that it has the best chance of trying
+ * to reduce the score of their password.
+ *
+ * @param button_el {string}
+ * @param username {string}
+ * @param password {string}
+ * @param password_confirm_id {string}
+ * @returns {Number}
+ */
 function score_password(button_el,username,password,password_confirm_id){
 	let inputs=new Array(3)
 	//We're going to include their username in the ZXCVBN password strength estimator.
