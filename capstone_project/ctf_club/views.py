@@ -686,3 +686,6 @@ def verify_tfa(request):
 				return HttpResponseRedirect(reverse('index'))
 		else:
 			return render(request,"verify_tfa.html",{"token_invalid":True})
+
+def about(request):
+	return render(request,"about.html")

@@ -26,4 +26,5 @@ urlpatterns = [
 	path("tfa_qrcode.png",views.tfa_qr_code,name="tfa_qrcode"),
 	path("two_factor",views.tfa_enable,name="tfa_enable"),
 	path("verify_tfa",views.verify_tfa,name="verify_tfa"),
+	path("about",views.about,name="about"),
 ]

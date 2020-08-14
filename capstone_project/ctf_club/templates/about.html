@@ -1,0 +1,255 @@
+{% extends "layout.html" %}
+{% block head %}
+	<style>
+	#toc{
+position:absolute;
+position:fixed;
+top: 5rem;
+left:0px;
+width:15%;
+height:98%;
+padding:3px;
+}
+	.container-lg{
+		 max-width:80%;
+		 left:17%;
+		 position:absolute;
+	}
+	</style>
+{% endblock %}
+{% block body %}
+
+<main class="container-lg">
+	<div class="col-2" id="toc">
+			<ol>
+				<li> <a href="#top"> Top </a></li>
+				<li> <a href="#intro"> Intro</a></li>
+				<li><a href="#major_features">Major Features</a></li>
+				<li><a href="#challenge_generators">Challenge Features</a></li>
+				<li><a href="#project_details">Project Details</a></li>
+				<li><a href="#papers">Papers</a></li>
+			</ol>
+		</div>
+	</div>
+	<div class="col-10">
+	<div class="row" id="head">
+		<div class="col-12 text-center">
+			<h1> About the CTF club Project</h1>
+		</div>
+	</div>
+	<div class="row" id="intro">
+		<div class="col-lg-8 col-md-9 col-sm-10">
+			<p>
+				This site is Macarthur Inbody's CS50W Final Project/Capstone Assignment. All code is 100% my own/handwritten that appears in the github repo. It was made with the technologies/frameworks listed below. It is all hosted on the Google Compute Engine server that I manage.
+			</p>
+			<h3>Contact Information</h3>
+			<ul>
+				<li> LinkedIn <a href="">My Linked in Profile</a></li>
+				<li> Github Profile <a href=""> My github Profile</a></li>
+				<li> Personal Page(needs updating)<a href="https://transcendental.us">Personal Home Page</a></li>
+				<li> This project's source code repo <a href="">CS50W Capstone Project</a></li>
+			</ul>
+		</div>
+
+	</div>
+	<div class="row" id="major_features">
+		<div class="col-lg-9 col-md-10 col-sm-12">
+			<h2> Major Features </h2>
+			<ol>
+				<li> <h4> Programmatically generated flags</h4>
+					All flags are generated on the fly via algorithms stored on the server.
+				</li>
+				<li> <h4> Full 2FA via TOTP</h4>
+					<ul>
+						<li>
+							A full generator/verifier for 2FA is setup so that anyone can utilize any authenticator app to enable 2FA with the site.
+						</li>
+					</ul>
+				</li>
+				<li>
+					<h4> Almost entirely refreshless for almost all user actions.</h4>
+					<ul><li> Almost all views let the user submit theri data w/o requiring a full page refresh. They are also given feedback via alert messages telling them what happened.</li>
+					</ul>
+				</li>
+				<li>
+					<h4> A simple Captcha</h4>
+					<ul>
+						<li>There is a simple 2 step captcha system in place. The user has to solve a simple math problem for one.</li>
+						<li>the other one requries them to look at an image of 6 characters and type out which ones match the color they are said to find. To help them see the color it is shown to them as the word that is also colored the same as the required characters. It uses ZBase32 alphabet for ease of use by normal users.</li>
+					</ul>
+				</li>
+				<li>
+					<h4> Almost entirely MVC</h4>
+					<ul>
+						<li>There are models for all database contains for the data and people interact with it via views. No raw SQL appears anywhere in the project.</li>
+					</ul>
+				</li>
+				<li>
+					<h4> All views are protected against CSRF</h4>
+					<ul>
+						<li> All views require a CSRF token, and all cookies can only be sent via HTTPs by the browser.</li>
+					</ul>
+				</li>
+				<li>
+					<h4> Passwords are scored via ZXCVBN</h4>
+					<ul>
+						<li> All passwords are scored using the ZXCVBN framework to prevent users from using weak passwords.</li>
+					</ul>
+				</li>
+				<li>
+					<h4> All passwords are hashed with the Scrypt algorithm.</h4>
+					<ul>
+						<li> I wrote a custom PasswordHasher class for Django so that I could utilize Scrypt. </li>
+					</ul>
+				</li>
+				<li>
+					<h4>Ratelimiting</h4>
+					<ul>
+						<li>
+							Admin view is protected against spammers/bruteforcers. As they'll be blocked if they are rate limited.
+						</li>
+						<li> The login view is also rate-limited. If any IP address or attempts against any username are above the rate
+							then the person has to solve a captcha before they'll be allowed to login.
+						</li>
+						<li> If a user is submitting too many attempts at solving a challenge they'll be rate limited and given the message</li>
+					</ul>
+				</li>
+				<li> <h4> UX Features</h4>
+					<ul>
+						<li> The modal dialogs that make up the majority of the user interface are all stackable. </li>
+						<li> The whole site is mobile-responsive. </li>
+					</ul>
+				</li>
+				<li> <h4> Math involved for Generators</h4>
+					<ul>
+						<li>
+							Constrained Knapsack Problem(Algorithms)
+						</li>
+						<li>
+							Number Theory(Fermat's Factorization Method applied to RSA), Modular Multiplicative Inverses, Bezout's coeffecients, Using Carmachieal's Totient function, etc.
+						</li>
+						<li>
+							Group/Set Theory/Discrete Math. RSA, Hastaad Broadcast Attack via the Chinese Remainder Theorem.
+						</li>
+						<li>
+							Minor Linear Algebra(Hill Cipher)
+						</li>
+					</ul>
+				</li>
+			</ol>
+		</div>
+	</div>
+	<div class="row" id="challenge_generators">
+		<div class="col-lg-9 col-md-10 col-sm-12">
+			<h2> Challenge Generators</h2>
+			<p>
+				For the papers that'll help you understand how to take on the Hill Cipher, and RSA challenges use the section <a href="#papers">Papers</a>
+				Each challenge has it's type and the challenge name listed after a "--".
+			</p>
+			<ol>
+				<li> <h4> Hill Cipher -- Master of Hill Climbing</h4>
+					<ul>
+						<li> The hill cipher works with matrices and requires the user to utilize linear algebra and it's operations on matrices to decrypt the messages and also calculate the key via the calculation of inverse matrices. There are 2 variants of this challenge. Both require the person to decrypt a message encrypted with the hill cipher. Variety 1 gives them the key, and variety 2 requires them to calculate the key based upon a KPA against the message via a provided crib.</li>
+					</ul>
+				</li>
+				<li><h4>Affine Cipher -- A-fine Cipher</h4>
+					<ul>
+						<li> This cipher is just a 2 step Ceaser Cipher. And thus isn't all that difficult. The 2 variants are the same as the Hill cipher.</li>
+					</ul>
+				</li>
+				<li>
+					<h4> RSA Decryption -- Really Simple Algorithm</h4>
+					<ul>
+						<li> This flag simply requires the person to decrypt an RSA encrypted message after being provided the key and ciphertext.</li>
+					</ul>
+				</li>
+				<li>
+					<h4>RSA Near Primes Attack Utilizing Fermat's Factorization method -- The Frenchman's Revenge</h4>
+					<ul>
+						<li> This flag requires the person to factor an RSA key so that they can then decrypt the message given to them.</li>
+					</ul>
+				</li>
+				<li>
+					<h4> RSA - Hastaad Broadcast Attack with Chinese Remainder Theorem -- Leftover Chinese Food and Broadcast Reruns</h4>
+					<ul>
+						<li> This flag requires the user to decrypt a message using the Hastaad Broadcast attack. This attack works when there is the same message repeatedly sent w/o any padding, and it is sent e times where e is the exponent value.</li>
+					</ul>
+				</li>
+				<li>
+					<h4> RSA - Common Modulus Attack -- It's all the same.</h4>
+					<ul>
+						<li> This attack against RSA works because the same message is sent more than once with the same modulus, thus an attacker can calculate the relationship between the values and get back the plaintext integer. </li>
+					</ul>
+				</li>
+				<li>
+					<h4> RSA - Bling signature Attack -- Signature Forgery</h4>
+					<ul>
+						<li> This attack requires the person to carry out a signature forgery. To make sure that the challenge isn't too hard they are given teh blinding factor r and just have to calculate the unblinded message and forge the singature.</li>
+					</ul>
+				</li>
+				<li>
+					<h4> Programming/Algorithms - Unbound Knapsack Problem -- Master Hacker </h4>
+					<ul>
+						<li> This problem requires the person to calculate the maximum value of all items that they can fit in their flash drive(knapsack). They also have to return the name of the highest valued item, and the number of items they can get. It is a relatively complex algorithms problem. They are given a testcase to test their program against to confirm they are on the right track.</li>
+					</ul>
+				</li>
+				<li>
+					<h4> Programming FizzBuzz -- The Cola and the Bee</h4>
+					<ul>
+						<li> This is literally just a fizzbuzz challenge. The testcase is a super simplified version of the algorithm so they can check their program for correctness before saying the challenge is bugged.</li>
+					</ul>
+
+				</li>
+			</ol>
+		</div>
+	</div>
+	<div class="row" id="papers">
+		<div class="col-lg-9 col-md-10 col-sm-12">
+			<h2> The papers that'll help with solving the crypto challenges.</h2>
+			<ol>
+				<li> <h4>RSA Paper</h4>
+
+					<ul>
+						<li> <a href="https://github.com/133794m3r/Papers/raw/master/crypto/RSA_LAB_1.pdf" target="_blank">RSA Paper From beginning to Practical Attacks</a></li>
+						<li> This paper goes over all of RSA from the beginning fundamentals to real-world attacks laid out in these challenges and includes real-world attacks. It is wrote(sans the proofs section) in such a way that anyone can undrestand the attacks. It assumes no mathemtical experience beyond being able to do basic arithematic and knowing what a modulus is.</li>
+					</ul>
+				</li>
+				<li>
+					<h4> Hill Cipher Paper</h4>
+					<ul>
+						<li> <a href="https://github.com/133794m3r/Papers/raw/master/crypto/HILL_CIPHER.pdf" target="_blank">Hill Cipher Paper from intros to calculating the decryption key.</a></li>
+						<li> This paper goes over the Hill cipher and also how to calculate the decryption key in such a way that the person isn't required to have already taken linear algebra.</li>
+					</ul>
+				</li>
+			</ol>
+		</div>
+	</div>
+	<div class="row" id="project_details">
+		<div class="col-lg-9 col-md-10 col-sm-12">
+			<h2>Project Details</h2>
+			<ol>
+				<li><h4>Languages</h4>
+					<ul><li>
+						<span>Python,JavaScript/EcmaScript,CSS, HTML5, SQL,Django Templating Language</span></li></ul>
+				</li>
+				<li><h4>Backend Frameworks/Libraries</h4>
+					<ul>
+						<li> Django 3.0, Sympy, PyCryptoDome, Django-ratelimit-backend, Django-ratelimit, QRCode, PyTOTP,PyMemCached</li>
+					</ul>
+				</li>
+				<li> <h4>Frontend Frameworks</h4>
+					<ul>
+						<li>BootStrap5, jQuery, BootSwatch</li>
+					</ul>
+				</li>
+				<li> <h4>Server Software</h4>
+					<ul>
+						<li> Nginx, PostgresSQL, Debian GNU/Linux, Memcached</li>
+					</ul>
+				</li>
+			</ol>
+		</div>
+	</div>
+	</div>
+</main>
+{% endblock %}

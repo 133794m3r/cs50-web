@@ -217,6 +217,6 @@ function score_password(button_el,username,password,password_confirm_id){
 	}
 
 	but.disabled = (result.score < 3);
-
+	document.getElementById('password_score').value = score;
 	return result.score;
 }
