@@ -3,9 +3,9 @@
 
 import datetime
 from urllib import parse
-
 import pyotp
 import qrcode
+
 class TotpAuthorize:
 	def __init__(self, secret=None):
 		if secret is None:

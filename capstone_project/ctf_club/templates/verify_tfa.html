@@ -8,6 +8,13 @@
 				<h1>Please Open your Authenticator App to verify your identity.</h1>
 			</div>
 		</div>
+		{% if token_invalid %}
+		<div class="row">
+			<div class="col-5">
+				<h2>The token you entered was incorrect please try again.</h2>
+			</div>
+		</div>
+		{% endif %}
 		<div class="row d-flex justify-content-center">
 			<div class="col-lg-2 col-md-3 col-sm-4 text-center f-150">
 				<form class="form-group" method="POST">

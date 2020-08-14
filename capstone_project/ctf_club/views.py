@@ -31,6 +31,7 @@ from .util import *
 def is_ratelimited(request):
 	return getattr(request,'limited',False)
 
+
 # Create your views here.
 @require_http_methods(["GET","POST"])
 # @ratelimit(key='ip',rate='20/m')
@@ -119,7 +120,6 @@ def login_view(request):
 		return render(request,"login.html",{"message":message,"captcha_msg":captcha_msg,"color_name":color_name,"img_str":img_str,"show_captcha":show_captcha})
 
 
-
 @login_required(login_url="login")
 @require_http_methods(["GET"])
 def logout_view(request):
@@ -148,7 +148,8 @@ def challenge_view(request,challenge_id):
 	hints = jsonify_queryset(hints)
 	resp = {'challenge': chal, 'hints': hints,'num_hints':num_hints,'solved':solved}
 	return JsonResponse(resp)
-	
+
+
 @require_http_methods(["GET","POST"])
 @ratelimit(key='ip',rate='30/m',method=ratelimit.UNSAFE)
 def register(request):
@@ -275,6 +276,7 @@ def solve(request,challenge_id):
 @require_http_methods(["GET","POST"])
 def challenge_hint(request,challenge_id):
 	pass
+
 
 @login_required(login_url="login")
 @ratelimit(key='user',rate='20/m')
@@ -506,6 +508,7 @@ def get_all_solves(request):
 
 	return JsonResponse({'error':solve_dict})
 
+
 @login_required(login_url="login")
 # @ratelimit(key='user',rate='1/s')
 # @require_http_methods(["POST","GET"])
@@ -531,6 +534,7 @@ def hint_admin(request,challenge_name):
 		challenge_hints = jsonify_queryset(challenge_hints)
 	return JsonResponse({'hints':challenge_hints,'len':num_hints})
 
+
 @login_required(login_url="login")
 # @ratelimit(key='ip',rate='30/m')
 def admin_view(request):
@@ -540,12 +544,14 @@ def admin_view(request):
 	was_limited = getattr(request, 'limited', False)
 	return render(request,"solves_admin.html",{'solves:solves'})
 
+
 # @ratelimit(key='ip',rate='30/m')
 @require_http_methods(["GET"])
 def high_scores(request):
 	top_users = User.objects.values('points','username','id').order_by('-points','username')[:10]
 	was_limited = getattr(request, 'limited', False)
 	return JsonResponse(jsonify_queryset(top_users),safe=False)
+
 
 @ratelimit(key='ip',rate='30/m',method=ratelimit.UNSAFE)
 @require_http_methods(["GET","POST"])
@@ -604,6 +610,7 @@ def captcha(request):
 
 	return JsonResponse({"msg":msg,"ratelimited":ratelimited,"error":error,"captcha_msg":captcha_msg,"color_name":color_name,"img_str":img_str})
 
+
 @login_required(login_url="login")
 def files(request,filename):
 	return FileResponse(open(f'files/{filename}','rb'))
@@ -625,6 +632,7 @@ def tfa_qr_code(request):
 	qrcode.save(response,"PNG")
 	return response
 
+
 @login_required(login_url='login')
 @require_http_methods(["GET","POST"])
 def tfa_enable(request):
@@ -643,6 +651,7 @@ def tfa_enable(request):
 			request.user.tfa_enabled = True
 			request.user.save()
 		return render(request,"two_factor.html",{"enabled":True})
+
 
 @login_required()
 @require_http_methods(["GET","POST"])
@@ -664,6 +673,8 @@ def verify_tfa(request):
 		if totp_authorizer.valid(token):
 			request.session['unverified_tfa'] = False
 			if request.is_ajax():
-				return JsonResponse({'token_valid':True})
+				return JsonResponse({'token_invalid':True})
 			else:
 				return HttpResponseRedirect(reverse('index'))
+		else:
+			return render(request,"verify_tfa.html",{"token_invalid":True})
