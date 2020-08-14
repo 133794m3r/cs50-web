@@ -7,6 +7,9 @@ import pyotp
 import qrcode
 
 class TotpAuthorize:
+	"""
+	The TOTP Authorizer Class.
+	"""
 	def __init__(self, secret=None):
 		if secret is None:
 			secret = pyotp.random_base32()
@@ -14,9 +17,19 @@ class TotpAuthorize:
 		self.totp = pyotp.TOTP(secret)
 
 	def generate_token(self):
+		"""
+		Generates a TOTP token based on the given secret.
+
+		:return: a token representing the current time.
+		"""
 		return self.totp.now()
 
-	def valid(self, token):
+	def valid(self, token:object) -> bool:
+		"""
+
+		:param token: The token we're going to check. It's either a string or an integer.
+		:return: True if the token or the previous one is valid else False.
+		"""
 		token = int(token)
 		now = datetime.datetime.now()
 		prior_time = now + datetime.timedelta(seconds=-30)
@@ -27,10 +40,13 @@ class TotpAuthorize:
 		except:
 			return False
 
-	def qrcode(self, username):
-		print(username)
-		#username = ' %8&'
-		uri = self.totp.provisioning_uri(username)
+	def qrcode(self, username) -> object:
+		"""
 
+		:param username:The username of the token.
+		:return: An PIL Image object representing the QRCode.
+		"""
+		uri = self.totp.provisioning_uri(username)
+		#A hack to get around android-token not deocoding the URI for me.
 		uri = parse.unquote(uri)
 		return qrcode.make(uri)

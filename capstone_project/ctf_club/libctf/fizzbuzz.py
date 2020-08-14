@@ -1,7 +1,5 @@
 def make_fizzbuzz(start: int, end: int) -> tuple:
 	"""
-	make_fizzbuzz
-
 	Makes a challenge based upon a basic fizzbuzz challenge for the users to try to solve.
 
 	:param start: The starting value we're going to count from.

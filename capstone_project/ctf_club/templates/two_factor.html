@@ -1,8 +1,33 @@
 {% extends "layout.html" %}
+{% block head %}
+	<script type="text/javascript">
+		document.addEventListener("DOMContentLoaded",event=>{
+			document.getElementById('check_token').addEventListener("click",event=>{
+				event.preventDefault();
+				const token = parseInt(document.getElementById("token").value);
+				submit("/two_factor",{"token":token},resp=>{
+					console.log(resp.enabled);
+					const alert = document.getElementById("alert");
+					if(resp.enabled){
+						document.getElementById("tfa_enabled").innerText = "Add another Device";
+						alert.hidden = false;
+						document.getElementById("alert_msg").innerText = "Successfully Verified the Token";
+						alert.className = "alert alert-success";
+					}
+					else{
+						document.getElementById("alert_msg").innerText = resp.error;
+						alert.hidden = false;
+						alert.className = "alert alert-danger";
+					}
+				})
+			})
+		})
+	</script>
+{% endblock %}
 {% block body %}
 	<main class="container-lg">
 		<div>
-			<h1>
+			<h1 id="tfa_enabled">
 				{% if enabled %}
 					Add To another device.
 				{% else %}
@@ -47,15 +72,24 @@
 				</li>
 			</ol>
 			<img src="{%  url 'tfa_qrcode' %}" style="width: 300px; height:300px"/>
+			{% if error %}
+				<div class="alert alert-danger">
+			{% else %}
+				<div class="alert" hidden="true" id="alert">
+			{% endif %}
+				<div id="alert_msg">
+					{{ error }}
+				</div>
+			</div>
 			<div class="mt-2 mb-2">
 				<p> Once you have scanned the QRCode, enter the 6-digit code below:</p>
 				<form method="POST">
 					<fieldset>
 						<div class="mb-3">
 							<label>Verification Code</label>
-							<input type="text" name="token" placeholder="123456" aria-placeholder="123456" />
+							<input type="text" name="token" placeholder="123456" aria-placeholder="123456" id="token" />
 						</div>
-						<button type="submit" class="btn btn-primary">Submit</button>
+						<button type="submit" class="btn btn-primary" id="check_token">Submit</button>
 						<a href="{% url 'control_panel' username=request.user.username %}" class="btn btn-secondary">Cancel</a>
 					</fieldset>
 					{% csrf_token %}

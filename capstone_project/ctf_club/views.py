@@ -650,7 +650,15 @@ def tfa_enable(request):
 			request.user.tfa_secret = request.session['totp_secret']
 			request.user.tfa_enabled = True
 			request.user.save()
-		return render(request,"two_factor.html",{"enabled":True})
+			enabled = True
+			error = ""
+		else:
+			enabled = False
+			error = "The token you provided didn't work. Refresh the page and try again."
+		if request.is_ajax():
+			return JsonResponse({"enabled":enabled,"error":error})
+		else:
+			return render(request,"two_factor.html",{"enabled":enabled,error:error})
 
 
 @login_required()

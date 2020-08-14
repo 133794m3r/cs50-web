@@ -57,7 +57,16 @@ Their flag will be something like items
 """
 
 
-def make_tuples(number_of_items, max_storage):
+def make_tuples(number_of_items: int, max_storage: int) -> list:
+	"""
+	This function will generate all of the possible tuples that the person
+	will be dealing with when trying to solve this challenge.
+
+	:param number_of_items: How many items we should generate.
+	:param max_storage: The maximum space that the person has.
+	:return: A list of tuples.
+	"""
+
 	from random import randint
 	tuples = []
 	max_value = max_storage // 2
@@ -66,7 +75,13 @@ def make_tuples(number_of_items, max_storage):
 	return tuples
 
 
-def make_filenames(number_of_items):
+def make_filenames(number_of_items: int) -> list:
+	"""
+	This function will generate fake file names for the challenge.
+
+	:param number_of_items:The number of items we should generate.
+	:return: The list containing the file names.
+	"""
 	item_prefixes = ['SECRET', 'WIP', 'BACKUP', 'FINAL', 'BOOK', 'VOLUME', 'PLAY', 'ARCHIVE', 'PRAWN', 'PWN', 'PASSWORDS',
 	                 'KEY_VAULT', 'KEYS', 'BUSINESS_REPORTS', 'TOTALLY_LEGIT_EMAIL']
 	item_prefixes_len = len(item_prefixes) - 1
@@ -84,10 +99,22 @@ def make_filenames(number_of_items):
 		filenames.append(filename)
 	return filenames
 
+
+#this function is just here I never actually wrote a real solver for it.
 def solve_masterhacker(tuples,filenames):
 	pass
 
+
 def make_masterhacker():
+	"""
+	this function will create a challenge based upon the bounded knapsack
+	problem. It will return the challenge's message, the flag(formatted
+	properly), and also the filename of the generated file.
+	It also includes a base-case for people to test their code against.
+
+	:return: chal_msg:str, flag:str, filename:str
+	"""
+
 	max_storage = randint(50, 400)
 	number_of_items = randint(100, 200)
 	chal_msg = f"""<p>You've broken into a remote computer system. You've already gotten archives that hold {number_of_items //2} items of value. You need to figure out from the list of items left on the computer that you can steal. You only have {max_storage}MiB of data left. You've already run an enumerator on the drive and have a list of tuples for the items that you can get You need to go through this tuple and get as many pieces of information as possible while still not going over your budget since you have to flee the seen and cover up your tracks before you're caught. There are still {number_of_items} items left on the device to sift through.The answer must be returned in a tuple. The file contains three csv lists. The first is the filenames, second is the storage space required and the third is value of each of the items</p>"""
