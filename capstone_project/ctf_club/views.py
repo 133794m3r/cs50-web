@@ -33,7 +33,7 @@ def is_ratelimited(request):
 
 # Create your views here.
 @require_http_methods(["GET","POST"])
-@ratelimit(key='ip',rate='20/m')
+# @ratelimit(key='ip',rate='20/m')
 def profile(request,username):
 	return render(request,'control_panel.html')
 
@@ -79,17 +79,19 @@ def login_view(request):
 		password = request.POST["password"]
 
 		#if the captcha is wrong then don't even bother trying to auth them.
-		if request.session.get('require_captcha',False) and not request.session.get('captcha_valid',False):
+		if request.session.get('require_captcha',False) and request.session.get('captcha_valid') is False:
 			captcha_expires = timezone.datetime.utcfromtimestamp(request.session.get('captcha_expires'))
+
 			if captcha_expires < timezone.datetime.utcnow():
 				message += "Captcha expired."
 				valid = False
+				show_captcha = True
 			else:
 				user_math_ans = request.POST.get('year','')
 				user_letters_ans = request.POST.get('letters','')
 				if not check_captchas(request,user_letters_ans,user_math_ans):
-
 					valid = False
+					show_captcha = True
 
 		if valid:
 			user = authenticate(request,username=username,password=password)
@@ -98,7 +100,12 @@ def login_view(request):
 				login(request,user)
 				request.session['require_captcha'] = False
 				request.session['captcha_valid'] = False
-				return HttpResponseRedirect(reverse("index"))
+
+				if user.tfa_enabled:
+					request.session['unverified_tfa'] = True
+					return HttpResponseRedirect(reverse("verify_tfa"))
+				else:
+					return HttpResponseRedirect(reverse("index"))
 			else:
 				valid = False
 				message += "Invalid username and/or password."
@@ -122,7 +129,7 @@ def logout_view(request):
 
 @require_http_methods(["GET"])
 @login_required(login_url="login")
-@ratelimit(key='user',rate='45/m')
+# @ratelimit(key='user',rate='45/m')
 def challenge_view(request,challenge_id):
 
 	solved = False if Solves.objects.filter(user_id=request.user.id,challenge_id=challenge_id).count() == 0 else True
@@ -143,7 +150,7 @@ def challenge_view(request,challenge_id):
 	return JsonResponse(resp)
 	
 @require_http_methods(["GET","POST"])
-@ratelimit(key='ip',rate='60/m',method=ratelimit.UNSAFE)
+@ratelimit(key='ip',rate='30/m',method=ratelimit.UNSAFE)
 def register(request):
 	signup_valid = True
 	if request.user.is_authenticated:
@@ -177,13 +184,17 @@ def register(request):
 			elif password is None:
 				signup_valid = False
 				message = msg + "Passwords can't be blank."
-			elif username is None:
-				signup_valid = False
-				message = msg + "Username can't be blank."
-
 			elif len(password) < 6 or password_score < 3:
 				signup_valid = False
 				message = msg + "Password must meet minimum requirements."
+
+			if username is None:
+				signup_valid = False
+				message = msg + "Username can't be blank."
+			elif re.match('[^A-Za-z_\-0-9]'):
+				signup_valid = False
+				message = msg + "Username must only contain uppercase and lowercase letters, numbers, '-', and '_'."
+
 
 			if signup_valid:
 				try:
@@ -218,42 +229,46 @@ def register(request):
 @require_http_methods(["POST"])
 @ratelimit(key='user',rate='20/m')
 def solve(request,challenge_id):
-
-	challenge = Challenges.objects.filter(pk=challenge_id).first()
-	data = json_decode(request.body)
-
-	#Make sure that all matches are case-insensitve for simplicty's sake.
-	answer = data['answer'].upper()
-	correct_flag = challenge.flag.upper()
-	points = challenge.points
-	solved = Solves.objects.filter(user=request.user,challenge_id=challenge_id).first()
-	#if they have solved something don't do anything else.
-	if solved:
-		was_solved = True
-	#they hadn't already solved it see if they did solve it.
-	elif answer == correct_flag:
-		#if so make sure to create a new solve.
-		new_solve = Solves.objects.create(
-			user=request.user,
-			challenge_id=challenge_id
-		)
-		new_solve.save()
-		#modify the number of solves to increase it by one.
-		challenge.num_solves +=1
-		challenge.save()
-		was_solved = True
-		#Really really stupid way to do an update statement here. But MVC is the future they say.
-		# would be so much simpler to simply do an sql query like.
-		# update ctf_club_user set points = points + challenge_points where id = user_id
-		#One clean line of SQL instead of 3 lines of nonsense.
-		user = User.objects.get(pk=request.user.id)
-		user.points+=points
-		user.save()
-	#otherwise no solve was had.
+	was_solved = False
+	ratelimited = False
+	if is_ratelimited(request):
+		ratelimited = True
 	else:
-		was_solved = False
+		challenge = Challenges.objects.filter(pk=challenge_id).first()
+		data = json_decode(request.body)
 
-	return JsonResponse({'solved':was_solved})
+		#Make sure that all matches are case-insensitve for simplicty's sake.
+		answer = data['answer'].upper()
+		correct_flag = challenge.flag.upper()
+		points = challenge.points
+		solved = Solves.objects.filter(user=request.user,challenge_id=challenge_id).first()
+		#if they have solved something don't do anything else.
+		if solved:
+			was_solved = True
+		#they hadn't already solved it see if they did solve it.
+		elif answer == correct_flag:
+			#if so make sure to create a new solve.
+			new_solve = Solves.objects.create(
+				user=request.user,
+				challenge_id=challenge_id
+			)
+			new_solve.save()
+			#modify the number of solves to increase it by one.
+			challenge.num_solves +=1
+			challenge.save()
+			was_solved = True
+			#Really really stupid way to do an update statement here. But MVC is the future they say.
+			# would be so much simpler to simply do an sql query like.
+			# update ctf_club_user set points = points + challenge_points where id = user_id
+			#One clean line of SQL instead of 3 lines of nonsense.
+			user = User.objects.get(pk=request.user.id)
+			user.points+=points
+			user.save()
+		#otherwise no solve was had.
+		else:
+			was_solved = False
+
+	return JsonResponse({'solved':was_solved,'ratelimited':ratelimited})
 
 
 @login_required(login_url="login")
@@ -280,7 +295,7 @@ def hint(request,hint_id):
 
 @login_required(login_url="login")
 @require_http_methods(["GET","POST"])
-@ratelimit(key='user',rate='20/m',method=ratelimit.UNSAFE)
+# @ratelimit(key='user',rate='20/m',method=ratelimit.UNSAFE)
 def control_panel(request,username):
 
 	if request.user.is_authenticated:
@@ -330,7 +345,7 @@ def solves(request):
 
 @login_required(login_url="login")
 @require_http_methods(["GET","POST"])
-@ratelimit(key='user',rate='10/s')
+# @ratelimit(key='user',rate='10/s')
 def challenge_admin(request):
 	#for the sorting of the challenges later.
 	from operator import itemgetter
@@ -458,7 +473,7 @@ def challenge_admin(request):
 
 
 @login_required(login_url="login")
-@ratelimit(key='user',rate='45/m')
+# @ratelimit(key='user',rate='45/m')
 def solves_admin(request):
 	if not request.user.is_staff or not request.user.is_superuser:
 		raise Http404()
@@ -469,7 +484,7 @@ def solves_admin(request):
 
 
 @login_required(login_url="login")
-@ratelimit(key='user',rate='30/m')
+# @ratelimit(key='user',rate='30/m')
 def get_all_solves(request):
 	if not request.user.is_staff or not request.user.is_superuser:
 		raise Http404()
@@ -492,8 +507,8 @@ def get_all_solves(request):
 	return JsonResponse({'error':solve_dict})
 
 @login_required(login_url="login")
-@ratelimit(key='user',rate='1/s')
-@require_http_methods(["POST","GET"])
+# @ratelimit(key='user',rate='1/s')
+# @require_http_methods(["POST","GET"])
 def hint_admin(request,challenge_name):
 	if request.method == "POST":
 		content = json_decode(request.body)
@@ -517,7 +532,7 @@ def hint_admin(request,challenge_name):
 	return JsonResponse({'hints':challenge_hints,'len':num_hints})
 
 @login_required(login_url="login")
-@ratelimit(key='ip',rate='30/m')
+# @ratelimit(key='ip',rate='30/m')
 def admin_view(request):
 	if request.user.is_staff != True or request.user.is_superuser != True:
 		raise Http404()
@@ -525,14 +540,14 @@ def admin_view(request):
 	was_limited = getattr(request, 'limited', False)
 	return render(request,"solves_admin.html",{'solves:solves'})
 
-@ratelimit(key='ip',rate='30/m')
+# @ratelimit(key='ip',rate='30/m')
 @require_http_methods(["GET"])
 def high_scores(request):
 	top_users = User.objects.values('points','username','id').order_by('-points','username')[:10]
 	was_limited = getattr(request, 'limited', False)
 	return JsonResponse(jsonify_queryset(top_users),safe=False)
 
-@ratelimit(key='ip',rate='1/s',method=ratelimit.UNSAFE)
+@ratelimit(key='ip',rate='30/m',method=ratelimit.UNSAFE)
 @require_http_methods(["GET","POST"])
 def captcha(request):
 	captcha_msg = ''
@@ -541,42 +556,34 @@ def captcha(request):
 	letters_ans = None
 	usr_ans = None
 	error = False
-	#request.session['captcha_valid'] = False
-	#request.session['captcha_expires'] = timezone.datetime.utcnow().timestamp()
+	ratelimited = False
+
 	print(request.session.get('captcha_expires'))
 	if request.method == "POST":
+		if is_ratelimited(request):
+			ratelimited = True
+		else:
+			captcha_expires = request.session.get('captcha_expires', False)
+			if captcha_expires:
+				captcha_expires = timezone.datetime.utcfromtimestamp(captcha_expires)
 
-		captcha_expires = request.session.get('captcha_expires', False)
-		if captcha_expires:
-			captcha_expires = timezone.datetime.utcfromtimestamp(captcha_expires)
-			# print(captcha_expires)
-			# print(timezone.datetime.utcnow().timestamp())
-			# print(timezone.datetime.utcnow())
-			if captcha_expires < timezone.datetime.utcnow():
-				msg = "Captcha expired."
-				error = True
-				if request.session['captcha_valid']:
-					request.session['captcha_valid'] = False
-			else:
-
-				if request.is_ajax():
-					body = json_decode(request.body)
-					usr_ans = body['captcha_ans']
-					letters_ans = body['letters']
+				if captcha_expires < timezone.datetime.utcnow():
+					msg = "Captcha expired."
+					error = True
+					if request.session['captcha_valid']:
+						request.session['captcha_valid'] = False
 				else:
-					usr_ans = request.POST.get('captcha_ans')
-					letters_ans = request.POST.get('letters')
 
-				check_captchas(request,letters_ans,usr_ans)
-			# if usr_ans == request.session['captcha_answer'] and letters_ans == request.session['correct_letters']:
-			# 	request.session['captcha_valid'] = True
-			# 	msg = "Captcha Solved";
-			# 	error = False
-			# else:
-			# 	request.session['captcha_valid'] = False
-			#
-			# 	msg = "Invalid Math Captcha Answer."
-			# 	error = True
+					if request.is_ajax():
+						body = json_decode(request.body)
+						usr_ans = body['captcha_ans']
+						letters_ans = body['letters']
+					else:
+						usr_ans = request.POST.get('captcha_ans')
+						letters_ans = request.POST.get('letters')
+
+					check_captchas(request,letters_ans,usr_ans)
+
 
 
 	else:
@@ -585,11 +592,7 @@ def captcha(request):
 	color_name = ''
 	img_str = ''
 	if not request.session['captcha_valid'] and not error:
-		# captcha_msg,ans = simple_math()
-		# correct_letters,color_name,img_str = img_captcha()
-		# request.session['captcha_expires'] = timezone.now() + timezone.timedelta(seconds=30)
-		# request.session['correct_letters'] = correct_letters
-		# request.session['captcha_answer'] = ans
+
 		msg = "Invalid Captcha"
 		error = True
 	elif not error:
@@ -599,12 +602,11 @@ def captcha(request):
 	if error:
 		captcha_msg, color_name, img_str = generate_captchas(request)
 
-	return JsonResponse({"msg":msg,"error":error,"captcha_msg":captcha_msg,"color_name":color_name,"img_str":img_str})
+	return JsonResponse({"msg":msg,"ratelimited":ratelimited,"error":error,"captcha_msg":captcha_msg,"color_name":color_name,"img_str":img_str})
 
 @login_required(login_url="login")
 def files(request,filename):
 	return FileResponse(open(f'files/{filename}','rb'))
-
 
 
 # TFA related views.
@@ -614,9 +616,9 @@ def tfa_qr_code(request):
 	domain = request.get_host()
 	if not domain:
 		domain = 'example.com'
-	username = f"{request.user.id}@{domain}"
+	username = f"{request.user.username}@{domain}"
 	new_totp = TotpAuthorize(request.user.tfa_secret)
-	print(new_totp.secret)
+	request.session['totp_secret'] = new_totp.secret
 
 	qrcode = new_totp.qrcode(username)
 	response = HttpResponse(content_type="image/png")
@@ -626,4 +628,42 @@ def tfa_qr_code(request):
 @login_required(login_url='login')
 @require_http_methods(["GET","POST"])
 def tfa_enable(request):
-	pass
+	if request.method == "GET":
+		has_tfa_enabled = request.user.tfa_enabled
+		return render(request,"two_factor.html",{"enabled":has_tfa_enabled})
+	else:
+		if request.is_ajax():
+			token = json_decode(request.body).get('token')
+		else:
+			token = request.POST.get('token')
+
+		new_totp = TotpAuthorize(request.session['totp_secret'])
+		if token and new_totp.valid(token):
+			request.user.tfa_secret = request.session['totp_secret']
+			request.user.tfa_enabled = True
+			request.user.save()
+		return render(request,"two_factor.html",{"enabled":True})
+
+@login_required()
+@require_http_methods(["GET","POST"])
+def verify_tfa(request):
+
+	if request.method == "GET":
+
+		if request.session.get('unverified_tfa',False):
+			return render(request,"verify_tfa.html")
+		else:
+			return HttpResponseRedirect(reverse("index"))
+	else:
+		if request.is_ajax():
+			token = json_decode(request.body).get('token')
+		else:
+			token = request.POST.get('token')
+
+		totp_authorizer = TotpAuthorize(request.user.tfa_secret)
+		if totp_authorizer.valid(token):
+			request.session['unverified_tfa'] = False
+			if request.is_ajax():
+				return JsonResponse({'token_valid':True})
+			else:
+				return HttpResponseRedirect(reverse('index'))

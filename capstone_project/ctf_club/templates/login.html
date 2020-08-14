@@ -18,8 +18,14 @@ Licensed AGPLv3 Or later (2020)
 		letters_el.value = '';
 		ans_el.value = '';
 		submit("/captcha/",content,resp=>{
-			const el = document.getElementById('alert_msg')
-			if(resp.error){
+			if(resp.ratelimited){
+				let alert = `<div class="alert alert-danger alert-dismissible fade show" role="alert" id="alert_item"> Answer not checked. you need to slow down your are submitting too fast.</div>`
+				document.getElementById('alert_msg_captcha').innerHTML = alert;
+				window.setTimeout((old_top)=>{
+				$('#alert_item').alert('close');
+				},3500);
+			}
+			else if(resp.error){
 				//el.innerText = resp.msg;
 				//el.className = "alert alert-warning";
 				document.getElementById('content_msg').innerText = resp.captcha_msg;
@@ -68,14 +74,16 @@ Licensed AGPLv3 Or later (2020)
 					<h3>Captcha Already Solved</h3>
 				</div>
 			</div>
-	 		{% if show_captcha %}
+				<div id="alert_msg_captcha" class="col-md-5 pr-0 pl-0 form-group">
+
+				</div>
+		 	{% if show_captcha %}
 				<div class="input-group mb-3 row col-md-12" id="year_container">
 			{% else %}
 				<div class="input-group mb-3 row col-md-12" id="year_container" hidden="true" aria-hidden="true">
-			{%  endif %}
-
-					<div class="row col-md-8 col-lg-6 pr-0">
-						<div class="col-md-auto">
+			{% endif %}
+					<div class="row col-md-9 col-lg-7 pr-0">
+						<div class="col-md-8 col-lg-7">
 							<h3 id="content_msg">{{ captcha_msg }}</h3>
 						</div>
 						<div class="col-md-4 col-lg-3 input-group mb-3">
@@ -87,20 +95,20 @@ Licensed AGPLv3 Or later (2020)
 
 					</div>
 
-					<div class="col-md-2">
-						<button type="button" class="btn btn-secondary" id="check_captcha" >Check Captcha</button>
-					</div>
 
 					<div class="row col-md-11 col-lg-10 p-3">
 						<div class="col-md-12 input-group pr-0 pl-0">
 							<img id="text_img" src="data:imgae/png;base64,{{ img_str }}"  width="auto" height="auto" class="pr-lg-4 pr-md-4 pr-sm-3"/>
-							<h3>Enter all <span id="chosen_color" class="background:white;font-family:monospace;font-weight:bold; color:{{ color_name }}">{{ color_name }}</span> Characters:</h3>
+							<h3>Enter all <span id="chosen_color">{{ color_name }}</span> Characters:</h3>
 
 							<input type="text" name="letters" id="letters" class="form-control col-lg-2 col-md-3" placeholder="?????" />
 
 						</div>
 					</div>
 
+					<div class="col-md-2 p-3">
+						<button type="button" class="btn btn-secondary" id="check_captcha" >Check Captcha</button>
+					</div>
 				</div>
         <input class="btn btn-primary" type="submit" value="Login">
     </form>

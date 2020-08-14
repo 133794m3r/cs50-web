@@ -3,9 +3,15 @@
 from io import BytesIO
 from random import randint
 from datetime import datetime, timedelta
-from django.core.serializers.json import DjangoJSONEncoder
-from json import dumps
-def simple_math():
+
+def simple_math() -> tuple:
+	"""
+	This will generate a simple captcha where the user has to either +,-,*,/
+	two numbers. For division it is actually the answer / number a or b.
+	All numbers are from 0-12.
+
+	:return: str:math_formula, int:answer
+	"""
 	a = randint(0, 12)
 	b = randint(0, 12)
 	ans = 0
@@ -44,10 +50,15 @@ def simple_math():
 #expires = datetime.now() + timedelta(seconds=30)
 	return f"{a} {op} {b}", ans
 
+
 def img_captcha():
 	"""
+	Generates an image captcha where each letter is of a randomly selected
+	color. All letters are chosen from the Zbase32 alphabet. The person
+	solving the captcha has to enter all characters that are of a certain color.
+	it always makes sure that there is at least 1.
 
-	:return: correct_letters,color_name, img_str
+	:return: str:correct_letters,str:color_name, str:img_str
 	"""
 	from PIL import Image, ImageDraw, ImageFont, ImagePalette
 	from random import randint
@@ -62,25 +73,25 @@ def img_captcha():
 	fnt = ImageFont.truetype('SourceCodePro-Bold.otf', font_size)
 	size = fnt.getsize(text)
 	width = (size[0] // len(text))
-	size = (int(size[0] + (width * 2)), int(font_size * 1.5))
+	size = (int(size[0] + (width * 1.2)), int(font_size * 1.5))
 	img = Image.new('RGB', size, color=(255, 255, 255))
 	d = ImageDraw.Draw(img)
 	colors = [(0, 0, 0), (255, 0, 0),  (0, 0, 255)]
 	color_names = ['black', 'red', 'blue']
 	correct_index = randint(0, 2)
 	correct_letters = ''
-	start = width - 4
+	start = 4
 	for i, x in enumerate(text):
 		index = randint(0, 2)
 		if index == correct_index:
 			correct_letters+=x
 		color = colors[index]
-		d.text((start + (i * width) + 4, 0), x, font=fnt, fill=color)
+		d.text((start + (i * width) + 2, 0), x, font=fnt, fill=color)
 
 	if len(correct_letters) == 0:
 		i = randint(0, 4)
 		x = text[i]
-		d.text((start + (i * width) + 1, 0), x, font=fnt, fill=colors[correct_index])
+		d.text((start + (i * width) + 2, 0), x, font=fnt, fill=colors[correct_index])
 		correct_letters+=x
 
 	buffered = BytesIO()
@@ -92,8 +103,18 @@ def img_captcha():
 
 	return correct_letters, color_name, img_str
 
-def generate_captchas(request):
-	time = datetime.utcnow() + timedelta(seconds=29)
+
+def generate_captchas(request: object) -> tuple:
+	"""
+	This function will generate the captchas, and also sets up the session
+	variables so that when the user tries to solve the captcha it is all setup.
+	The captcha is also set to expire after 45 seconds. This way a normal user
+	can attempt to solve it but a bot/automated system shouldn't be able to handle it.
+
+	:param request: The UWSGI Request object.
+	:return: str:math_msg, str:color_name, str:img_str
+	"""
+	time = datetime.utcnow() + timedelta(seconds=45)
 	print(time.timestamp())
 	request.session['captcha_expires'] = time.timestamp()
 	correct_letters, color_name, img_str = img_captcha()
@@ -104,7 +125,20 @@ def generate_captchas(request):
 
 	return math_msg,color_name,img_str
 
-def check_captchas(request,user_letters,user_math_ans):
+
+def check_captchas(request: object, user_letters: str, user_math_ans: int) -> bool:
+	"""
+	This function will check the answers provided by the user against the values
+	stored for their session. If they answer it correctly then it sets the
+	captcha expires to be 1m from this time. This is mainly for the login form
+	because it means that the user doesn't have to solve another captcha for this
+	amount of time if they become rate-limited again.
+
+	:param request: The UWSGI Request Object.
+	:param user_letters: The letters the user provided.
+	:param user_math_ans: The answer the user provided to us.
+	:return:
+	"""
 	math_msg = ''
 	color_name = ''
 	img_str = ''
@@ -113,10 +147,6 @@ def check_captchas(request,user_letters,user_math_ans):
 		request.session['captcha_valid'] = True
 		#If they solve it then they don't have to try to do another one for a good while. 1m feels like long enough.
 		request.session['captcha_expires'] = (datetime.utcnow() + timedelta(minutes=1)).timestamp()
-		print('valid')
 		return True
 	else:
 		return False
-	#else:
-
-	#return math_msg,color_name,img_str

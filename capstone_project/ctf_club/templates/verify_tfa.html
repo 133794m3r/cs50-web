@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+{% block head %}
+{% endblock %}
+{% block body %}
+	<main class="container-lg">
+		<div class="row">
+			<div class="col-11 text-center">
+				<h1>Please Open your Authenticator App to verify your identity.</h1>
+			</div>
+		</div>
+		<div class="row d-flex justify-content-center">
+			<div class="col-lg-2 col-md-3 col-sm-4 text-center f-150">
+				<form class="form-group" method="POST">
+					<fieldset>
+						<input type="number" id="token" name="token" class="form-control" placeholder="123456" aria-placeholder="123456"/>
+					</fieldset>
+					{% csrf_token %}
+				</form>
+			</div>
+		</div>
+	</main>
+{% endblock %}

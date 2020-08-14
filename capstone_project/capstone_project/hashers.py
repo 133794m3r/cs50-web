@@ -17,7 +17,7 @@ class ScryptPasswordHasher(BasePasswordHasher):
 	n = 15
 	#may make this be 13. Each number higher results in 2MiB of more memory.
 
-	r = 8
+	r = 9
 	p = 1
 	dklen = 32
 	#65MiB

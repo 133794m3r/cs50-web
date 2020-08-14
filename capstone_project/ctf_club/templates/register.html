@@ -20,19 +20,26 @@ Licensed AGPLv3 Or later (2020)
 		letters_el.value = '';
 		ans_el.value = '';
 		submit("/captcha/",content,resp=>{
-			const el = document.getElementById('alert_msg')
-			if(resp.error){
-				//el.innerText = resp.msg;
-				//el.className = "alert alert-warning";
+			if(resp.ratelimited){
+				let alert = `<div class="alert alert-danger alert-dismissible fade show" role="alert" id="alert_item"> Answer not checked. you need to slow down your are submitting too fast.</div>`
+				document.getElementById('alert_msg_captcha').innerHTML = alert;
+				window.setTimeout((old_top)=>{
+					$('#alert_item').alert('close');
+				},3500);
+			}
+			else if(resp.error){
 				document.getElementById('content_msg').innerText = resp.captcha_msg;
 				document.getElementById('year_container').hidden = false;
 				document.getElementById('solved_it').hidden = true;
-				const el = document.getElementById('chosen_color');
-				el.innerHTML = resp.color_name;
-				el.setAttribute('style', `background:white;font-family:monospace;font-weight:bold; color:${resp.color_name}`);
-				//el.style.color = resp.color_name;
-
-				document.getElementById('text_img').setAttribute("src","data:imgae/png;base64,"+resp.img_str)
+				const el2 = document.getElementById('chosen_color');
+				el2.innerHTML = resp.color_name;
+				el2.setAttribute('style', `background:white;font-family:monospace;font-weight:bold; color:${resp.color_name}`);
+				document.getElementById('text_img').setAttribute("src","data:image/png;base64,"+resp.img_str);
+				let alert = `<div class="alert alert-warning alert-dismissible fade show" role="alert" id="alert_item"> ${resp.msg}</div>`
+				document.getElementById('alert_msg_captcha').innerHTML = alert;
+				window.setTimeout((old_top)=>{
+					$('#alert_item').alert('close');
+				},3500);
 			}
 			else{
 				console.log('test')
@@ -58,10 +65,10 @@ Licensed AGPLv3 Or later (2020)
 {% endblock %}
 
 {% block body %}
-	<main role="main" class="container-lg">
+	<main role="main" class="container-lg" id="main_area">
 	<div class="">
 	<h1>Register</h1>
-		<div class="alert hidden" role="alert" id="alert_msg">
+		<div id="alert_msg" class="col-md-5 pl-0 form-group alert-danger">
 			{% if message %}
 				{{ message }}
 			{% endif %}
@@ -76,7 +83,7 @@ Licensed AGPLv3 Or later (2020)
 						</label>
 					</div>
 					<input type="text"
-							 class="form-control" name="username" id="username" placeholder="UserName">
+							 class="form-control" name="username" id="username" placeholder="UserName" value="">
 				</div>
 				<div class="row col p-0">
 					<div class="col-md-5 pr-0">
@@ -87,7 +94,7 @@ Licensed AGPLv3 Or later (2020)
 								</label>
 							</div>
 							<input type="password"
-									 class="form-control" name="password" id="password" placeholder="Enter Password" onchange="score_password()">
+									 class="form-control" name="password" id="password" placeholder="Enter Password" onchange="score_password('submission','username','password','password_confirm')" value="">
 
 						</div>
 						<div class="input-group mb-3 col-md-12 pr-0">
@@ -96,7 +103,7 @@ Licensed AGPLv3 Or later (2020)
 									Confirm
 								</label>
 							</div>
-							<input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Password Confirmation" onkeyup="score_password('submission','username','password','password_confirm')">
+							<input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Password Confirmation" onkeyup="score_password('submission','username','password','password_confirm')" value="">
 						</div>
 
 					</div>
@@ -113,9 +120,13 @@ Licensed AGPLv3 Or later (2020)
 						<h2>Captcha Already Solved</h2>
 					</div>
 				</div>
+
+				<div id="alert_msg_captcha" class="col-md-5 pr-0 pl-0 form-group">
+
+				</div>
 				<div class="input-group mb-3 row col-md-12" id="year_container">
-					<div class="row col-md-8 col-lg-6 pr-0">
-						<div class="col-md-auto">
+					<div class="row col-md-9 col-lg-7 pr-0">
+						<div class="col-md-8 col-lg-7">
 							<h3 id="content_msg">{{ captcha_msg }}</h3>
 						</div>
 						<div class="col-md-4 col-lg-3 input-group mb-3">
@@ -127,9 +138,6 @@ Licensed AGPLv3 Or later (2020)
 
 					</div>
 
-					<div class="col-md-2">
-						<button type="button" class="btn btn-secondary" id="check_captcha" >Check Captcha</button>
-					</div>
 
 					<div class="row col-md-11 col-lg-10 p-3">
 						<div class="col-md-12 input-group pr-0 pl-0">
@@ -141,8 +149,12 @@ Licensed AGPLv3 Or later (2020)
 						</div>
 					</div>
 
-
+					<div class="col-md-2 p-3">
+						<button type="button" class="btn btn-secondary" id="check_captcha" >Check Captcha</button>
+					</div>
 				</div>
+
+
 			</form>
 
 			<div class="align-center row pt-3">

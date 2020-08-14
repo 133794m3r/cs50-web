@@ -24,5 +24,6 @@ urlpatterns = [
 	path("captcha/",views.captcha,name="captcha"),
 	re_path(r"^files/(?P<filename>[A-Za-z\-_0-9.]+)$",views.files,name="files"),
 	path("tfa_qrcode.png",views.tfa_qr_code,name="tfa_qrcode"),
-	path("two_factor",views.tfa_enable,name="tfa_enable")
+	path("two_factor",views.tfa_enable,name="tfa_enable"),
+	path("verify_tfa",views.verify_tfa,name="verify_tfa"),
 ]

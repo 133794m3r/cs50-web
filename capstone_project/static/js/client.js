@@ -71,7 +71,11 @@ function solve(event){
 		console.log(resp);
 		let msg = ''
 		let type = ''
-		if(resp.solved){
+		if(resp.ratelimited){
+			msg = "Slow down you're trying too fast.";
+			type = 'alert-danger';
+		}
+		else if(resp.solved){
 			msg = "Solved!";
 			type = 'alert-success';
 		}
@@ -79,13 +83,13 @@ function solve(event){
 			msg = "Wrong Answer";
 			type = 'alert-danger';
 		}
-		let alert = `<div class="alert ${type} alert-dismissible fade show" role="alert"> ${msg}</div>`
+		let alert = `<div class="alert ${type} alert-dismissible fade show" role="alert" id="alert"> ${msg}</div>`
 		document.getElementById('alert_msg').innerHTML = alert;
 
-		document.getElementById('challenge_body').scrollTop += 100
+		// document.getElementById('challenge_body').scrollTop += 100
 		window.setTimeout((old_top)=>{
-				$('.alert').alert('close');
-				document.getElementById('challenge_body').scrollTop += 100
+				$('#alert').alert('close');
+				// document.getElementById('challenge_body').scrollTop += 100
 				//window.scrollTop = old_top;
 		},3000);
 	});
@@ -93,7 +97,6 @@ function solve(event){
 
 function score_password(button_el,username,password,password_confirm_id){
 	let inputs=new Array(3)
-
 	//We're going to include their username in the ZXCVBN password strength estimator.
 	inputs[0]=(username != '')?document.getElementById(username).value:'';
 	//Plus if their username is uppercase as the first letter.
