@@ -74,7 +74,7 @@ Licensed AGPLv3 Or later (2020)
 			{% endif %}
 		</div>
 		<div class="row">
-			<form action="{% url 'register' %}" method="post">
+			<form action="{% url 'register' %}" method="post" class="col-9">
 				{% csrf_token %}
 				<div class="input-group mb-3 col-5">
 					<div class="input-group-prepend">
@@ -155,13 +155,14 @@ Licensed AGPLv3 Or later (2020)
 				</div>
 
 				<input type="text" name="password_score" id="password_score" hidden="true" aria-hidden="true" />
-			</form>
-
 			<div class="align-center row pt-3">
 				<div class="col-lg-auto">
 					<button type="submit" class="btn btn-lg btn-primary" id="submission" disabled>Submit</button>
 				</div>
 			</div>
+			</form>
+
+
 		</div>
 	</div>
 	</main>

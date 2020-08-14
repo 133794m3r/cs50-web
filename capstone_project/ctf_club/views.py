@@ -159,14 +159,14 @@ def register(request):
 
 
 	if request.method == "POST":
-		msg = ''
+		message = ''
 		if getattr(request,'limited',False):
 			captcha_msg,color_name,img_str = generate_captchas(request)
 			return render(request, "register.html",
 			              {"message":"You're going too fast. Slow down.",
 			               "captcha_msg":captcha_msg, "color_name":color_name,
 			               "img_str":img_str})
-
+		print(request.POST)
 		username = request.POST.get("username")
 		email = request.POST.get("email")
 
@@ -174,7 +174,7 @@ def register(request):
 		confirmation=request.POST.get("password_confirm")
 		user_math_ans = request.POST.get("year")
 		user_letters = request.POST.get("letters")
-		password_score = request.POST.get("password_score",0)
+		password_score = int(request.POST.get("password_score",0))
 		check_captchas(request,user_letters,user_math_ans)
 
 
@@ -184,17 +184,17 @@ def register(request):
 				message = "Passwords must match."
 			elif password is None:
 				signup_valid = False
-				message = msg + "Passwords can't be blank."
+				message = message + "Passwords can't be blank."
 			elif len(password) < 6 or password_score < 3:
 				signup_valid = False
-				message = msg + "Password must meet minimum requirements."
+				message = message + "Password must meet minimum requirements."
 
 			if username is None:
 				signup_valid = False
-				message = msg + "Username can't be blank."
-			elif re.match('[^A-Za-z_\-0-9]'):
+				message = message + "Username can't be blank."
+			elif re.match('[^A-Za-z_\-0-9]',username):
 				signup_valid = False
-				message = msg + "Username must only contain uppercase and lowercase letters, numbers, '-', and '_'."
+				message = message + "Username must only contain uppercase and lowercase letters, numbers, '-', and '_'."
 
 
 			if signup_valid:
@@ -203,14 +203,15 @@ def register(request):
 					user.save()
 					login(request,user)
 					request.session.pop('captcha_valid')
-					request.session.pop('letters')
-					request.session.pop('math_ans')
+					request.session.pop('correct_letters')
+					request.session.pop('captcha_answer')
+					return HttpResponseRedirect(reverse("index"))
 				except IntegrityError:
 					signup_valid = False
 					message = message+"Username must be unique."
 
 
-				return HttpResponseRedirect(reverse("index"))
+
 		else:
 			signup_valid = False
 			message = "Invalid captcha."
