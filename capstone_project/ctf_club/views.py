@@ -166,7 +166,7 @@ def register(request):
 			              {"message":"You're going too fast. Slow down.",
 			               "captcha_msg":captcha_msg, "color_name":color_name,
 			               "img_str":img_str})
-		print(request.POST)
+		# print(request.POST)
 		username = request.POST.get("username")
 		email = request.POST.get("email")
 
@@ -362,7 +362,6 @@ def challenge_admin(request):
 		description = ''
 		flag = ''
 		content = json_decode(request.body)
-		print(content);
 		name = content['name']
 		category = content['category']
 		if content['sn'] == 'fizzbuzz':
@@ -395,7 +394,7 @@ def challenge_admin(request):
 			old_solves.delete()
 
 		else:
-			print(category)
+			#print(category)
 			challenge = Challenges.objects.create(
 				name = name,
 				description = description,
@@ -408,7 +407,7 @@ def challenge_admin(request):
 					filename=file
 				)
 				challenge.files.add(file_obj)
-		print({'description':description,'flag':flag,'file':file})
+		#print({'description':description,'flag':flag,'file':file})
 		return JsonResponse({'description':description,'flag':flag,'file':file})
 	else:
 		challenges = Challenges.objects.all()
@@ -448,7 +447,7 @@ def challenge_admin(request):
 					challenges_used.append(indexed)
 					base_challenges.append(chal_obj)
 					if challenge_template['files']:
-						print(challenge.files.all())
+						#print(challenge.files.all())
 						files = challenge.files.all()
 						chal_obj['files'] = [jsonify_queryset(files)] if files.count() == 1 else jsonify_queryset(files)
 					all_challenges.append(chal_obj)
@@ -565,7 +564,7 @@ def captcha(request):
 	error = False
 	ratelimited = False
 
-	print(request.session.get('captcha_expires'))
+	#print(request.session.get('captcha_expires'))
 	if request.method == "POST":
 		if is_ratelimited(request):
 			ratelimited = True

@@ -115,7 +115,7 @@ def generate_captchas(request: object) -> tuple:
 	:return: str:math_msg, str:color_name, str:img_str
 	"""
 	time = datetime.utcnow() + timedelta(seconds=45)
-	print(time.timestamp())
+	# print(time.timestamp())
 	request.session['captcha_expires'] = time.timestamp()
 	correct_letters, color_name, img_str = img_captcha()
 	math_msg, correct_ans = simple_math()
