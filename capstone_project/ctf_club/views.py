@@ -353,9 +353,10 @@ def challenge_admin(request):
 	#for the sorting of the challenges later.
 	from operator import itemgetter
 	#If the user is not an admin or in the staff pretend like this route doesn't exist.
-	if not request.user.is_staff or not request.user.is_superuser:
-		#return HttpResponseNotFound("<h1>Error 404</h1><h2> That route doesn't exist on this server.</h2>")
-		raise Http404()
+	if not (request.user.is_staff or request.user.is_superuser):
+		return HttpResponseRedirect('/')
+	elif not request.user.tfa_enabled:
+		return HttpResponseRedirect(reverse('two_factor'))
 
 	if request.method == "POST":
 		file = None
@@ -478,7 +479,10 @@ def challenge_admin(request):
 # @ratelimit(key='user',rate='45/m')
 def solves_admin(request):
 	if not request.user.is_staff or not request.user.is_superuser:
-		raise Http404()
+		return HttpResponseRedirect(reverse('index'))
+
+	if not request.user.tfa_enabled:
+		return HttpResponseRedirect(reverse('two_factor'))
 	all_challenges = Challenges.objects.order_by('category__name').values('id','name','category__name','num_solves')
 	all_challenges = jsonify_queryset(all_challenges)
 	#return JsonResponse(all_challenges,safe=False)
@@ -513,6 +517,11 @@ def get_all_solves(request):
 # @ratelimit(key='user',rate='1/s')
 # @require_http_methods(["POST","GET"])
 def hint_admin(request,challenge_name):
+	if not (request.user.is_staff or request.user.is_superuser):
+		return JsonResponse({'OK':False})
+	elif not request.user.tfa_enabled:
+		return JsonResponse({'OK':False})
+
 	if request.method == "POST":
 		content = json_decode(request.body)
 		if content['id'] == 0:
@@ -538,8 +547,10 @@ def hint_admin(request,challenge_name):
 @login_required(login_url="login")
 # @ratelimit(key='ip',rate='30/m')
 def admin_view(request):
-	if request.user.is_staff != True or request.user.is_superuser != True:
-		raise Http404()
+	if not (request.user.is_staff or request.user.is_superuser):
+		return JsonResponse({'OK':False})
+	elif not request.user.tfa_enabled:
+		return JsonResponse({'OK':False})
 
 	was_limited = getattr(request, 'limited', False)
 	return render(request,"solves_admin.html",{'solves:solves'})
