@@ -52,7 +52,7 @@ function fetch_chal(challenge_id){
 
 		document.querySelectorAll('.hints').forEach(el=>{
 			el.addEventListener('click',event=>{
-				fetch_hint(el.dataset.id);
+				fetch_hint(parseInt(el.dataset.id));
 			});
 		});
 		$('#challenge_modal').modal('toggle');
@@ -90,8 +90,8 @@ function solve(event){
 	const answer = document.getElementById('answer').value;
 	submit(`/solve/${id}`,{'answer':answer},resp=>{
 		console.log(resp);
-		let msg = ''
-		let type = ''
+		let msg;
+		let type;
 		if(resp.ratelimited){
 			msg = "Slow down you're trying too fast.";
 			type = 'alert-danger';
@@ -104,11 +104,10 @@ function solve(event){
 			msg = "Wrong Answer";
 			type = 'alert-danger';
 		}
-		let alert = `<div class="alert ${type} alert-dismissible fade show" role="alert" id="alert"> ${msg}</div>`
-		document.getElementById('alert_msg').innerHTML = alert;
+		document.getElementById('alert_msg').innerHTML = `<div class="alert ${type} alert-dismissible fade show" role="alert" id="alert"> ${msg}</div>`;
 
 		// document.getElementById('challenge_body').scrollTop += 100
-		window.setTimeout((old_top)=>{
+		window.setTimeout(()=>{
 				$('#alert').alert('close');
 				// document.getElementById('challenge_body').scrollTop += 100
 				//window.scrollTop = old_top;
@@ -130,7 +129,7 @@ function solve(event){
 function score_password(button_el,username,password,password_confirm_id){
 	let inputs=new Array(3)
 	//We're going to include their username in the ZXCVBN password strength estimator.
-	inputs[0]=(username != '')?document.getElementById(username).value:'';
+	inputs[0]=(username !== '')?document.getElementById(username).value:'';
 	//Plus if their username is uppercase as the first letter.
 	inputs[1]= inputs[0] === ''?"":inputs[0].substr(0,1).toUpperCase()+inputs[0].substr(1);
 	//also include the name of the URl that this is used on.
@@ -141,7 +140,7 @@ function score_password(button_el,username,password,password_confirm_id){
 	if(password !== document.getElementById(password_confirm_id).value){
 		 el.innerText="Passwords must Match!";
 			el.setAttribute("style","color:red;font-weight:bold");
-		 return;
+		 return 0;
 	}
 	let result=zxcvbn(password,inputs);
 	let guesses = result.guesses_log10;

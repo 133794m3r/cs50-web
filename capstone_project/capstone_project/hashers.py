@@ -1,9 +1,10 @@
-from django.contrib.auth.hashers import BasePasswordHasher, mask_hash
-import hashlib
 import binascii
+import hashlib
+
+from django.contrib.auth.hashers import BasePasswordHasher, mask_hash
 from django.utils.crypto import (get_random_string, constant_time_compare)
 from django.utils.translation import gettext_noop as _
-from django.conf import settings
+
 
 class ScryptPasswordHasher(BasePasswordHasher):
 

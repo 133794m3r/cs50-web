@@ -1,12 +1,12 @@
 #Programming Chals
-from .libctf import make_masterhacker,make_fizzbuzz
-#RSA Flags
-from .libctf import make_fermat_chal, make_bsa, make_hba, make_rsa, make_common_mod
-#Classical Ciphers
-from .libctf import make_hill, make_affine
-
 from random import randint
-import re
+
+# RSA Flags
+from .libctf import make_fermat_chal, make_bsa, make_hba, make_rsa, make_common_mod
+# Classical Ciphers
+from .libctf import make_hill, make_affine
+from .libctf import make_masterhacker, make_fizzbuzz
+
 """
 CTFClub Project
 By Macarthur Inbody <admin-contact@transcendental.us>
@@ -126,21 +126,21 @@ def rot_encode(msg):
 		x = ord(c)
 		if 65 <= x <= 90:
 			#add the shift.
-			x+=shift;
+			x+=shift
 			#if it's greater than 'Z'.
 			if x>=90:
 				#handle overflows.
-				x=(x-90)+64;
-		
+				x=(x-90)+64
+
 		#else if it's lowercase ascii.
 		elif 97 <= x <= 122:
 			#same thing again.
-			x+=shift;
+			x+=shift
 			#same if it's greater than 'z'.
 			if x>=122:
 				#handle overflow.
-				x=(x-122)+96;
-		
+				x=(x-122)+96
+
 		out += chr(x)
 	return out
 
@@ -183,3 +183,24 @@ def make_rot_captcha():
 
 	return captcha_msg,msg
 
+def rank_users(users):
+	user_ranks = []
+	for i,user in enumerate(users):
+		if i == 0:
+			user_ranks.append({'users':[user],'len':1})
+		else:
+			for j,x in enumerate(user_ranks):
+				if user_ranks[j]['len'] == 1:
+					if user['points'] == x['users'][0]['points']:
+						user_ranks[j]['users'].append(user)
+						user_ranks[j]['len'] +=1
+						break
+				else:
+					print(user,x['users'][j])
+					if user['points'] == x['users'][j]['points']:
+						user_ranks[j]['len'] +=1
+						user_ranks[j]['users'].append(user)
+						break
+			else:
+				user_ranks.append({'len':1,'users':[user]})
+	return user_ranks

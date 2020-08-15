@@ -30,7 +30,7 @@ def calc_r(n:int ) -> int:
 		r=get_prime(8)
 	return r
 
-def common_modulus_attack(c1: int, c2: int, e1: int, e2: int, N: int) -> int:
+def common_modulus_attack(c1: int, c2: int, e1: int, e2: int, n: int) -> int:
 	"""
 	This functionw will carry out the common modulus attack.
 
@@ -38,34 +38,28 @@ def common_modulus_attack(c1: int, c2: int, e1: int, e2: int, N: int) -> int:
 	:param c2: Ciphertext integer 2.
 	:param e1: encryption exponent 1.
 	:param e2: encryption exponent 2.
-	:param N: The modulus n.
+	:param n: The modulus n.
 	:return: The plaintext integer P.
 	"""
-
-	a=0;
-	b=0;
-	mx=0;
-	my=0;
-	i=0;
 
 	if gcd_fast(e1,e2)[0] != 1:
 		raise ValueError('e1 and e2 are invalid.')
 	a=mod_inv(e1,e2)
 	b=(gcd_fast(e1,e2)[0] - e1 * a ) // e2
-	i=mod_inv(c2,N)
-	mx=pow(c1,a, N)
-	my=pow(i,-b, N)
+	i=mod_inv(c2, n)
+	mx=pow(c1, a, n)
+	my=pow(i, -b, n)
 
-	return (mx*my) % N
+	return (mx*my) % n
 
 # Radford ASCII Decoder
 # This function decodes a number into a 7bit ASCII string and returns said string.
-def naive_ascii_decode(encoded_number: int, length: int) -> str:
+def naive_ascii_decode(encoded_number: str, length: int) -> str:
 	"""
 	This function will decode an integer into a str if it's been encoded with
 	naive ASCII encoding.
 
-	:param encoded_number: The encoded integer.
+	:param encoded_number: The encoded integer as a string.
 	:param length: The length(in bytes that the output string should be).
 	:return: The decoded string.
 	"""
@@ -105,11 +99,7 @@ def naive_ascii_encode(string_to_encode: str, string_length: int) -> str:
 	:return: The encoded string.
 	"""
 
-	tmp_str='';
-	output_str='';
-
-	tmp=0;
-	i=0;
+	output_str=''
 
 	for i in range(0,string_length):
 		tmp=ord(string_to_encode[i:i+1])
@@ -131,12 +121,8 @@ def rsa_ascii_encode(string_to_encode:str,string_length:int) -> int:
 	:param string_length: How many bytes the string is.
 	:return: The integer representation of this string.
 	"""
-	tmp_str='';
-	output_str='';
-	x=0;
+	x=0
 	string_to_encode=string_to_encode[::-1]
-	tmp=0;
-	os=[]
 	i=0
 	while i<string_length:
 		tmp=ord(string_to_encode[i:i+1])
@@ -159,7 +145,6 @@ def rsa_ascii_decode(x:int,x_len:int) -> str:
 	"""
 
 	X = []
-	i=0;
 	string=''
 	#max_len=len(x)
 	if x>=pow(256,x_len):
@@ -275,7 +260,7 @@ def calc_d(e: int, lambda_n: int) -> int:
 	return d
 
 
-def rsa_encrypt(m: int, e: int, N: int) -> int:
+def rsa_encrypt(m: int, e: int, n: int) -> int:
 	"""
 	rsa_encrypt
 
@@ -285,16 +270,16 @@ def rsa_encrypt(m: int, e: int, N: int) -> int:
 
 	:param m: the plaintext message.
 	:param e: the encryption exponent.
-	:param N: the modulus.
+	:param n: the modulus.
 	:return: The ciphertext integer.
 	"""
 
-	c=pow(m,e,N)
+	c=pow(m, e, n)
 
 	return c
 
 
-def rsa_decrypt(c: int, d: int, N: int) -> int:
+def rsa_decrypt(c: int, d: int, n: int) -> int:
 	"""
 
 	Implements RSA Decryption via the mathematical formula.
@@ -303,11 +288,11 @@ def rsa_decrypt(c: int, d: int, N: int) -> int:
 
 	:param c: Ciphertext integer.
 	:param d: the private key exponent.
-	:param N: the modulus.
+	:param n: the modulus.
 	:return: the plaintext integer M.
 	"""
 
-	m=pow(c,d,N)
+	m=pow(c, d, n)
 	return m
 
 
@@ -366,7 +351,7 @@ def make_fermat(bit_width):
 	:rtype: tuple
 	"""
 
-	p,q,n,e,d = make_fermat_key(bit_width);
+	p,q,n,e,d = make_fermat_key(bit_width)
 	return p,q,n,e,d
 
 
@@ -381,7 +366,7 @@ def make_pubkey(n: int, e: int) -> str:
 
 	from Crypto.PublicKey import RSA
 	key=RSA.construct((n,e))
-	key_str=key.exportKey('PEM').decode('utf-8')
+	key_str=key.exportKey().decode('utf-8')
 	return key_str
 
 
@@ -398,5 +383,5 @@ def make_privkey(n: int,e: int,d: int) -> str:
 
 	from Crypto.PublicKey import RSA
 	key=RSA.construct((n,e,d))
-	key_str=key.exportKey('PEM').decode('utf-8')
+	key_str=key.exportKey().decode('utf-8')
 	return key_str

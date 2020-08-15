@@ -1,3 +1,9 @@
+import re
+from random import randint
+
+from ctf_club.libctf import generate_random_key, hill_encrypt, affine_encrypt
+
+
 def make_hill(plaintext: str, variety: int) -> tuple:
 	"""
 	make_hill

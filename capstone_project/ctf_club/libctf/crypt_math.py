@@ -16,9 +16,9 @@ def gcd_fast(a: int, b: int) -> tuple:
 	:return: gcd,x,y. Where x and y are bezout's coeffecients.
 	"""
 
-	gcd=0;
-	x=0;
-	y=0;
+	gcd=0
+	x=0
+	y=0
 	x=0
 	"""
 	if a < 0:
@@ -57,10 +57,10 @@ def mod_inv(a:int,mod:int) -> int:
 	:return: Int the modular mutiplicative inverse of a and m.
 	"""
 
-	gcd=0;
-	x=0;
-	y=0;
-	x=0;
+	gcd=0
+	x=0
+	y=0
+	x=0
 
 	#use the extended euclidean algorithm to calculate the gcd and also bezout's coeffecients x and y.
 	gcd, x, y = gcd_fast(a,mod)
@@ -90,8 +90,8 @@ def fast_lcm(a: int, b: int) -> object:
 	:return:
 	"""
 
-	lcm=0;
-	gcd=0;
+	lcm=0
+	gcd=0
 
 	if a==0 or b==0:
 		return 0
@@ -107,59 +107,59 @@ def fast_lcm(a: int, b: int) -> object:
 
 
 
-def det(A: list) -> float:
+def det(a: list) -> int:
 	"""
 	Calculates the determinant of a 2x2 Matrix, via the shortcut
 	(a*d) - (b*c)
 
-	:param A: The matrix A.
+	:param a: The matrix A.
 	:return: The determinant.
 	"""
 
-	d=(A[0][0]*A[1][1])-(A[0][1]*A[1][0])
+	d= (a[0][0] * a[1][1]) - (a[0][1] * a[1][0])
 	return d
 
 
-def inv_det(A:list,m:int) -> float:
+def inv_det(a:list,m:int) -> int:
 	"""
 	Calculates the inverse determinant some value.
 
-	:param A: The matrix A(2x2)
+	:param a: The matrix A(2x2)
 	:param m: The value m.
 	:return: The inverse of the determinant modulus the value m.
 	"""
 
-	return mod_inv(det(A),m)
+	return mod_inv(det(a), m)
 
 
-def adj(A):
+def adj(a):
 	"""
 	Calculates the adjugate of A via just swapping the values.
 	The formula is [[a,b],[c,d]] => [[d,-b],[-c,a]]
-	:param A: the matrix A(2x2)
+	:param a: the matrix A(2x2)
 	:return:
 	"""
 
 	B=[[0,0],[0,0]]
-	B[0][0]=A[1][1]
-	B[0][1]=-A[0][1]
-	B[1][0]=-A[1][0]
-	B[1][1]=A[0][0]
+	B[0][0]=a[1][1]
+	B[0][1]=-a[0][1]
+	B[1][0]=-a[1][0]
+	B[1][1]=a[0][0]
 	return B
 
 
-def matrix_inv(A: list, m: int) -> list:
+def matrix_inv(a: list, m: int) -> list:
 	"""
 	Calculates the matrix inverse with modulus.
 
-	:param A: Input Matrix
+	:param a: Input Matrix
 	:param m: Modulus
 	:return: The inverse of the matrix A and the modulus m.
 	"""
 
 	A_inv=[[0,0],[0,0]]
-	d=inv_det(A,m)
-	a=adj(A)
+	d= inv_det(a, m)
+	a= adj(a)
 	A_inv[0][0]=d*a[0][0] % m
 	A_inv[0][1]=d*a[0][1] % m
 	A_inv[1][0]=d*a[1][0] % m
@@ -168,33 +168,33 @@ def matrix_inv(A: list, m: int) -> list:
 	return A_inv
 
 
-def matrix_mul(A: list, B: list, m: int = 0) -> list:
+def matrix_mul(a: list, b: list, m: int = 0) -> list:
 	"""
 	This function will naively multiply Matrix A and B(both must be 2x2),
 	modulus some value m.
 
-	:param A: The first Matrix.
-	:param B: The second Matrix.
+	:param a: The first Matrix.
+	:param b: The second Matrix.
 	:param m: The modulus.
 	:return:
 	"""
 
 	C=[[0,0],[0,0]]
-	if len(A) != 2 and len(A[0]) != 2:
-		raise ValueError('Your matrix must be a 2x2');
-	if type(B) == list:
+	if len(a) != 2 and len(a[0]) != 2:
+		raise ValueError('Your matrix must be a 2x2')
+	if type(b) == list:
 		#>>> 'foo' if (a and b ) != 2 else 'bar'
-		if len(B) !=2 and len(B[0]) !=2 :
-			raise ValueError('Both matricies must be 2x2');
-		C[0][0] = (A[0][0]*B[0][0])+(A[0][1]*B[1][0])
-		C[0][1] = (A[0][0]*B[0][1])+(A[0][1]*B[1][1])
-		C[1][0] = (A[1][0]*B[0][0])+(A[1][1]*B[1][0])
-		C[1][1] = (A[1][0]*B[0][1])+(A[1][1]*B[1][1])
+		if len(b) !=2 and len(b[0]) !=2 :
+			raise ValueError('Both matricies must be 2x2')
+		C[0][0] = (a[0][0] * b[0][0]) + (a[0][1] * b[1][0])
+		C[0][1] = (a[0][0] * b[0][1]) + (a[0][1] * b[1][1])
+		C[1][0] = (a[1][0] * b[0][0]) + (a[1][1] * b[1][0])
+		C[1][1] = (a[1][0] * b[0][1]) + (a[1][1] * b[1][1])
 	else:
-		C[0][0] = A[0][0]*B
-		C[0][1] = A[0][1]*B
-		C[1][0] = A[1][0]*B
-		C[1][1] = A[1][1]*B
+		C[0][0] = a[0][0] * b
+		C[0][1] = a[0][1] * b
+		C[1][0] = a[1][0] * b
+		C[1][1] = a[1][1] * b
 
 	if m != 0:
 		C[0][0] = C[0][0] % m
@@ -215,7 +215,7 @@ def make_numeric_list(input_str: str, input_str_len: int) -> list:
 	:return: a list of integers.
 	"""
 
-	numeric=list( ord(input_str[i]) - 65 for i in range(input_str_len));
+	numeric=list( ord(input_str[i]) - 65 for i in range(input_str_len))
 
 	return numeric
 
@@ -232,9 +232,9 @@ def make_list_string(input_list: list, input_list_len: int) -> str:
 
 	out=list([0] * input_list_len)
 	for i in range(input_list_len):
-		out[i]=chr(65 + input_list[i]);
+		out[i]=chr(65 + input_list[i])
 
-	return ''.join(out);
+	return ''.join(out)
 
 
 def affine_setup(string:str) -> tuple:
@@ -247,7 +247,7 @@ def affine_setup(string:str) -> tuple:
 	str_len=len(string)
 	numeric_str=make_numeric_list(string, str_len)
 
-	return (str_len,numeric_str)
+	return str_len, numeric_str
 
 
 def affine_encrypt(input_str:str, a:int=None, b:int=None) -> str:
@@ -286,7 +286,7 @@ def affine_decrypt(input_str:str, a:int, b:int) -> str:
 	:return: The plaintext.
 	"""
 
-	a=mod_inv(a,26);
+	a=mod_inv(a,26)
 	str_len, numeric_str = affine_setup(input_str)
 	for i in range(str_len):
 		numeric_str[i]=( a * (numeric_str[i] - b)) % 26

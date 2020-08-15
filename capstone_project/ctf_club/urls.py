@@ -6,7 +6,7 @@ By Macarthur Inbody <admin-contact@transcendental.us>
 Licensed AGPLv3 Or later (2020)
 """
 urlpatterns = [
-	path("profile/<str:username>",views.profile,name="profile"),
+	# path("profile/<str:username>",views.profile,name="profile"),
 	path("register",views.register,name="register"),
 	path("",views.index,name="index"),
 	path("login",views.login_view,name="login"),
@@ -14,6 +14,7 @@ urlpatterns = [
 	path("challenge/<int:challenge_id>",views.challenge_view,name="challenge_view"),
 	path("solve/<int:challenge_id>",views.solve,name="solve"),
 	path("solves",views.solves,name="solved_challenges"),
+	path("solves/<str:username>",views.solves,name="solved_challenges"),
 	path("hint/<int:hint_id>",views.hint,name="hint"),
 	path("control_panel/<str:username>",views.control_panel,name="control_panel"),
 	path("admin/challenge",views.challenge_admin,name="challenge_admin"),
@@ -22,9 +23,11 @@ urlpatterns = [
 	path("admin/",views.admin_view,name="admin"),
 	path("highscores/",views.high_scores,name="high_scores"),
 	path("captcha/",views.captcha,name="captcha"),
-	re_path(r"^files/(?P<filename>[A-Za-z\-_0-9.]+)$",views.files,name="files"),
+	re_path(r"^file/(?P<filename>[A-Za-z\-_0-9.]+)$",views.file,name="file"),
 	path("tfa_qrcode.png",views.tfa_qr_code,name="tfa_qrcode"),
-	path("two_factor",views.tfa_enable,name="tfa_enable"),
+	path("two_factor",views.tfa_enable,name="two_factor"),
 	path("verify_tfa",views.verify_tfa,name="verify_tfa"),
 	path("about",views.about,name="about"),
+
+	path("leaderboard",views.leaderboard,name="leaderboard"),
 ]

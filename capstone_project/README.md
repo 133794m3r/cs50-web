@@ -3,8 +3,13 @@ This folder contains the Capstone project that I wrote. It has the features list
 
 If you want to start from a fresh/clean slate. Delete the db.sqlite3 file and then run  ``python mage.py migrate``. I have the migrations already in the DB so that it's in the same state as when I recorded the video.
 
+The repo here was forked from the CS50W repo b/c it's changed way too much from what it initially was when I submitted it thus I didn't feel like it belonged in that folder anymore as it's changed by at least 100 comits since I submitted the assignment.
+
 ## Youtube Link
 https://www.youtube.com/watch?v=mhvTJmAPKCM
+
+## View it Live
+https://crimsonstrife.com
 
 ## Major Features
 - [x] Utilizes Django
@@ -20,7 +25,7 @@ https://www.youtube.com/watch?v=mhvTJmAPKCM
 - [x] AdminView is modified to be ratelimited to avoid having bruteforcing of teh view.
 - [x] Login/Registration are rate-limited.
 - [x] A basic CAPTCHA for registration is shown and for logins if they were rate-limited is required to be solved. 
-
+- [x] Full TFA via TOTP is enabled.
 ## Challenge Generators
 - RSA Attacks
 	- Hastaad Broadcast Attack via Chinese Remainder Theorem (Just with e=3 to keep the challenge easy)
@@ -67,6 +72,7 @@ The papers for how to solve the challenges is linked below(some of the hints alr
 The paper goes into attacks suchas "e"th root attacks, Hastaad Broadcast with values greater than 3(5 in the papers case), Fermat's Near Prime attack, Common Modulus, Blind Signature Attack, and also includes step-by-step guides explaining how to do them all. The "proofs" section needs work as I am no mathematician and I've tried to explain it somewhat well but I know it could be done better. If one reads that paper after digesting it, they will walk away with the ability to carry out all of the attacks against RSA that are described therein in any CTF challenge.
 
 [Hill Cipher Paper](https://github.com/133794m3r/Papers/blob/master/crypto/HILL_CIPHER.pdf)
+
 #### Contents
 That paper goes over the linear algebra required to crack a message enciphered with a hill cipher(the crib is given to the person in the paper) but goes over basic matrix operations required to complete it. It's definitely not textbok quality by any stretch of the imagination.
 
@@ -115,6 +121,14 @@ That paper goes over the linear algebra required to crack a message enciphered w
 - Attempting a solve will result in an alert showing. If it's successful then they'll get the "solved" message. If they didn't then it'll show "wrong answer." Also the alert will dissappear after some period of time.
 - The modal dialogues for the admin view or the challenge view can all be stacked upon eachother while not causing the other views to be obscured.
 
+### Installation
+The instructions below don't assume you're going to use a virtual environment. It's up to you chose if you want to have one.
+```
+pip3 install -r requirements.txt
+./manage.py makemigrations
+./manage.py migrate
+./manage.py loaddata initial_data
+```
 
 ### Requirements
 Also requires Python 3.6 or later as it utilizes hashlib for Scrypt.

@@ -15,12 +15,12 @@ def maximum_tuple(tuples, start=0):
 
 
 def total_value(comb, max_storage):
-	total_storage = total_value = 0
+	total_storage = current_value = 0
 	for storage, value in comb:
 		total_storage += storage
-		total_value += value
+		current_value += value
 
-	return (total_value, total_storage) if total_storage <= max_storage else (0, 0)
+	return (current_value, total_storage) if total_storage <= max_storage else (0, 0)
 
 
 def master_hacker(max_storage, items):

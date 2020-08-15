@@ -160,6 +160,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-FIXTURE_DIRS = (
+FIXTURE_DIRS = [
    'ctf_club/fixtures/',
-)
+]

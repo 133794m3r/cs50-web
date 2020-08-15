@@ -40,13 +40,13 @@ Licensed AGPLv3 Or later (2020)
 		  });
 		  //I have to delay the calling of this until jQuery is loaded. So I'm delaying it by ~30ms.
 		  window.setTimeout(() => {
-			  /*
-			 * Randomly it'll not work when closing the modal and a backdrop will _still_ exist.
-			 * Will have to see about someway of maybe forcing the modal backdrop to be removed before the number is removed
-			 * By selecting all of them with a Z-Index of 1052+modal_lv.
-			 */
-			  $('.modal').on('shown.bs.modal', function (e) {
-				  $('.modal-backdrop:last').css('zIndex', 1051 + modal_lv);
+			/*
+			* Randomly it'll not work when closing the modal and a backdrop will _still_ exist.
+			* Will have to see about someway of maybe forcing the modal backdrop to be removed before the number is removed
+			* By selecting all of them with a Z-Index of 1052+modal_lv.
+			*/
+				$('.modal').on('shown.bs.modal', function (e) {
+		  		$('.modal-backdrop:last').css('zIndex', 1051 + modal_lv);
 				  $(e.currentTarget).css('zIndex', 1052 + modal_lv);
 				  modal_lv++;
 			  });
@@ -83,7 +83,7 @@ Licensed AGPLv3 Or later (2020)
 					<div class="card-body">
 						{{ challenge.description }}
 					</div>
-					<div class="card-footer">
+					<div class="card-footer" id="{{ challenge.sn }}">
 						{% if challenge.edit == True %}
 							<button class="btn btn-primary manage_hints mr-1" data-sn="{{ challenge.sn }}" data-edit="true">Manage Hints</button>
 							<button class="btn btn-primary make_challenge ml-1" data-sn="{{ challenge.sn }}" data-edit="true">Edit Challenge</button>

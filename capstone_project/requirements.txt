@@ -4,3 +4,5 @@ pycryptodome~=3.9.7
 django-ratelimit~=3.0.1
 python-memcached~=1.59
 django-ratelimit-backend ~= 2.0
+pyotp~=2.4.0
+qrcode~=6.1

@@ -51,7 +51,7 @@ Licensed AGPLv3 Or later (2020)
 				 	let old_password = document.getElementById('old_password').value;
 				 	let new_password = document.getElementById('new_password').value;
 				 	let confirm_password = document.getElementById('confirm_password').value;
-					if(old_password == '' || new_password == '' || confirm_password == ''){
+					if(old_password === '' || new_password === '' || confirm_password === ''){
 						return;
 					}
 			 		score_password('change_password','username',el.id,'confirm_password');
@@ -75,12 +75,16 @@ Licensed AGPLv3 Or later (2020)
 			Current Points: {{ points }} &nbsp;
 			</h3>
 			<h3>
-			<a href="{% url 'solved_challenges' %}">See {% if request.user.username == username %}your{% else %} {{ username }}'s{% endif %} solves</a>
+			{% if request.user.username == username %}
+				<a href="{% url 'solved_challenges' %}">See your solves</a>
+			{% else %}
+				<a href="{% url 'solved_challenges' username %}"> See {{ username }}'s solves</a>
+			{% endif %}
 			</h3>
 		</div>
 		{% if request.user.username == username %}
 		<div class="w-40 p-1">
-			<div><a href="{% url 'tfa_enable' %}">Enable/Update Two-Factor Authentication</a></div>
+			<div><a href="{% url 'two_factor' %}">Enable/Update Two-Factor Authentication</a></div>
 			<h3>Change Your Password</h3>
 			<div class="row">
 				<div class="col">

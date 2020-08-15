@@ -12,7 +12,8 @@ Licensed AGPLv3 Or later (2020)
 		   document.querySelectorAll('.view_challenge').forEach(el=>{
 			   el.addEventListener('click',()=>{
 			   	document.getElementById('answer').innerText=`Flag: ${el.dataset.answer}`
-				   fetch_chal(el.dataset.id);
+
+				   fetch_chal(parseInt(el.dataset.id));
 			   })
 		   })
 	   })
@@ -24,39 +25,95 @@ Licensed AGPLv3 Or later (2020)
 		<div class="row m-2">
 			<div class="col-12 text-center">
 				<h2>
-				{{ request.user }}'s Solves
+				{{ username }}'s Solves
 				</h2>
 			</div>
 		</div>
-		{% if num_solves > 1 %}
-		{% for challenge in objects %}
-		<div class="row">
-				<div class="col-md-4">
-					{# The button below will eventually call the /chal route and get the challenge's information more likely than not. #}
-					<button id="challenge_{{ challenge.challenge_id }}" class="w-100 view_challenge btn btn-secondary mb-2 pt-2 p-3" data-answer="{{ challenge.challenge_flag }}" data-id="{{ challenge.challenge_id }}">
-						{{ challenge.challenge_name }} -- {{ challenge.challenge_category }}
-					</button>
+
+		{% if username == request.user.username %}
+			{% if num_solves > 1 %}
+				{% for challenge in objects %}
+				<div class="row">
+						<div class="col-md-4">
+							{# The button below will eventually call the /chal route and get the challenge's information more likely than not. #}
+							<button id="challenge_{{ challenge.challenge_id }}" class="w-100 view_challenge btn btn-secondary mb-2 pt-2 p-3" data-answer="{{ challenge.challenge_flag }}" data-id="{{ challenge.challenge_id }}">
+								{{ challenge.challenge_name }} -- {{ challenge.challenge_category }}
+							</button>
+						</div>
+					</div>
+				{% endfor %}
+			{% elif num_solves == 1  %}
+				<div class="row">
+					<div class="col-md-8">
+						{# The button below will eventually call the /chal route and get the challenge's information more likely than not. #}
+						<button id="challenge_{{ objects.challenge_id }}" class="w-101 view_challenge btn btn-secondary mb-2 pt-2 p-3" data-answer="{{ objects.challenge_flag }}" data-id="{{ objects.challenge_id }}">
+							{{ objects.challenge_name }}  -- {{ objects.challenge_category }}
+						</button>
+					</div>
+				</div>
+			{% else %}
+				<div class="row">
+					<div class="col-md-11 w-100 text-center">
+						<h4>
+							You haven't solved anything yet, get out there and try to solve some!
+						</h4>
+					</div>
+				</div>
+			{% endif %}
+		{% else %}
+			{% if num_solves > 1 %}
+			<div class="row">
+				<div class="col-11">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<td class="text-center w-20"> Challenge Category</td>
+								<td class="text-center w-60"> Challenge Name </td>
+								<td class="text-center w-20"> Points </td>
+							</tr>
+						</thead>
+						<tbody>
+							{% for challenge in objects %}
+								<tr>
+									<td class="text-center w-20"> {{ challenge.challenge_category }}</td>
+									<td class="text-center w-60"> {{ challenge.challenge_name }}</td>
+									<td class="text-center w-20"> {{ challenge.challenge_points }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
 				</div>
 			</div>
-	{% endfor %}
-			{% elif num_solves == 1  %}
+			{% elif num_solves == 1 %}
 			<div class="row">
-				<div class="col-md-8">
-					{# The button below will eventually call the /chal route and get the challenge's information more likely than not. #}
-					<button id="challenge_{{ objects.challenge_id }}" class="w-101 view_challenge btn btn-secondary mb-2 pt-2 p-3" data-answer="{{ objects.challenge_flag }}" data-id="{{ objects.challenge_id }}">
-						{{ objects.challenge_name }}  -- {{ objects.challenge_category }}
-					</button>
+				<div class="col-11">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<td class="text-center w-20"> Challenge Category</td>
+								<td class="text-center w-60"> Challenge Name </td>
+								<td class="text-center w-20"> Points </td>
+							</tr>
+						</thead>
+						<tbody>
+								<tr>
+									<td class="text-center w-20"> {{ objects.challenge_category }}</td>
+									<td class="text-center w-60"> {{ objects.challenge_name }}</td>
+									<td class="text-center w-20"> {{ objects.challenge_points }}</td>
+								</tr>
+						</tbody>
+					</table>
 				</div>
 			</div>
 			{% else %}
-			<div class="row">
-				<div class="col-md-11 w-100 text-center">
-					<h4>
-						You haven't solved anything yet, get out there and try to solve some!
-					</h4>
+				<div class="row">
+					<div class="col-11 text-center">
+						<h3>User has no solves</h3>
+					</div>
 				</div>
-			</div>
+			{% endif %}
 		{% endif %}
+
 	</div>
 
 

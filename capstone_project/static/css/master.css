@@ -7,15 +7,20 @@
 .hidden{
 	display:none;
 }
-
+@media only screen and (min-width:899px){
+	.modal-dialog{
+		max-width: 599px !important;
+	}
+}
 @media only screen and (min-width:1500px){
 	.modal-dialog {
-		max-width: 800px !important;
+		max-width: 900px !important;
 	}
 	.container-lg{
 		max-width: 1300px !important;
 	}
 }
+
 .f-110{
 	font-size:1.10rem !important;
 }
@@ -34,6 +39,7 @@
 .w-40{
 	width: 40% !important;
 }
+
 .modal-body{
     max-height: calc(100vh - 200px);
     overflow-y: auto;
@@ -46,8 +52,8 @@
  * to avoid having double padding causing a scrollbar in the x position.
  */
 .modal-body > .row{
-	margin-left: 0px !important;
-	margin-right: 0px !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
 }
 
 /**

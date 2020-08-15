@@ -1,5 +1,7 @@
 #  Macarthur Inbody <admin-contact@transcendental.us>
 #  Licensed under LGPLv3 Or Later (2020)
+from .crypt_rsa import *
+
 
 def make_rsa(plaintext: str) -> tuple:
 	"""
@@ -119,7 +121,7 @@ def make_common_mod(plaintext: str) -> tuple:
 	c1 = hex(c1).replace('L', '')
 	e2 = calc_e(12, l_n)
 	c2 = rsa_encrypt(M, e2, n)
-	c2 = hex(c2).replace('L', '');
+	c2 = hex(c2).replace('L', '')
 	n = hex(n).replace('L', '')
 	description = f"""<p>The Transcendentalists have given you another challenge. This time they want you to give them the secret phrase. Once again they say this is Elementary for you to solve.</p>
 <br />

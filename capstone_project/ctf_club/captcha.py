@@ -1,8 +1,9 @@
 #  Macarthur Inbody <admin-contact@transcendental.us>
 #  Licensed under LGPLv3 Or Later (2020)
+from datetime import datetime, timedelta
 from io import BytesIO
 from random import randint
-from datetime import datetime, timedelta
+
 
 def simple_math() -> tuple:
 	"""
@@ -16,6 +17,7 @@ def simple_math() -> tuple:
 	b = randint(0, 12)
 	ans = 0
 	captcha_str = ''
+	op = ''
 	method = randint(0, 3)
 
 	if method == 0:
@@ -60,7 +62,8 @@ def img_captcha():
 
 	:return: str:correct_letters,str:color_name, str:img_str
 	"""
-	from PIL import Image, ImageDraw, ImageFont, ImagePalette
+
+	from PIL import Image, ImageDraw, ImageFont
 	from random import randint
 	import base64
 	charset = 'ybndrfg8ejkmcpqxot1uwisza345h769'
@@ -114,6 +117,7 @@ def generate_captchas(request: object) -> tuple:
 	:param request: The UWSGI Request object.
 	:return: str:math_msg, str:color_name, str:img_str
 	"""
+
 	time = datetime.utcnow() + timedelta(seconds=45)
 	# print(time.timestamp())
 	request.session['captcha_expires'] = time.timestamp()
@@ -139,6 +143,7 @@ def check_captchas(request: object, user_letters: str, user_math_ans: int) -> bo
 	:param user_math_ans: The answer the user provided to us.
 	:return:
 	"""
+
 	math_msg = ''
 	color_name = ''
 	img_str = ''

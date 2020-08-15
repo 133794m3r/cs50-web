@@ -21,9 +21,8 @@ Licensed AGPLv3 Or later (2020)
 		ans_el.value = '';
 		submit("/captcha/",content,resp=>{
 			if(resp.ratelimited){
-				let alert = `<div class="alert alert-danger alert-dismissible fade show" role="alert" id="alert_item"> Answer not checked. you need to slow down your are submitting too fast.</div>`
-				document.getElementById('alert_msg_captcha').innerHTML = alert;
-				window.setTimeout((old_top)=>{
+			 document.getElementById('alert_msg_captcha').innerHTML = `<div class="alert alert-danger alert-dismissible fade show" role="alert" id="alert_item"> Answer not checked. you need to slow down your are submitting too fast.</div>`;
+				window.setTimeout(()=>{
 					$('#alert_item').alert('close');
 				},3500);
 			}
@@ -35,9 +34,8 @@ Licensed AGPLv3 Or later (2020)
 				el2.innerHTML = resp.color_name;
 				el2.setAttribute('style', `background:white;font-family:monospace;font-weight:bold; color:${resp.color_name}`);
 				document.getElementById('text_img').setAttribute("src","data:image/png;base64,"+resp.img_str);
-				let alert = `<div class="alert alert-warning alert-dismissible fade show" role="alert" id="alert_item"> ${resp.msg}</div>`
-				document.getElementById('alert_msg_captcha').innerHTML = alert;
-				window.setTimeout((old_top)=>{
+			 	document.getElementById('alert_msg_captcha').innerHTML = `<div class="alert alert-warning alert-dismissible fade show" role="alert" id="alert_item"> ${resp.msg}</div>`;
+				window.setTimeout(()=>{
 					$('#alert_item').alert('close');
 				},3500);
 			}

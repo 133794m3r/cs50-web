@@ -1,4 +1,3 @@
-import re
 from .crypt_math import *
 """
 Crypto Lab Library - Hill Module
@@ -35,7 +34,7 @@ def matrix_to_list_string(input_str,input_str_len):
 
 
 def hill_decrypt(input_str,key):
-	decryption_key=matrix_inv(key,26)
+	decryption_key= matrix_inv(key, 26)
 	#Encryption and decryption are the same with just the key being different.
 	return hill_encrypt(input_str,decryption_key)
 
@@ -48,7 +47,7 @@ def hill_encrypt(input_str,key):
 	pt=fill_matrix(pt,numeric,input_str_matrices)
 
 	for i in range(input_str_matrices):
-		ct[i]=matrix_mul(key,pt[i],26)
+		ct[i]= matrix_mul(key, pt[i], 26)
 
 	return matrix_to_list_string(ct,input_str_matrices)
 

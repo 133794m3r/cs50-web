@@ -85,6 +85,26 @@ padding:3px;
 					</ul>
 				</li>
 				<li>
+					<h4> Leaderboard </h4>
+					<ul>
+						<li> All users are ranked when you view the leaderboard. It shows the user's name and a link to their profile. They are just ranked by points.</li>
+					</ul>
+				</li>
+				<li>
+					<h4>User Control Panel</h4>
+					<ul>
+						<li> The user is able to update their password and also enable TFA.</li>
+						<li> Further the same route is re-used when the person goes to a user's profile. The username that's selected shows their points and also a link to their solves.</li>
+					</ul>
+				</li>
+				<li>
+					<h4>Solves Page</h4>
+					<ul>
+						<li>If the user is viewing their own solves. Then they can see the challenge modal and also the flags that they solved.</li>
+						<li>If the user is viewing someone else's solves then it's simply shown a list with the challenge name, category and points shown.</li>
+					</ul>
+				</li>
+				<li>
 					<h4> All views are protected against CSRF</h4>
 					<ul>
 						<li> All views require a CSRF token, and all cookies can only be sent via HTTPs by the browser.</li>

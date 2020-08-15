@@ -1,22 +1,20 @@
 #all of the django specific stuff.
-from django.core import serializers
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db import IntegrityError
-from django.shortcuts import  render
-from django.http import JsonResponse, HttpResponseRedirect,HttpResponse,HttpResponseNotFound,Http404,FileResponse
-from django.urls import reverse
-from django.contrib.auth import authenticate,login,logout,update_session_auth_hash
-from django.contrib.auth.decorators import  login_required
-from django.views.decorators.http import require_http_methods
-
-#JSON items.
-from json import loads as json_decode
+import re
 from json import dumps as json_encode
+# JSON items.
+from json import loads as json_decode
 
-#ratelimiter
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse, Http404, FileResponse
+from django.shortcuts import render
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods
+# ratelimiter
 from ratelimit.decorators import ratelimit
 
-from .captcha import simple_math, img_captcha, check_captchas, generate_captchas
+from .captcha import check_captchas, generate_captchas
 from .totp import TotpAuthorize
 
 """
@@ -300,7 +298,7 @@ def hint(request,hint_id):
 @require_http_methods(["GET","POST"])
 # @ratelimit(key='user',rate='20/m',method=ratelimit.UNSAFE)
 def control_panel(request,username):
-
+	msg = ''
 	if request.user.is_authenticated:
 		if request.method == "POST":
 			content = json_decode(request.body)
@@ -332,10 +330,14 @@ def control_panel(request,username):
 
 @ratelimit(key='user',rate='30/m')
 @login_required(login_url="login")
-def solves(request):
-	all_solves = {}
-	num_solves = 0
-	user_solves = Solves.objects.filter(user=request.user)
+def solves(request,username = ''):
+
+	if username == '':
+		user_solves = Solves.objects.filter(user=request.user)
+		username = request.user.username
+	else:
+		user_solves = Solves.objects.filter(user__username=username)
+	print(user_solves)
 	if user_solves.first() is None:
 		all_solves = {}
 		num_solves = 0
@@ -343,7 +345,7 @@ def solves(request):
 		all_solves = jsonify_queryset(user_solves.all())
 		num_solves = user_solves.count()
 
-	return render(request,"solves.html",{"objects":all_solves,'num_solves':num_solves})
+	return render(request,"solves.html",{"objects":all_solves,'num_solves':num_solves,'username':username})
 
 
 @login_required(login_url="login")
@@ -359,18 +361,17 @@ def challenge_admin(request):
 		return HttpResponseRedirect(reverse('two_factor'))
 
 	if request.method == "POST":
-		file = None
-		description = ''
-		flag = ''
+		files = None
 		content = json_decode(request.body)
 		name = content['name']
 		category = content['category']
+		print(content)
 		if content['sn'] == 'fizzbuzz':
-			min = content['min']
-			max = content['max']
-			description,flag = CHALLENGE_FUNCS[content['sn']](min,max)
+			minimum = content['min']
+			maximum = content['max']
+			description,flag = CHALLENGE_FUNCS[content['sn']](minimum, maximum)
 		elif content['sn'] == 'master_hacker':
-			description,flag, file = CHALLENGE_FUNCS[content['sn']]()
+			description, flag, files = CHALLENGE_FUNCS[content['sn']]()
 		else:
 			plaintext = content['plaintext']
 			if content['sn'] in ["affine","hill"]:
@@ -403,24 +404,22 @@ def challenge_admin(request):
 				points = points,
 				category = Categories.objects.get(name=category)
 			)
-			if file is not None:
+			if files is not None:
 				file_obj = Files.objects.create(
-					filename=file
+					filename=files
 				)
 				challenge.files.add(file_obj)
-		#print({'description':description,'flag':flag,'file':file})
-		return JsonResponse({'description':description,'flag':flag,'file':file})
+		#print({'description':description,'flag':flag,'files':files})
+		return JsonResponse({'description':description,'flag':flag,'files':files})
 	else:
 		challenges = Challenges.objects.all()
 		all_challenges = []
 		challenges_used = []
 		base_challenges = []
 		varieties_used = {}
-		variety = None
 		for challenge in challenges:
 
 			#Remove the - {VARIETY} part.
-			tmp_name = ''
 			#This is a hack until I modify the model to incldue the "variety" flag.
 			if '-' in challenge.name and challenge.name[-1].isdigit():
 				tmp_name = challenge.name[:-4]
@@ -530,6 +529,7 @@ def hint_admin(request,challenge_name):
 				level=content['level'],
 				challenge_id = Challenges.objects.get(name=challenge_name).id
 			)
+			new_hint.save()
 		else:
 			edit_hint = Hints.objects.get(pk=content['id'])
 			edit_hint.description = content['description']
@@ -560,18 +560,22 @@ def admin_view(request):
 @require_http_methods(["GET"])
 def high_scores(request):
 	top_users = User.objects.values('points','username','id').order_by('-points','username')[:10]
-	was_limited = getattr(request, 'limited', False)
-	return JsonResponse(jsonify_queryset(top_users),safe=False)
+#	was_limited = getattr(request, 'limited', False)
+	user_ranks = rank_users(top_users)
 
+	return JsonResponse(user_ranks,safe=False)
+
+@require_http_methods(["GET"])
+def leaderboard(request):
+	top_users = User.objects.values('points', 'username', 'id').order_by('-points', 'username')[:10]
+	user_ranks = rank_users(top_users)
+
+	return render(request,"leaderboard.html",{"ranks":user_ranks})
 
 @ratelimit(key='ip',rate='30/m',method=ratelimit.UNSAFE)
 @require_http_methods(["GET","POST"])
 def captcha(request):
 	captcha_msg = ''
-	color_name = ''
-	img_str = ''
-	letters_ans = None
-	usr_ans = None
 	error = False
 	ratelimited = False
 
@@ -623,8 +627,8 @@ def captcha(request):
 
 
 @login_required(login_url="login")
-def files(request,filename):
-	return FileResponse(open(f'files/{filename}','rb'))
+def file(request,filename):
+	return FileResponse(open(f'file/{filename}','rb'))
 
 
 # TFA related views.

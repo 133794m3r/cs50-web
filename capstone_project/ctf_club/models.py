@@ -92,7 +92,7 @@ class Solves(models.Model):
 	def to_dict(self):
 		__chal = self.challenge.to_dict()
 		__user = self.user.to_dict()
-		return {'challenge_id':__chal['id'],'challenge_name':__chal['name'],'challenge_category':__chal['category'],'challenge_flag':__chal['flag'],'username':__user['username']}
+		return {'challenge_id':__chal['id'],'challenge_name':__chal['name'],'challenge_category':__chal['category'],'challenge_flag':__chal['flag'],'challenge_points':__chal['points'],'username':__user['username']}
 
 	def __repr__(self):
 		return 'Solves(id={!r},challenge={!r},user={!r},timestamp={!r})'.format(self.id,self.challenge,self.user,self.timestamp)

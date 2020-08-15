@@ -1,3 +1,6 @@
+from random import randint
+
+
 def make_fizzbuzz(start: int, end: int) -> tuple:
 	"""
 	Makes a challenge based upon a basic fizzbuzz challenge for the users to try to solve.
@@ -64,9 +67,9 @@ def make_fizzbuzz(start: int, end: int) -> tuple:
 
 		flag = f"{num1_counts},{num2_counts},{num3_counts},{other_counts}"
 		summed = 0
-		num1_counts = 0;
-		num2_counts = 0;
-		num3_counts = 0;
+		num1_counts = 0
+		num2_counts = 0
+		num3_counts = 0
 		other_counts = 0
 		for i in range(start, (num1 * num2) + 10):
 			if not (i % num3):

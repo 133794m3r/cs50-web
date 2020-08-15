@@ -13,7 +13,7 @@ Licensed AGPLv3 Or later (2020)
 
 			document.querySelectorAll('.view_challenge').forEach(el=>{
 				el.addEventListener('click',()=>{
-					fetch_chal(el.dataset.id);
+					fetch_chal(parseInt(el.dataset.id));
 				})
 			})
 			 document.getElementById('solve_chal').addEventListener('click',event=>{
