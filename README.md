@@ -56,9 +56,16 @@ No version control is done for pages though.
 [Youtube Demo](https://www.youtube.com/watch?v=5D5pMcwMZUs)
 
 # Capstone
-This folder contains my capstone project. As it is all my own code it is fully open source and licensed under the LGPLv3.
+
+## New Repo for complete code base.
+The current repo is here https://github.com/133794m3r/django_autoctf
+The code there is up to date and also includes server configs.
+
+# Original info below here.
+This folder contains my capstone project. As it is all my own code it is fully open source and licensed under the LGPLv3. 
 
 The capstone implements a basic shell of a CTF platform. No highscores right now, nor point tracking in it's current form. But it is mainly there because the challenges can be generated programmatically and updated accordingly. The whole site can(mostly) be done w/o requiring a refresh.
+
 
 ### Libraries/technologies
 Django, Scrypt, SQLite*, Modern JavaScript(fetch,let,const, foreach, in etc), jQuery, Bootstrap5(CSS/JS), Python, Sympy.
